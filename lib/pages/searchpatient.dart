@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SearchPatientPage extends StatefulWidget{
-  const SearchPatientPage({Key? key}) : super(key: key);
+  final String residentId;
+  const SearchPatientPage({Key? key, required this.residentId}) : super(key: key);
 
   @override
   State<SearchPatientPage> createState() => _SearchPatientPageState();

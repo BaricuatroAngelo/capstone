@@ -102,13 +102,13 @@ class PatientPhysicalExam {
   final String phrExtremitiesCyanosis;
   final String phrExtremitiesPetachiae;
   final int phrCapillaryRefillTime;
-  final String phrSkinWNL;
-  final String phrSkinRash;
-  final String phrSkinEccymosis;
-  final String phrSkinNodules;
-  final String phrSkinUlcer;
-  final String phrAssessment;
-  final String phrPatientId;
+  final bool phrSkinWNL;
+  final bool phrSkinRash;
+  final bool phrSkinEccymosis;
+  final bool phrSkinNodules;
+  final bool phrSkinUlcer;
+  final bool phrAssessment;
+  final bool phrPatientId;
 
   PatientPhysicalExam({
     required this.phrId,

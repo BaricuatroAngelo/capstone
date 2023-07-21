@@ -1,4 +1,7 @@
 import 'package:capstone/loginpage.dart';
+import 'package:capstone/pages/Models/Patient/patient.dart';
+import 'package:capstone/pages/PatientInfoPage.dart';
+import 'package:capstone/pages/medicine_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,10 +14,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: const PatientPage(),
+      routes: {
+        '/medicineSelection' : (context) => const MedicineSelectionPage(),
+      },
     );
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MessagePage extends StatefulWidget{
-  const MessagePage({Key? key}) : super(key: key);
+  final String residentId;
+  const MessagePage({Key? key, required this.residentId}) : super(key: key);
 
   @override
   State<MessagePage> createState() => _MessagePageState();
