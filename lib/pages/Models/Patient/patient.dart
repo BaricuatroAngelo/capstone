@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
 class Patient {
   final String patientId;
   final String firstName;
@@ -20,12 +24,12 @@ class Patient {
   factory Patient.fromJson(Map<String, dynamic> json) {
     return Patient(
       patientId: json['patient_id'],
-      firstName: json['patient_fname'],
-      lastName: json['patient_lname'],
-      middleName: json['patient_mname'],
-      age: json['patient_age'],
+      firstName: json['patient_fName'],
+      lastName: json['patient_lName'],
+      middleName: json['patient_mName'],
+      age: int.parse(json['patient_age']),
       sex: json['patient_sex'],
-      vaccinationStatus: json['vaccination_status'],
+      vaccinationStatus: json['patient_vaccination_stat'],
     );
   }
 }

@@ -42,6 +42,55 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
     }
   }
 
+  Future<void> postSelectedMedicines() async {
+    if (_selectedMedicines.isNotEmpty) {
+      final url = Uri.parse('http://10.0.2.2:8000/api/InfoMedicine');
+
+      try {
+        final List<Map<String, dynamic>> selectedMedicinesData = [];
+
+        for (var medicine in _selectedMedicines) {
+          selectedMedicinesData.add({
+            'infomedicine_id': 'your-generated-id-here',
+            // Generate a unique ID for each info_medicine entry
+            'medicine_id': medicine.medicineId,
+            // Replace 'medicineId' with the actual property name from the Medicine model
+          });
+        }
+
+        final response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(selectedMedicinesData),
+        );
+
+        if (response.statusCode == 200) {
+          // Selected medicines posted successfully
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Selected medicines posted successfully!'),
+            ),
+          );
+        } else {
+          // Error posting selected medicines
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Failed to post selected medicines. Please try again.'),
+            ),
+          );
+        }
+      } catch (e) {
+        // Error occurred
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred. Please try again later.'),
+          ),
+        );
+      }
+    }
+  }
+
   void selectMedicine(Medicine selectedMedicine) {
     bool isAlreadySelected = _selectedMedicines.contains(selectedMedicine);
     if (!isAlreadySelected) {
@@ -57,15 +106,15 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
     });
   }
 
-  void navigateToNextPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            ResultsPage(selectedMedicines: _selectedMedicines),
-      ),
-    );
-  }
+  // void navigateToNextPage() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) =>
+  //           SelectedMeds(selectedMedicines: _selectedMedicines),
+  //     ),
+  //   );
+  // }
 
   void clearAllMedicines() {
     setState(() {
@@ -77,34 +126,35 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffe3f9ff),
-      appBar: AppBar(
-        title: const Text('Medicine Selection'),
-      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding:
+              const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
                 child: Column(
                   children: [
-                    titleText,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(Icons.arrow_back),
+                        ),
+                        titleText,
+                        Icon(Icons.menu),
+                      ],
+                    ),
                     const SizedBox(
                       height: 10,
                     ),
                     Container(
                       width: 400,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xff99e9ff).withOpacity(0.4),
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                      decoration: selectBoxDecor,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: DropdownButton<Medicine>(
@@ -121,7 +171,12 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
                               .map((medicine) {
                             return DropdownMenuItem<Medicine>(
                               value: medicine,
-                              child: Text(medicine.medicineName),
+                              child: Column(
+                                children: [
+                                  Text(medicine.medicineName),
+                                  Text(medicine.medicineDosage),
+                                ],
+                              ),
                             );
                           }).toList(),
                         ),
@@ -132,17 +187,8 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
               ),
               const SizedBox(height: 20),
               Container(
-                height: 570,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xff99e9ff).withOpacity(0.4),
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+                height: 650,
+                decoration: selectBoxDecor,
                 child: _selectedMedicines.isNotEmpty
                     ? ListView.separated(
                         separatorBuilder: (context, index) => const Divider(),
@@ -152,11 +198,13 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
                           return ListTile(
                             title: Text(
                               medicine.medicineName,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             subtitle: Text(
                               medicine.medicineBrand,
-                              style: const TextStyle(fontWeight: FontWeight.w500),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w500),
                             ),
                             trailing: IconButton(
                               icon: const Icon(Icons.remove),
@@ -174,13 +222,11 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   InkWell(
-                    onTap:
-                        _selectedMedicines.isEmpty ? null : navigateToNextPage,
+                    onTap: () {},
                     child: updateButton,
                   ),
                   InkWell(
-                    onTap:
-                        _selectedMedicines.isEmpty ? null : clearAllMedicines,
+                    onTap: () {},
                     child: clearButton,
                   ),
                 ],

@@ -1,26 +1,25 @@
 import 'dart:ui';
 
+import 'package:capstone/pages/chiefResPages/chiefResLogin.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/design/containers/widgets/profileInfoWidget.dart';
-import '../design/containers/ProfileDesignWidget.dart';
-import 'Models/resident.dart';
-import 'loginpage.dart';
+import '../Models/resident.dart';
 
-class ProfilePage extends StatefulWidget {
+class ChiefProfilePage extends StatefulWidget {
   final String? authToken;
   final String residentId;
 
-  const ProfilePage(
+  const ChiefProfilePage(
       {Key? key, required this.residentId, required this.authToken})
       : super(key: key);
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<ChiefProfilePage> createState() => ChiefProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class ChiefProfilePageState extends State<ChiefProfilePage> {
 
   double _calculateContainerHeight(BuildContext context) {
     // Get the screen height
@@ -39,7 +38,6 @@ class _ProfilePageState extends State<ProfilePage> {
       return 300;
     }
   }
-
   double _calculateContainerWidth(BuildContext context) {
     // Get the screen height
     final screenWidth = MediaQuery.of(context).size.height;
@@ -58,7 +56,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-
   double _calculateFontSize(BuildContext context) {
     // Get the screen height
     final screenHeight = MediaQuery.of(context).size.height;
@@ -73,9 +70,10 @@ class _ProfilePageState extends State<ProfilePage> {
       return 18;
     } else {
       // Larger tablets and devices
-      return 22;
+      return 28;
     }
   }
+
   Resident? _resident;
   bool _isLoading = true;
 
@@ -87,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _fetchResidentData() async {
     final url =
-        Uri.parse('http://10.0.2.2:8000/api/residents/${widget.residentId}');
+    Uri.parse('http://10.0.2.2:8000/api/residents/${widget.residentId}');
 
     try {
       final response = await http
@@ -129,11 +127,11 @@ class _ProfilePageState extends State<ProfilePage> {
         pageBuilder: (context, animation, secondaryAnimation) {
           return FadeTransition(
             opacity: animation,
-            child: const LoginPage(),
+            child: const ChiefResLogin(),
           );
         },
       ),
-      (Route<dynamic> route) => false,
+          (Route<dynamic> route) => false,
     );
   }
 
@@ -206,12 +204,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ],
-            const Padding(padding: EdgeInsets.only( top: 60,),
+            Padding(padding: EdgeInsets.only( top: 60,),
                 child: Center(
                   child: Text(
                     'Profile Page',
                     style: TextStyle(
-                      fontSize: 32,
+                      fontSize: _calculateFontSize(context),
                       fontWeight: FontWeight.w700,
                     ),
                   ),

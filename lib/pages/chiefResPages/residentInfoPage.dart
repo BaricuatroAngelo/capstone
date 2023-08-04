@@ -1,4 +1,5 @@
 import 'package:capstone/design/containers/containers.dart';
+import 'package:capstone/pages/Models/resident.dart';
 import 'package:capstone/pages/ResultsPage.dart';
 import 'package:capstone/pages/selectedMeds.dart';
 import 'package:flutter/material.dart';
@@ -6,40 +7,37 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../design/containers/text.dart';
-import 'Models/Patient/patient.dart';
-
-class PatientInfoPage extends StatefulWidget {
+class ResidentInfoPage extends StatefulWidget {
   final String authToken;
-  final String patientId;
+  final String residentId;
 
-  const PatientInfoPage(
-      {super.key, required this.patientId, required this.authToken});
+  const ResidentInfoPage(
+      {super.key, required this.residentId, required this.authToken});
 
   @override
-  PatientInfoPageState createState() => PatientInfoPageState();
+  ResidentInfoPageState createState() => ResidentInfoPageState();
 }
 
-class PatientInfoPageState extends State<PatientInfoPage> {
-  late final Patient patient;
+class ResidentInfoPageState extends State<ResidentInfoPage> {
+  late final Resident resident;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchPatientDetails();
+    _fetchResidentDetails();
   }
 
-  Future<void> _fetchPatientDetails() async {
+  Future<void> _fetchResidentDetails() async {
     final url =
-        Uri.parse('http://10.0.2.2:8000/api/PatientHealthRecord/${widget.patientId}');
+        Uri.parse('http://10.0.2.2:8000/api/residents/${widget.residentId}');
     try {
       final response = await http
           .get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         setState(() {
-          patient = Patient.fromJson(responseData);
+          resident = Resident.fromJson(responseData);
           _isLoading = false;
         });
       } else {
@@ -71,24 +69,24 @@ class PatientInfoPageState extends State<PatientInfoPage> {
     final double screenHeight = MediaQuery.of(context).size.height;
     final centerPosition = screenHeight / 2;
     final middleNameInitial =
-        patient.middleName != 'null' && patient.middleName.isNotEmpty
-            ? '${patient.middleName[0]}. '
+        resident.residentMName != 'null' && resident.residentMName.isNotEmpty
+            ? '${resident.residentMName[0]}. '
             : '';
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff66d0ed),
         elevation: 0.0,
         toolbarHeight: 80,
-        title: Padding  (
+        title: Padding(
           padding: EdgeInsets.only(left: (screenWidth - 290) / 2),
-          child: const Text('Patient Detail'),
+          child: const Text('Resident Profile'),
         ),
       ),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : patient != null
+          : resident != null
               ? Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -98,15 +96,15 @@ class PatientInfoPageState extends State<PatientInfoPage> {
                       decoration: personName,
                     ),
                     Positioned(
-                      left: (screenWidth - 300) / 2,
-                      top: 180,
+                      left: (screenWidth - 400) / 2,
+                      top: 50,
                       child: Container(
-                        height: 300,
-                        width: 300,
-                        decoration: const BoxDecoration(
+                        height: 400,
+                        width: 400,
+                        decoration: BoxDecoration(
                           color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: const [
                             BoxShadow(
                               color: Color(0xff99E9FF),
                               blurRadius: 4,
@@ -117,19 +115,19 @@ class PatientInfoPageState extends State<PatientInfoPage> {
                       ),
                     ),
                     Positioned(
-                      top: centerPosition - 100,
+                      top: centerPosition - 120,
                       left: 0,
                       right: 0,
                       child: Center(
                         child: Text(
-                          '${patient.firstName} $middleNameInitial${patient.lastName}',
+                          '${resident.residentFName} $middleNameInitial${resident.residentLName}',
                           style: const TextStyle(
                               fontSize: 30, fontWeight: FontWeight.w700),
                         ),
                       ),
                     ),
                     Positioned(
-                      top: centerPosition - 57,
+                      top: centerPosition - 67,
                       left: 0,
                       right: 0,
                       child: SizedBox(
@@ -138,31 +136,13 @@ class PatientInfoPageState extends State<PatientInfoPage> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Row(
-                                children: [
-                                  const SizedBox(
-                                    height: 50,
-                                    width: 50,
-                                    child: Image(
-                                      image: AssetImage('asset/syringee.png'),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    patient!.vaccinationStatus,
-                                    style: const TextStyle(fontSize: 24),
-                                  ),
-                                ],
-                              ),
                               Text(
-                                'Age: ${patient.age.toString()}',
+                                'Res. ID: ${resident.residentId}',
                                 style: const TextStyle(fontSize: 24),
                               ),
                               Container(
                                 height: 50,
-                                width: 110,
+                                width: 190,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
                                   color:
@@ -173,7 +153,7 @@ class PatientInfoPageState extends State<PatientInfoPage> {
                                       horizontal: 10),
                                   child: Center(
                                     child: Text(
-                                      'Sex: ${patient.sex}',
+                                      'Dept. ID: ${resident.departmentId}',
                                       style: const TextStyle(
                                           fontSize: 24,
                                           color: Colors.red,
@@ -184,53 +164,6 @@ class PatientInfoPageState extends State<PatientInfoPage> {
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: (screenHeight - (-50)) / 2,
-                      left: 30,
-                      child: const Text(
-                        'Doctor Notes',
-                        style: TextStyle(fontSize: 30),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                          left: (screenWidth - (-700)) / 2,
-                          top: (screenHeight - (-55)) / 2,
-                          right: 30),
-                      child: InkWell(
-                        onTap: () {},
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                            color: const Color(0xffE3F9FF),
-                          ),
-                          child: const Icon(Icons.edit),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                          left: 30,
-                          right: 30,
-                          top: (screenHeight - (-170)) / 2),
-                      child: Container(
-                        width: screenWidth,
-                        height: (screenHeight - 500) / 2,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: Colors.white,
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0xff99E9FF),
-                              blurRadius: 4,
-                              offset: Offset(0, 4),
-                            ),
-                          ]
                         ),
                       ),
                     ),

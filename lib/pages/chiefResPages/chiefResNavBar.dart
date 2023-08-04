@@ -1,23 +1,29 @@
 import 'package:capstone/pages/ProfilePage.dart';
+import 'package:capstone/pages/chiefResPages/chiefHomePage.dart';
+import 'package:capstone/pages/chiefResPages/chiefMessage.dart';
+import 'package:capstone/pages/chiefResPages/chiefResProfile.dart';
+import 'package:capstone/pages/chiefResPages/searchDoctors.dart';
 import 'package:capstone/pages/messaging.dart';
 import 'package:capstone/pages/r_homepage.dart';
 import 'package:capstone/pages/searchpatient.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:animations/animations.dart';
 import 'package:capstone/pages/Models/resident.dart';
 
 // ignore_for_file: prefer_const_literals_to_create_immutables
 // ignore_for_file: prefer_const_constructors
 
-class NavBar extends StatefulWidget {
+class chiefNavBar extends StatefulWidget {
   final String residentId;
-  const NavBar({Key? key, required this.residentId}) : super(key: key);
+  final String authToken;
+  const chiefNavBar({Key? key, required this.residentId, required this.authToken}) : super(key: key);
 
   @override
-  State<NavBar> createState() => _NavBarState();
+  State<chiefNavBar> createState() => _chiefNavBarState();
 }
 
-class _NavBarState extends State<NavBar> {
+class _chiefNavBarState extends State<chiefNavBar> {
   int currentIndex = 0;
   List<Widget> screens = [];
 
@@ -25,10 +31,10 @@ class _NavBarState extends State<NavBar> {
   void initState() {
     super.initState();
     screens = [
-      HomePage(residentId: widget.residentId),
-      MessagePage(residentId: widget.residentId),
-      SearchPatientPage(residentId: widget.residentId),
-      ProfilePage(residentId: widget.residentId),
+      ChiefHomePage(residentId: widget.residentId, authToken: widget.authToken),
+      ChiefMessagePage(residentId: widget.residentId, authToken: widget.authToken),
+      SearchResidentPage(residentId: widget.residentId, authToken: widget.authToken,),
+      ChiefProfilePage(residentId: widget.residentId, authToken: widget.authToken),
     ];
   }
 
@@ -41,7 +47,22 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: screens.elementAt(currentIndex),
+      body: PageTransitionSwitcher(
+        duration: const Duration(milliseconds: 600), // Set the duration of the transition
+        transitionBuilder: (
+            Widget child,
+            Animation<double> primaryAnimation,
+            Animation<double> secondaryAnimation,
+            ) {
+          return SharedAxisTransition(
+            animation: primaryAnimation,
+            secondaryAnimation: secondaryAnimation,
+            transitionType: SharedAxisTransitionType.vertical,
+            child: child, // Choose the desired transition type
+          );
+        },
+        child: screens.elementAt(currentIndex),
+      ),
       bottomNavigationBar: GNav(
         onTabChange: _navigateBottomBar,
         backgroundColor: const Color(0xff66d0ed),

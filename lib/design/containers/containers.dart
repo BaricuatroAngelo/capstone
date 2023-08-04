@@ -1,63 +1,21 @@
+
+
 import 'package:flutter/material.dart';
 
-// final TextEditingController _usernameController = TextEditingController();
-// final TextEditingController _passwordController = TextEditingController();
-//
-// final userContainerDesign = Container(
-//     height: 70,
-//     width: double.infinity,
-//     decoration: BoxDecoration(
-//         borderRadius: BorderRadius.circular(20),
-//         color: Colors.white,
-//         boxShadow: const [
-//           BoxShadow(
-//             color: Color(0xff99E9FF),
-//             blurRadius: 4,
-//             offset: Offset(0, 4),
-//           ),
-//         ]),
-//     child: Padding(
-//       padding: const EdgeInsets.symmetric(horizontal: 20),
-//       child: TextFormField(
-//         controller: _usernameController,
-//         decoration: const InputDecoration(labelText: 'Username'),
-//         validator: (value) {
-//           if (value!.isEmpty) {
-//             return 'Please enter your username';
-//           }
-//           return null;
-//         },
-//       ),
-//     ));
-//
-// final passwordContainerDesign = Container(
-//   height: 70,
-//   width: double.infinity,
-//   decoration: BoxDecoration(
-//       borderRadius: BorderRadius.circular(20),
-//       color: Colors.white,
-//       boxShadow: const [
-//         BoxShadow(
-//           color: Color(0xff99E9FF),
-//           blurRadius: 4,
-//           offset: Offset(0, 4),
-//         ),
-//       ]),
-//   child: Padding(
-//     padding: const EdgeInsets.symmetric(horizontal: 20),
-//     child: TextFormField(
-//       controller: _passwordController,
-//       obscureText: true,
-//       decoration: const InputDecoration(labelText: 'Password'),
-//       validator: (value) {
-//         if (value!.isEmpty) {
-//           return 'Please enter your password';
-//         }
-//         return null;
-//       },
-//     ),
-//   ),
-// );
+final personName = BoxDecoration(
+    borderRadius: const BorderRadius.only(
+      bottomLeft: Radius.circular(60),
+      bottomRight: Radius.circular(60),
+    ),
+    gradient: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        const Color(0xff66d0ed).withOpacity(0.4),
+        const Color(0xff82eefd),
+      ],
+    ),
+  );
 
 final logoContainer = Container(
   height: 200,
@@ -175,22 +133,150 @@ final medicinePage = Container(
   ),
 );
 
-final resultsPage = Container(
-  height: 90,
-  width: 90,
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(30),
-    color: Colors.white,
-    boxShadow: const [
-      BoxShadow(
-        color: Color(0xff99E9FF),
-        blurRadius: 4,
-        offset: Offset(0, 4),
+final resultsPageBtn = Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 10),
+  child: Container(
+    width: 150,
+    height: 50,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(50),
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xff99e9ff).withOpacity(0.4),
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: const Center(
+      child: Text(
+        'Results',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontWeight: FontWeight.w400,
+          fontSize: 20,
+          color: Colors.black,
+        ),
       ),
-    ],
+    ),
   ),
-  child: const Icon(
-    Icons.medical_information,
-    size: 70,
+);
+
+final medicinePageBtn = Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 10),
+  child: Container(
+    width: 170,
+    height: 50,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(50),
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xff99e9ff).withOpacity(0.4),
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: const Center(
+      child: Text(
+        'Medicine Page',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontWeight: FontWeight.w400,
+          fontSize: 20,
+          color: Colors.black,
+        ),
+      ),
+    ),
   ),
+);
+
+final patientPhoto = Positioned(
+    left: 200,
+    top: 500,
+    child: Center(
+      child: Container(
+        height: 170,
+        width: 170,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xff99E9FF),
+              blurRadius: 4,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+      ),
+    ));
+
+final boxDecor = BoxDecoration(
+  color: Colors.white,
+  borderRadius: BorderRadius.circular(20),
+  boxShadow: [
+    BoxShadow(
+      color: const Color(0xff99E9FF).withOpacity(0.4),
+      blurRadius: 5,
+      offset: const Offset(0, 4),
+    ),
+  ],
+);
+
+final selectBoxDecor = BoxDecoration(
+  color: Colors.white,
+  borderRadius: BorderRadius.circular(30),
+  boxShadow: [
+    BoxShadow(
+      color: const Color(0xff99e9ff).withOpacity(0.4),
+      offset: const Offset(0, 4),
+    ),
+  ],
+);
+
+final loginFieldDesign = BoxDecoration(
+  borderRadius: BorderRadius.circular(20),
+  color: Colors.white,
+  boxShadow: const [
+    BoxShadow(
+      color: Color(0xff99E9FF),
+      blurRadius: 4,
+      offset: Offset(0, 4),
+    ),
+  ],
+);
+
+const space = SizedBox(
+  height: 30,
+);
+const assignedRoom = Padding(
+  padding: EdgeInsets.only(top: 20),
+  child: Text(
+    'Your Assigned Rooms:',
+    style: TextStyle(
+      fontSize: 18,
+      color: Colors.black, // Use primary color
+    ),
+  ),
+);
+
+const homeContainer = BoxDecoration(
+  color: Colors.white,
+  borderRadius: BorderRadius.only(
+    topLeft: Radius.circular(30),
+    topRight: Radius.circular(30),
+  ),
+);
+
+const loadingContainer = BoxDecoration(
+  color: Colors.white,
+  boxShadow: [
+    BoxShadow(
+      color: Color(0xff99E9FF),
+      blurRadius: 4,
+      offset: Offset(0, 4),
+    ),
+  ],
+  shape: BoxShape.circle,
 );

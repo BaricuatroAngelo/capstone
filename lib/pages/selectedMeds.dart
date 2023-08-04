@@ -1,64 +1,72 @@
+import 'package:capstone/design/containers/containers.dart';
 import 'package:capstone/design/containers/text.dart';
+import 'package:capstone/pages/medicine_page.dart';
 import 'package:flutter/material.dart';
 
 import 'Models/medicine.dart';
 
-class ResultsPage extends StatelessWidget {
-  final List<Medicine> selectedMedicines;
+class SelectedMeds extends StatefulWidget {
+  final String patientId;
+  const SelectedMeds({super.key, required this.patientId});
 
-  const ResultsPage({super.key, required this.selectedMedicines});
+  @override
+  SelectedMedsState createState() => SelectedMedsState();
+}
 
+class SelectedMedsState extends State<SelectedMeds> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffe3f9ff),
+      backgroundColor: const Color(0xffE3F9FF),
       appBar: AppBar(
         title: const Text('Selected Medicines'),
-        centerTitle: true,
-        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            titleText,
-            const SizedBox(height: 20),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 5,
-                      offset: const Offset(0, 4),
+      body: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Positioned(
+            top: 10,
+            left: 20,
+            child: titleText,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
+            child: Container(
+              height: 650,
+              width: MediaQuery.of(context).size.width,
+              color: Colors.white,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 700, right: 20, left: 20),
+            child: Center(
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const MedicineSelectionPage()));
+                },
+                child: Container(
+                  height: 50,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(30)),
+                    color: Colors.white,
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Add Medicine',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ],
-                ),
-                child: ListView.builder(
-                  itemCount: selectedMedicines.length,
-                  itemBuilder: (context, index) {
-                    final medicine = selectedMedicines[index];
-                    return ListTile(
-                      title: Text(
-                        medicine.medicineName,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        medicine.medicineBrand,
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                    );
-                  },
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
-
