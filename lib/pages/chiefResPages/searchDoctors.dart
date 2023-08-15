@@ -16,7 +16,10 @@ import '../../providers/constants.dart';
 class SearchResidentPage extends StatefulWidget {
   final String authToken;
   final String residentId;
-  const SearchResidentPage({Key? key, required this.authToken, required this.residentId}) : super(key: key);
+
+  const SearchResidentPage(
+      {Key? key, required this.authToken, required this.residentId})
+      : super(key: key);
 
   @override
   State<SearchResidentPage> createState() => _SearchResidentPageState();
@@ -38,7 +41,7 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
   }
 
   Future<void> _fetchResidents() async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/residents');
+    final url = Uri.parse('http://172.30.0.28:8000/api/residents');
 
     try {
       final response = await http.get(url);
@@ -51,7 +54,8 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
           setState(() {
             _residents =
                 responseData.map((data) => Resident.fromJson(data)).toList();
-            _residents.removeWhere((resident) => resident.residentId == widget.residentId);
+            _residents.removeWhere(
+                (resident) => resident.residentId == widget.residentId);
             _filteredResidents = List.from(_residents);
             _isLoading = false;
           });
@@ -114,7 +118,10 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
         final fullName =
             '${resident.residentFName} ${resident.residentLName}'.toLowerCase();
         return fullName.contains(query.toLowerCase()) ||
-            resident.residentId.toLowerCase().contains(query.toLowerCase());
+            resident.residentId.toLowerCase().contains(query.toLowerCase()) ||
+            resident.residentUserName
+                .toLowerCase()
+                .contains(query.toLowerCase());
       }).toList();
     });
   }
@@ -140,7 +147,10 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
                 begin: const Offset(1.0, 0.0),
                 end: Offset.zero,
               ).animate(animation),
-              child: ResidentInfoPage(residentId: resident.residentId, authToken: widget.authToken,),
+              child: ResidentInfoPage(
+                residentId: resident.residentId,
+                authToken: widget.authToken,
+              ),
             );
           },
         ),
@@ -159,11 +169,11 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
         backgroundColor: const Color(0xffE3F9FF),
         resizeToAvoidBottomInset: false,
         body: Padding(
-          padding: const EdgeInsets.only(top: 60, left: 20, right: 20),
+          padding: const EdgeInsets.only(top: 60),
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   decoration: selectBoxDecor,
@@ -219,30 +229,54 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
                   ),
                 ),
               ),
+              const SizedBox(
+                height: 50,
+              ),
               Expanded(
-                child: ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _filteredResidents.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 20),
-                  itemBuilder: (context, index) {
-                    final resident = _filteredResidents[index];
-                    return ResidentCard(
-                      resident: resident,
-                      onTap: () {
-                        _onResidentSelected(resident);
-                      },
-                    );
-                  },
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(top: 30, left: 30, right: 30),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Residents',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.separated(
+                            scrollDirection: Axis.vertical,
+                            itemCount: _filteredResidents.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 30),
+                            itemBuilder: (context, index) {
+                              final resident = _filteredResidents[index];
+                              return ResidentCard(
+                                resident: resident,
+                                onTap: () {
+                                  _onResidentSelected(resident);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          tooltip: 'Add Patient',
-          backgroundColor: const Color(0xff66d0ed),
-          child: const Icon(Icons.add),
         ),
       ),
     );

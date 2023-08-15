@@ -1,11 +1,10 @@
 import 'package:capstone/design/containers/containers.dart';
 import 'package:capstone/pages/Models/resident.dart';
-import 'package:capstone/pages/ResultsPage.dart';
-import 'package:capstone/pages/selectedMeds.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import '../../design/containers/widgets/profileInfoWidget.dart';
 
 class ResidentInfoPage extends StatefulWidget {
   final String authToken;
@@ -19,8 +18,10 @@ class ResidentInfoPage extends StatefulWidget {
 }
 
 class ResidentInfoPageState extends State<ResidentInfoPage> {
-  late final Resident resident;
+  Resident? resident;
   bool _isLoading = true;
+  TextEditingController textControllerResidentFName = TextEditingController();
+  TextEditingController textControllerResidentLName = TextEditingController();
 
   @override
   void initState() {
@@ -28,12 +29,51 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
     _fetchResidentDetails();
   }
 
+  @override
+  void dispose() {
+    textControllerResidentFName.dispose();
+    textControllerResidentLName.dispose();
+    // Dispose of other text controllers
+    super.dispose();
+  }
+
+  Future<void> _updateResidentDetails() async {
+    final url =
+    Uri.parse('http://172.30.0.28:8000/api/residents/updateResident/${widget.residentId}');
+    final updatedData = {
+      'resident_fName': textControllerResidentFName.text,
+      'resident_lName': textControllerResidentLName.text,
+      // Add more fields here for other details
+    };
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer ${widget.authToken}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(updatedData),
+      );
+
+      if (response.statusCode == 200) {
+        _showSnackBar('Resident details updated successfully');
+      } else {
+        _showSnackBar('Failed to update resident details');
+      }
+    } catch (e) {
+      _showSnackBar('An error occurred while updating resident details');
+    }
+  }
+
   Future<void> _fetchResidentDetails() async {
     final url =
         Uri.parse('http://10.0.2.2:8000/api/residents/${widget.residentId}');
     try {
-      final response = await http
-          .get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer ${widget.authToken}'},
+      );
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         setState(() {
@@ -69,8 +109,8 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
     final double screenHeight = MediaQuery.of(context).size.height;
     final centerPosition = screenHeight / 2;
     final middleNameInitial =
-        resident.residentMName != 'null' && resident.residentMName.isNotEmpty
-            ? '${resident.residentMName[0]}. '
+        resident?.residentMName != 'null' && resident!.residentMName.isNotEmpty
+            ? '${resident?.residentMName[0]}. '
             : '';
     return Scaffold(
       appBar: AppBar(
@@ -112,6 +152,9 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
                             ),
                           ],
                         ),
+                        child: const Image(
+                          image: AssetImage('asset/doctor.png'),
+                        ),
                       ),
                     ),
                     Positioned(
@@ -120,48 +163,45 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
                       right: 0,
                       child: Center(
                         child: Text(
-                          '${resident.residentFName} $middleNameInitial${resident.residentLName}',
+                          '${resident?.residentFName} $middleNameInitial${resident?.residentLName}',
                           style: const TextStyle(
                               fontSize: 30, fontWeight: FontWeight.w700),
                         ),
                       ),
                     ),
                     Positioned(
-                      top: centerPosition - 67,
+                      top: centerPosition - 60,
                       left: 0,
                       right: 0,
-                      child: SizedBox(
-                        width: 300,
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 35),
+                        child: Divider(
+                          thickness: 3,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: centerPosition - 40,
+                      left: 0,
+                      right: 0,
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Res. ID: ${resident.residentId}',
-                                style: const TextStyle(fontSize: 24),
+                              buildProfileInfoTile(
+                                  'Resident ID', resident?.residentId ?? ''),
+                              buildProfileInfoTile('Resident First Name', resident?.residentFName ?? ''
                               ),
-                              Container(
-                                height: 50,
-                                width: 190,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  color:
-                                      const Color(0xffFF8A8A).withOpacity(0.4),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: Center(
-                                    child: Text(
-                                      'Dept. ID: ${resident.departmentId}',
-                                      style: const TextStyle(
-                                          fontSize: 24,
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              buildProfileInfoTile(
+                                  'Resident Last Name', resident?.residentLName ?? ''),
+                              buildProfileInfoTile(
+                                  'Resident Middle Name', resident?.residentMName ?? ''),
+                              buildProfileInfoTile(
+                                  'Username', resident?.residentUserName ?? ''),
+                              buildProfileInfoTile('Department ID',
+                                  resident?.departmentId ?? ''),
                             ],
                           ),
                         ),

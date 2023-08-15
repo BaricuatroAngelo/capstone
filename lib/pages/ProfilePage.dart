@@ -87,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _fetchResidentData() async {
     final url =
-        Uri.parse('http://10.0.2.2:8000/api/residents/${widget.residentId}');
+        Uri.parse('http://172.30.0.28:8000/api/residents/${widget.residentId}');
 
     try {
       final response = await http
@@ -180,11 +180,11 @@ class _ProfilePageState extends State<ProfilePage> {
             Positioned(
               top: centerPosition - 90,
               left: 30,
-              child: Text(
+              child: const Text(
                 'Resident Information',
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    fontSize: _calculateFontSize(context),
+                    fontSize: 30,
                     color: const Color(0xff66d0ed)),
               ),
             ),

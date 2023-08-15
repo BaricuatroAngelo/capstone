@@ -1,26 +1,27 @@
 import 'package:capstone/pages/Models/Patient/EHR.dart';
 import 'package:flutter/material.dart';
 
-import '../design/containers/containers.dart';
+import 'design/containers/containers.dart';
 
-class PatientDetailPage extends StatefulWidget {
+class ChiefPatientDetailPage extends StatefulWidget {
   final String patientId;
   final String authToken;
   final PatientHealthRecord patient;
-  final String? roomId;
+  final String roomId;
 
-  const PatientDetailPage({
+  const ChiefPatientDetailPage({
     Key? key,
     required this.patient,
     required this.patientId,
-    required this.authToken, required this.roomId,
+    required this.authToken,
+    required this.roomId,
   }) : super(key: key);
 
   @override
-  State<PatientDetailPage> createState() => _PatientDetailPageState();
+  State<ChiefPatientDetailPage> createState() => _ChiefPatientDetailPageState();
 }
 
-class _PatientDetailPageState extends State<PatientDetailPage> {
+class _ChiefPatientDetailPageState extends State<ChiefPatientDetailPage> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -29,13 +30,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xff66d0ed),
-        elevation: 0.0,
-        toolbarHeight: 80,
-        title: Padding(
-          padding: EdgeInsets.only(left: (screenWidth - 290) / 2),
-          child: const Text('Patient Profile'),
-        ),
+        title: Text('Patient Details'),
       ),
       body: Stack(
         clipBehavior: Clip.none,
@@ -180,7 +175,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
                   ]),
             ),
           ),
-          Text(widget.patient.roomId ?? 'None'),
+          Text(widget.roomId),
         ],
       ),
     );

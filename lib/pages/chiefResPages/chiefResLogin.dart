@@ -30,7 +30,7 @@ class ChiefResLoginState extends State<ChiefResLogin> {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
-    final url = Uri.parse('http://10.0.2.2:8000/api/login');
+    final url = Uri.parse('http://172.30.0.28:8000/api/login');
 
     try {
       final response = await http.post(url, body: {

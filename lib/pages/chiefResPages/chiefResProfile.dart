@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/design/containers/widgets/profileInfoWidget.dart';
 import '../Models/resident.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ChiefProfilePage extends StatefulWidget {
   final String? authToken;
@@ -20,7 +21,6 @@ class ChiefProfilePage extends StatefulWidget {
 }
 
 class ChiefProfilePageState extends State<ChiefProfilePage> {
-
   double _calculateContainerHeight(BuildContext context) {
     // Get the screen height
     final screenHeight = MediaQuery.of(context).size.height;
@@ -38,6 +38,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
       return 300;
     }
   }
+
   double _calculateContainerWidth(BuildContext context) {
     // Get the screen height
     final screenWidth = MediaQuery.of(context).size.height;
@@ -85,7 +86,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
 
   Future<void> _fetchResidentData() async {
     final url =
-    Uri.parse('http://10.0.2.2:8000/api/residents/${widget.residentId}');
+        Uri.parse('http://172.30.0.28:8000/api/residents/${widget.residentId}');
 
     try {
       final response = await http
@@ -131,7 +132,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
           );
         },
       ),
-          (Route<dynamic> route) => false,
+      (Route<dynamic> route) => false,
     );
   }
 
@@ -180,15 +181,27 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
               left: 30,
               child: Text(
                 'Resident Information',
-                style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: _calculateFontSize(context),
-                    color: const Color(0xff66d0ed)),
+                style: GoogleFonts.roboto(
+                  textStyle: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: _calculateFontSize(context),
+                      color: const Color(0xff66d0ed)),
+                ),
+              ),
+            ),
+            Positioned(
+              top: centerPosition - 55,
+              left: 30,
+              child: const Padding(
+                padding: EdgeInsets.only(right: 200),
+                child: Text('_____________________________________________________________________________________________________________________________________'),
               ),
             ),
             if (!_isLoading) ...[
               Positioned(
-                left: 15, right: 10, top: centerPosition - 50,
+                left: 15,
+                right: 10,
+                top: centerPosition - 30,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -204,7 +217,10 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
                 ),
               ),
             ],
-            Padding(padding: EdgeInsets.only( top: 60,),
+            Padding(
+                padding: EdgeInsets.only(
+                  top: 60,
+                ),
                 child: Center(
                   child: Text(
                     'Profile Page',

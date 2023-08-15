@@ -1,13 +1,12 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
-
 import 'package:capstone/design/containers/containers.dart';
+import 'package:capstone/pages/Models/Patient/EHR.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../debugPage.dart';
 import '../providers/constants.dart';
-import 'AddPatient.dart';
-import 'Models/Patient/patient.dart';
 import 'PatientInfoPage.dart';
 
 class SearchPatientPage extends StatefulWidget {
@@ -23,13 +22,31 @@ class SearchPatientPage extends StatefulWidget {
 }
 
 class _SearchPatientPageState extends State<SearchPatientPage> {
-  List<Patient> _patients = [];
-  List<Patient> _filteredPatients = [];
-  late SortType _sortType = SortType.Name;
+  List<PatientHealthRecord> _patients = [];
+  List<PatientHealthRecord> _filteredPatients = [];
+  SortType _sortType = SortType.Name;
   bool _isNameAscending = true;
   final TextEditingController _searchController = TextEditingController();
 
   bool _isLoading = true;
+
+  double _calculateFontSize(BuildContext context) {
+    // Get the screen height
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Define your desired font size range based on the screen height
+    // You can adjust the values as per your preference
+    if (screenHeight < 600) {
+      // Small phones
+      return 16;
+    } else if (screenHeight < 1000) {
+      // Medium-sized phones and small tablets
+      return 18;
+    } else {
+      // Larger tablets and devices
+      return 22;
+    }
+  }
 
   @override
   void initState() {
@@ -38,7 +55,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   }
 
   Future<void> _fetchPatients() async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/patients');
+    final url = Uri.parse('http://172.30.0.28:8000/api/PatientHealthRecord');
 
     try {
       final response = await http.get(
@@ -51,11 +68,13 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
 
       print(response.body);
       print(response.statusCode);
+
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
         setState(() {
-          _patients =
-              responseData.map((data) => Patient.fromJson(data)).toList();
+          _patients = responseData
+              .map((data) => PatientHealthRecord.fromJson(data))
+              .toList();
           _filteredPatients = List.from(_patients);
           _isLoading = false;
         });
@@ -113,7 +132,8 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
             '${patient.firstName} ${patient.lastName}'.toLowerCase();
         return fullName.contains(query.toLowerCase()) ||
             patient.patientId.toLowerCase().contains(query.toLowerCase()) ||
-            patient.sex.toLowerCase().contains(query.toLowerCase());
+            patient.sex.toLowerCase().contains(query.toLowerCase()) ||
+            patient.phrStartTime.toLowerCase().contains(query.toLowerCase());
       }).toList();
     });
   }
@@ -126,10 +146,9 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
     }
   }
 
-  void _onPatientSelected(Patient patient) {
+  void _onPatientSelected(PatientHealthRecord patient) {
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      Navigator.push(
-        context,
+      Navigator.of(context).push(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 300),
           // Set the duration of the transition
@@ -139,9 +158,11 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                 begin: const Offset(1.0, 0.0),
                 end: Offset.zero,
               ).animate(animation),
-              child: PatientInfoPage(
+              child: PatientDetailPage(
                 patientId: patient.patientId,
                 authToken: widget.authToken,
+                patient: patient,
+                roomId: patient.roomId,
               ),
             );
           },
@@ -232,78 +253,90 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
               Expanded(
                 child: Container(
                   width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius:
+                        BorderRadius.only(topLeft: Radius.circular(90), topRight: Radius.circular(90)),
                   ),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columns: [
-                        const DataColumn(label: Text('Patient ID')),
-                        const DataColumn(label: Text('Name')),
-                        const DataColumn(label: Text('Sex')),
-                        const DataColumn(label: Text('Vaccination Status')),
-                        const DataColumn(label: Text('Age')),
-                      ],
-                      rows: _filteredPatients.map((patient) {
-                        return DataRow(cells: [
-                          DataCell(
-                            Text(patient.patientId),
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              _onPatientSelected(patient);
-                            },
-                          ),
-                          DataCell(
-                            Text('${patient.firstName} ${patient.lastName}'),
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              _onPatientSelected(patient);
-                            },
-                          ),
-                          DataCell(
-                            Text(patient.sex),
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              _onPatientSelected(patient);
-                            },
-                          ),
-                          DataCell(
-                            Text(patient.vaccinationStatus),
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              _onPatientSelected(patient);
-                            },
-                          ),
-                          DataCell(
-                            Text(patient.age.toString()),
-                            onTap: (){
-                              FocusScope.of(context).unfocus();
-                              _onPatientSelected(patient);
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(90),
+                      ),
+                      child: Expanded(
+                          child: Padding(
+                        padding: const EdgeInsets.only(left:30, top: 20, right: 30),
+                        child: DataTable(
+                          columns: [
+                            const DataColumn(label: Text('Patient ID')),
+                            const DataColumn(label: Text('Name')),
+                            const DataColumn(label: Text('Sex')),
+                            const DataColumn(label: Text('Vaccination Status')),
+                            const DataColumn(label: Text('Room')),
+                            const DataColumn(label: Text('Admission Time')),
+                          ],
+                          rows: _filteredPatients.map((patient) {
+                            String fullName = patient.firstName;
+                            if (patient.middleName.isNotEmpty) {
+                              fullName += ' ${patient.middleName[0]}.';
                             }
-                          )
-                        ]);
-                      }).toList(),
+                            fullName += ' ${patient.lastName}';
+                            return DataRow(cells: [
+                              DataCell(
+                                Text(patient.patientId, style: TextStyle(),),
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  _onPatientSelected(patient);
+                                },
+                              ),
+                              DataCell(
+                                Text(fullName),
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  _onPatientSelected(patient);
+                                },
+                              ),
+                              DataCell(
+                                Text(patient.sex),
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  _onPatientSelected(patient);
+                                },
+                              ),
+                              DataCell(
+                                Text(patient.vaccinationStatus),
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  _onPatientSelected(patient);
+                                },
+                              ),
+                              DataCell(
+                                Text(patient.roomId.toString()),
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  _onPatientSelected(patient);
+                                },
+                              ),
+                              DataCell(
+                                Text(patient.phrStartTime.toString()),
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  _onPatientSelected(patient);
+                                },
+                              ),
+                            ]);
+                          }).toList(),
+                        ),
+                      )),
                     ),
                   ),
                 ),
               ),
             ],
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      AddPatientPage(authToken: widget.authToken)),
-            );
-          },
-          tooltip: 'Add Patient',
-          backgroundColor: const Color(0xff66d0ed),
-          child: const Icon(Icons.add),
         ),
       ),
     );
