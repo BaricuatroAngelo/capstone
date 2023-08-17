@@ -133,6 +133,90 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
               ),
             ),
           ),
+          Padding(
+            padding: EdgeInsets.only(top: centerPosition + 150, left: 250, right: 0),
+            child: GestureDetector(
+              onTap: (){
+                navigateToHealthRecordPage();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Color(0xff66d0ed),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.09),
+                      blurRadius: 10,
+                      offset: Offset(10, 20),
+                    ),
+                  ],
+                ),
+                width: 400,
+                height: 100,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.medical_services,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Medicine',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: centerPosition + 300, left: 250, right: 0),
+            child: GestureDetector(
+              onTap: (){
+                navigateToHealthRecordPage();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Color(0xff66d0ed),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.09),
+                      blurRadius: 10,
+                      offset: Offset(10, 20),
+                    ),
+                  ],
+                ),
+                width: 400,
+                height: 100,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.analytics,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Results',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
