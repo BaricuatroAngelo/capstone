@@ -1,10 +1,10 @@
 import 'dart:ui';
 
+import 'package:capstone/design/containers/widgets/urlWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/design/containers/widgets/profileInfoWidget.dart';
-import '../design/containers/ProfileDesignWidget.dart';
 import 'Models/resident.dart';
 import 'loginpage.dart';
 
@@ -87,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _fetchResidentData() async {
     final url =
-        Uri.parse('http://172.30.0.28:8000/api/residents/${widget.residentId}');
+        Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
 
     try {
       final response = await http
@@ -185,7 +185,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 30,
-                    color: const Color(0xff66d0ed)),
+                    color: Color(0xff66d0ed)),
               ),
             ),
             if (!_isLoading) ...[
@@ -217,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 )),
             Padding(
-              padding: const EdgeInsets.only(top: 1100, left: 30, right: 20),
+              padding: const EdgeInsets.only(top: 1090, left: 30, right: 20),
               child: TextButton(
                   onPressed: _logout,
                   child: Center(

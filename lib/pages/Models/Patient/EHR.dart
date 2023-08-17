@@ -100,7 +100,7 @@ class PatientHealthRecord {
 
   final bool phrRespiratoryEffortWNL;
   final bool phrRespiratoryEffortAccessoryMuscleUse;
-  final bool phrRespiratoryEffectIntercostalRetractions;
+  final bool phrRespiratoryEffortIntercostalRetractions;
   final bool phrRespiratoryEffortParadoxicalMovements;
 
   final bool phrTactileFremitusWNL;
@@ -255,7 +255,7 @@ class PatientHealthRecord {
     required this.phrJugularVeinsEngorged,
     required this.phrRespiratoryEffortWNL,
     required this.phrRespiratoryEffortAccessoryMuscleUse,
-    required this.phrRespiratoryEffectIntercostalRetractions,
+    required this.phrRespiratoryEffortIntercostalRetractions,
     required this.phrRespiratoryEffortParadoxicalMovements,
     required this.phrTactileFremitusWNL,
     required this.phrTactileFremitusIncreased,
@@ -412,7 +412,7 @@ class PatientHealthRecord {
           json['phr_respiratoryEffortWNL'] == 1 ? true : false,
       phrRespiratoryEffortAccessoryMuscleUse:
           json['phr_respiratoryEffortAccessoryMuscleUse'] == 1 ? true : false,
-      phrRespiratoryEffectIntercostalRetractions:
+      phrRespiratoryEffortIntercostalRetractions:
           json['phr_respiratoryEffortIntercostalRetractions'] == 1
               ? true
               : false,

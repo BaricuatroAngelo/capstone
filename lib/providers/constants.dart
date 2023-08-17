@@ -3,4 +3,5 @@
 enum SortType {
   Name,
   ID,
+  Room,
 }

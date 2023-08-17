@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../debugPage.dart';
 import '../../design/containers/containers.dart';
+import '../../design/containers/widgets/urlWidget.dart';
 import '../Models/Floor/Room/Room.dart';
 import '../Models/Patient/EHR.dart';
 import '../PatientInfoPage.dart';
@@ -26,7 +27,7 @@ class ChiefHomePageState extends State<ChiefHomePage> {
   late Map<String, List<Room>> _roomsByFloor = {};
 
   Future<void> _fetchRooms() async {
-    final url = Uri.parse('http://172.30.0.28:8000/api/Rooms');
+    final url = Uri.parse('${Env.prefix}/api/Rooms');
     try {
       final response = await http.get(
         url,
@@ -67,7 +68,7 @@ class ChiefHomePageState extends State<ChiefHomePage> {
   void _navigateToPatientDetailPage(String roomId) async {
     final patientHealthRecordResponse = await http.get(
       Uri.parse(
-          'http://10.0.2.2:8000/api/PatientHealthRecord/getPatientbyRoom/$roomId'),
+          '${Env.prefix}/api/PatientHealthRecord/getPatientbyRoom/$roomId'),
       headers: {'Authorization': 'Bearer ${widget.authToken}'},
     );
 

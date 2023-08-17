@@ -25,7 +25,7 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
   }
 
   Future<void> fetchMedicineOptions() async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/medicines');
+    final url = Uri.parse('http://172.30.5.244:8000/api/medicines');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -44,7 +44,7 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
 
   Future<void> postSelectedMedicines() async {
     if (_selectedMedicines.isNotEmpty) {
-      final url = Uri.parse('http://10.0.2.2:8000/api/InfoMedicine');
+      final url = Uri.parse('http://172.30.5.244:8000/api/InfoMedicine');
 
       try {
         final List<Map<String, dynamic>> selectedMedicinesData = [];

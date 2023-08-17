@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../design/containers/containers.dart';
+import '../design/containers/widgets/urlWidget.dart';
 import 'navbar.dart';
 
 class LoginPage extends StatefulWidget {
@@ -30,7 +31,7 @@ class LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
-    final url = Uri.parse('http://172.30.0.28:8000/api/login');
+    final url = Uri.parse('${Env.prefix}/api/login');
 
     try {
       final response = await http.post(url, body: {

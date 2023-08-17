@@ -2,6 +2,7 @@ import 'package:capstone/design/containers/containers.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../design/containers/widgets/urlWidget.dart';
 import 'Models/Floor/Room/Room.dart';
 import 'Models/Patient/EHR.dart';
 import 'Models/resident.dart';
@@ -88,7 +89,7 @@ class HomePageState extends State<HomePage> {
   Map<String, List<Room>> _roomsByFloor = {};
 
   Future<void> _fetchRooms() async {
-    final url = Uri.parse('http://172.30.0.28:8000/api/Rooms');
+    final url = Uri.parse('${Env.prefix}/api/Rooms');
     try {
       final response = await http.get(
         url,
@@ -128,7 +129,7 @@ class HomePageState extends State<HomePage> {
 
   Future<void> _fetchResidentData() async {
     final url =
-        Uri.parse('http://172.30.0.28:8000/api/residents/${widget.residentId}');
+        Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
 
     try {
       final response = await http.get(
@@ -154,7 +155,7 @@ class HomePageState extends State<HomePage> {
 
   Future<void> _fetchAssignedRooms() async {
     final url =
-        Uri.parse('http://172.30.0.28:8000/api/ResAssRooms/${widget.residentId}');
+        Uri.parse('${Env.prefix}/api/ResAssRooms/${widget.residentId}');
 
     try {
       final response = await http.get(
@@ -187,7 +188,7 @@ class HomePageState extends State<HomePage> {
   void _navigateToPatientDetailPage(String roomId) async {
     final patientHealthRecordResponse = await http.get(
       Uri.parse(
-          'http://172.30.0.28:8000/api/PatientHealthRecord/getPatientbyRoom/$roomId'),
+          '${Env.prefix}/api/PatientHealthRecord/getPatientbyRoom/$roomId'),
       headers: {'Authorization': 'Bearer ${widget.authToken}'},
     );
 

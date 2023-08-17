@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../design/containers/widgets/profileInfoWidget.dart';
+import '../../design/containers/widgets/urlWidget.dart';
 
 class ResidentInfoPage extends StatefulWidget {
   final String authToken;
@@ -39,7 +40,7 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
 
   Future<void> _updateResidentDetails() async {
     final url =
-    Uri.parse('http://172.30.0.28:8000/api/residents/updateResident/${widget.residentId}');
+    Uri.parse('${Env.prefix}/api/residents/updateResident/${widget.residentId}');
     final updatedData = {
       'resident_fName': textControllerResidentFName.text,
       'resident_lName': textControllerResidentLName.text,
@@ -210,7 +211,7 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
                   ],
                 )
               : const Center(
-                  child: Text('Patient not found.'),
+                  child: Text('Resident not found.'),
                 ),
     );
   }

@@ -1,21 +1,17 @@
-
-
 import 'package:flutter/material.dart';
 
 final personName = BoxDecoration(
-    borderRadius: const BorderRadius.only(
-      bottomLeft: Radius.circular(60),
-      bottomRight: Radius.circular(60),
-    ),
-    gradient: LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [
-        const Color(0xff66d0ed).withOpacity(0.4),
-        const Color(0xff82eefd),
-      ],
-    ),
-  );
+  borderRadius: const BorderRadius.only(
+      bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+  gradient: LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      const Color(0xff15aaff).withOpacity(0.4),
+      const Color(0xffadf7f2),
+    ],
+  ),
+);
 
 final logoContainer = Container(
   height: 200,
@@ -248,7 +244,7 @@ final loginFieldDesign = BoxDecoration(
 );
 
 const space = SizedBox(
-  height: 30,
+  height: 50,
 );
 const assignedRoom = Padding(
   padding: EdgeInsets.only(top: 20),

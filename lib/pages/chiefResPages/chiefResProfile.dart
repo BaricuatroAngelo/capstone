@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:capstone/design/containers/widgets/profileInfoWidget.dart';
+import '../../design/containers/widgets/urlWidget.dart';
 import '../Models/resident.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -86,7 +87,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
 
   Future<void> _fetchResidentData() async {
     final url =
-        Uri.parse('http://172.30.0.28:8000/api/residents/${widget.residentId}');
+        Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
 
     try {
       final response = await http

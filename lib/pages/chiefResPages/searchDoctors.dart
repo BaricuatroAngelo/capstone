@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../../design/containers/ProfileDesignWidget.dart';
+import '../../design/containers/widgets/urlWidget.dart';
 import '../../providers/constants.dart';
 
 class SearchResidentPage extends StatefulWidget {
@@ -41,7 +42,7 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
   }
 
   Future<void> _fetchResidents() async {
-    final url = Uri.parse('http://172.30.0.28:8000/api/residents');
+    final url = Uri.parse('${Env.prefix}/api/residents');
 
     try {
       final response = await http.get(url);

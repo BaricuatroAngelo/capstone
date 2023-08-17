@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../debugPage.dart';
+import '../design/containers/widgets/urlWidget.dart';
 import '../providers/constants.dart';
 import 'PatientInfoPage.dart';
 
@@ -55,7 +56,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   }
 
   Future<void> _fetchPatients() async {
-    final url = Uri.parse('http://172.30.0.28:8000/api/PatientHealthRecord');
+    final url = Uri.parse('${Env.prefix}/api/PatientHealthRecord');
 
     try {
       final response = await http.get(
@@ -117,6 +118,8 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
           compare = a.firstName.compareTo(b.firstName);
         } else if (sortType == SortType.ID) {
           compare = a.patientId.compareTo(b.patientId);
+        } else if (sortType == SortType.Room) {
+          compare = a.roomId!.compareTo(b.roomId!);
         } else {
           compare = 0;
         }
@@ -133,7 +136,8 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
         return fullName.contains(query.toLowerCase()) ||
             patient.patientId.toLowerCase().contains(query.toLowerCase()) ||
             patient.sex.toLowerCase().contains(query.toLowerCase()) ||
-            patient.phrStartTime.toLowerCase().contains(query.toLowerCase());
+            patient.phrStartTime.toLowerCase().contains(query.toLowerCase()) ||
+            patient.roomId!.toLowerCase().contains(query.toLowerCase());
       }).toList();
     });
   }
@@ -143,6 +147,8 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
       _sortData(SortType.Name);
     } else if (filterType == 'Patient ID') {
       _sortData(SortType.ID);
+    } else if (filterType == 'Room') {
+      _sortData(SortType.Room);
     }
   }
 
@@ -181,161 +187,265 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
       child: Scaffold(
         backgroundColor: const Color(0xffE3F9FF),
         resizeToAvoidBottomInset: false,
-        body: Padding(
-          padding: const EdgeInsets.only(top: 60, left: 0, right: 0),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: selectBoxDecor,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        controller: _searchController,
-                        onChanged: (query) => _filterPatients(query),
-                        decoration: InputDecoration(
-                          labelText: 'Search patient by name or ID',
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.filter_list),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Sort By'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        ListTile(
-                                          title: const Text('ID'),
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                            _applyFilter('Patient ID');
-                                          },
-                                        ),
-                                        ListTile(
-                                          title: const Text('Name'),
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                            _applyFilter('Name');
-                                          },
-                                        ),
-                                        ListTile(
-                                          title: const Text('Sex'),
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                            _applyFilter('Sex');
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          floatingLabelBehavior: FloatingLabelBehavior.never,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 60, left: 0, right: 0),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: selectBoxDecor,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: _searchController,
+                          onChanged: (query) => _filterPatients(query),
+                          decoration: InputDecoration(
+                            labelText: 'Search patient by name or ID',
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.filter_list),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text('Sort By'),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ListTile(
+                                            title: const Text('ID'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              _applyFilter('Patient ID');
+                                            },
+                                          ),
+                                          ListTile(
+                                            title: const Text('Name'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              _applyFilter('Name');
+                                            },
+                                          ),
+                                          ListTile(
+                                            title: const Text('Room'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              _applyFilter('Room');
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              space,
-              Expanded(
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: const BoxDecoration(
+                space,
+                Container(
+                  width: 700,
+                  height: 800,
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.only(topLeft: Radius.circular(90), topRight: Radius.circular(90)),
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(90),
+                    borderRadius: const BorderRadius.all(Radius.circular(90)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
                       ),
-                      child: Expanded(
-                          child: Padding(
-                        padding: const EdgeInsets.only(left:30, top: 20, right: 30),
-                        child: DataTable(
-                          columns: [
-                            const DataColumn(label: Text('Patient ID')),
-                            const DataColumn(label: Text('Name')),
-                            const DataColumn(label: Text('Sex')),
-                            const DataColumn(label: Text('Vaccination Status')),
-                            const DataColumn(label: Text('Room')),
-                            const DataColumn(label: Text('Admission Time')),
-                          ],
-                          rows: _filteredPatients.map((patient) {
-                            String fullName = patient.firstName;
-                            if (patient.middleName.isNotEmpty) {
-                              fullName += ' ${patient.middleName[0]}.';
-                            }
-                            fullName += ' ${patient.lastName}';
-                            return DataRow(cells: [
-                              DataCell(
-                                Text(patient.patientId, style: TextStyle(),),
-                                onTap: () {
-                                  FocusScope.of(context).unfocus();
-                                  _onPatientSelected(patient);
-                                },
-                              ),
-                              DataCell(
-                                Text(fullName),
-                                onTap: () {
-                                  FocusScope.of(context).unfocus();
-                                  _onPatientSelected(patient);
-                                },
-                              ),
-                              DataCell(
-                                Text(patient.sex),
-                                onTap: () {
-                                  FocusScope.of(context).unfocus();
-                                  _onPatientSelected(patient);
-                                },
-                              ),
-                              DataCell(
-                                Text(patient.vaccinationStatus),
-                                onTap: () {
-                                  FocusScope.of(context).unfocus();
-                                  _onPatientSelected(patient);
-                                },
-                              ),
-                              DataCell(
-                                Text(patient.roomId.toString()),
-                                onTap: () {
-                                  FocusScope.of(context).unfocus();
-                                  _onPatientSelected(patient);
-                                },
-                              ),
-                              DataCell(
-                                Text(patient.phrStartTime.toString()),
-                                onTap: () {
-                                  FocusScope.of(context).unfocus();
-                                  _onPatientSelected(patient);
-                                },
-                              ),
-                            ]);
-                          }).toList(),
+                    ],
+                  ),
+                  child: PageView.builder(
+                    itemCount: _filteredPatients.length,
+                    itemBuilder: (context, index) {
+                      final patient = _filteredPatients[index];
+                      String fullName = patient.firstName;
+                      if (patient.middleName.isNotEmpty) {
+                        fullName += ' ${patient.middleName[0]}.';
+                      }
+                      fullName += ' ${patient.lastName}';
+
+                      return Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(70)),
                         ),
-                      )),
-                    ),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: 150,
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(50),
+                                    topLeft: Radius.circular(50)),
+                                color: Color(0xff66d0ed),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 30, bottom: 30),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Patient ${patient.patientId}',
+                                      style: const TextStyle(
+                                          fontSize: 40,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 150),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const SizedBox(height: 16),
+                                  ListTile(
+                                    leading: const Icon(Icons.person, size: 42),
+                                    title: Text(
+                                      'Name: $fullName',
+                                      style: const TextStyle(fontSize: 26),
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  ListTile(
+                                    leading: const SizedBox(
+                                      height: 50,
+                                      width: 50,
+                                      child: Image(image: AssetImage('asset/gender.png'), color: Colors.black54,),
+                                    ),
+                                    title: Text(
+                                      'Sex: ${patient.sex}',
+                                      style: const TextStyle(fontSize: 26),
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  ListTile(
+                                    leading: const SizedBox(
+                                      height: 50,
+                                      width: 50,
+                                      child: Image(image: AssetImage('asset/age.png'), color: Colors.black54,),
+                                    ),
+                                    title: Text(
+                                      'Age: ${patient.age}',
+                                      style: const TextStyle(fontSize: 26),
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  ListTile(
+                                    leading: const SizedBox(
+                                      height: 50,
+                                      width: 50,
+                                      child: Image(image: AssetImage('asset/vaccinated.png'), color: Colors.black54,),
+                                    ),
+                                    title: Text(
+                                      'Vaccine Taken: ${patient.vaccinationStatus}',
+                                      style: const TextStyle(fontSize: 26),
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  ListTile(
+                                    leading: const SizedBox(
+                                      height: 50,
+                                      width: 50,
+                                      child: Image(image: AssetImage('asset/height.png'), color: Colors.black54,),
+                                    ),
+                                    title: Text(
+                                      'Height: ${patient.phrHeightCM} cm',
+                                      style: const TextStyle(fontSize: 26),
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  ListTile(
+                                    leading: const SizedBox(
+                                      height: 50,
+                                      width: 50,
+                                      child: Image(image: AssetImage('asset/weight-loss.png'), color: Colors.black54,),
+                                    ),
+                                    title: Text(
+                                      'Weight: ${patient.phrWeightKg} Kg',
+                                      style: const TextStyle(fontSize: 26),
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  ListTile(
+                                    leading: const SizedBox(
+                                      height: 50,
+                                      width: 50,
+                                      child: Image(image: AssetImage('asset/bmi.png'), color: Colors.black54,),
+                                    ),
+                                    title: Text(
+                                      'BMI: ${patient.phrBMI}',
+                                      style: const TextStyle(fontSize: 26),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 700),
+                              child: GestureDetector(
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  _onPatientSelected(patient);
+                                },
+                                child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    height: 150,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                          bottomRight: Radius.circular(50),
+                                          bottomLeft: Radius.circular(50)),
+                                      color: Color(0xff66d0ed),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 30),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'View Patient Page',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 30,
+                                                color: Colors.white),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
