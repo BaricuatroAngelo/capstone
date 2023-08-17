@@ -41,11 +41,12 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff66d0ed),
-        elevation: 0.0,
+        elevation: 3.0,
+        shadowColor: Colors.black.withOpacity(0.5),
         toolbarHeight: 80,
         title: Padding(
-          padding: EdgeInsets.only(left: (screenWidth - 290) / 2),
-          child: const Text('Patient Profile'),
+          padding: EdgeInsets.only(left: (screenWidth - 350) / 2),
+          child: const Text('Patient Profile', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
         ),
       ),
       body: Stack(
@@ -132,7 +133,6 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
               ),
             ),
           ),
-          Text(widget.patient.roomId ?? 'None'),
         ],
       ),
     );
