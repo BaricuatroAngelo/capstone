@@ -1,5 +1,31 @@
 import 'package:flutter/material.dart';
 
+const viewPatientBox = BoxDecoration(
+  borderRadius: BorderRadius.only(
+      bottomRight: Radius.circular(50),
+      bottomLeft: Radius.circular(50)),
+  color: Color(0xff66d0ed),
+);
+
+const upperCardBox = BoxDecoration(
+  borderRadius: BorderRadius.only(
+      topRight: Radius.circular(50),
+      topLeft: Radius.circular(50)),
+  color: Color(0xff66d0ed),
+);
+
+final patientCard = BoxDecoration(
+  color: Colors.white,
+  borderRadius:  const BorderRadius.all(Radius.circular(90)),
+  boxShadow: [
+    BoxShadow(
+      color: Colors.grey.withOpacity(0.5),
+      blurRadius: 20,
+      offset: const Offset(8, 20),
+    ),
+  ],
+);
+
 final personName = BoxDecoration(
   borderRadius: const BorderRadius.only(
       bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),

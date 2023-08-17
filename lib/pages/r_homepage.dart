@@ -118,6 +118,11 @@ class HomePageState extends State<HomePage> {
     Map<String, List<Room>> groupedRooms = {};
 
     for (var room in rooms) {
+      if (_isRoomAssigned(room.roomId)) {
+        // Exclude assigned rooms
+        continue;
+      }
+
       if (!groupedRooms.containsKey(room.roomFloor)) {
         groupedRooms[room.roomFloor] = [];
       }
@@ -126,6 +131,11 @@ class HomePageState extends State<HomePage> {
 
     return groupedRooms;
   }
+
+  bool _isRoomAssigned(String roomId) {
+    return _assignedRooms.any((assignedRoom) => assignedRoom.roomId == roomId);
+  }
+
 
   Future<void> _fetchResidentData() async {
     final url =
@@ -153,9 +163,10 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  Set<String> _assignedRoomIds = {};
+
   Future<void> _fetchAssignedRooms() async {
-    final url =
-        Uri.parse('${Env.prefix}/api/ResAssRooms/${widget.residentId}');
+    final url = Uri.parse('${Env.prefix}/api/ResAssRooms/${widget.residentId}');
 
     try {
       final response = await http.get(
@@ -165,17 +176,13 @@ class HomePageState extends State<HomePage> {
         },
       );
 
-      print('Request URL: ${url.toString()}');
-      print('Request Headers: ${response.request?.headers}');
-
-      print(response.statusCode);
-      print(response.body);
-
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
         setState(() {
           _assignedRooms =
               responseData.map((data) => AssignedRoom.fromJson(data)).toList();
+          _assignedRoomIds =
+              Set.from(_assignedRooms.map((assignedRoom) => assignedRoom.roomId));
         });
       } else {
         _showSnackBar('Failed to fetch assigned rooms');

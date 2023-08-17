@@ -17,9 +17,16 @@ class PatientHealthRecordPage extends StatefulWidget {
 class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Patient Health Record'),
+        backgroundColor: const Color(0xff66d0ed),
+        elevation: 0.0,
+        toolbarHeight: 80,
+        title: Padding(
+          padding: EdgeInsets.only(left: (screenWidth - 460) / 2),
+          child: const Text('Patient Health Record', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
+        ),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -27,7 +34,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ExpansionTile(
-              title: Text('Allergies and Habits'),
+              title: const Text('Allergies and Habits'),
               children: [
                 Column(
                   children: [
@@ -38,7 +45,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
               ],
             ),
             ExpansionTile(
-              title: Text('Past Medical History'),
+              title: const Text('Past Medical History'),
               children: [
                 Column(
                   children: [
@@ -95,7 +102,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                 ),
               ],
             ),
-            ExpansionTile(title: Text('Constitutional'), children: [
+            ExpansionTile(title: const Text('Constitutional'), children: [
               Column(
                 children: [
                   Text(widget.patient.phrBpSitting.toString()),
@@ -116,7 +123,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                 ],
               )
             ]),
-            ExpansionTile(title: Text('ENT'), children: [
+            ExpansionTile(title: const Text('ENT'), children: [
               Column(
                 children: [
                   Text(widget.patient.phrNasalMucosaSeptumTurbinatesWNL
@@ -151,7 +158,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                 ],
               )
             ]),
-            ExpansionTile(title: Text('Neck'), children: [
+            ExpansionTile(title: const Text('Neck'), children: [
               Column(
                 children: [
                   Text(widget.patient.phrNeckWNL ? 'Present' : 'None'),
@@ -167,7 +174,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                 ],
               )
             ]),
-            ExpansionTile(title: Text('Respiratory'), children: [
+            ExpansionTile(title: const Text('Respiratory'), children: [
               Column(
                 children: [
                   Text(widget.patient.phrChestExpansionAndSymmetrical
@@ -223,7 +230,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                 ],
               )
             ]),
-            ExpansionTile(title: Text('Cardiovascular'), children: [
+            ExpansionTile(title: const Text('Cardiovascular'), children: [
               Column(
                 children: [
                   Text(widget.patient.phrHeartSoundsClearS1
@@ -254,7 +261,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                 ],
               )
             ]),
-            ExpansionTile(title: Text('Gastrointestinal'), children: [
+            ExpansionTile(title: const Text('Gastrointestinal'), children: [
               Column(
                 children: [
                   Text(widget.patient.phrAbdomenWNL ? 'Present' : 'None'),
@@ -279,7 +286,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                 ],
               )
             ]),
-            ExpansionTile(title: Text('Genitourinary Tract'), children: [
+            ExpansionTile(title: const Text('Genitourinary Tract'), children: [
               Column(
                 children: [
                   Text(widget.patient.phrKidneyPunchSignsNegative
@@ -293,7 +300,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                 ],
               ),
             ]),
-            ExpansionTile(title: Text('Extremities'), children: [
+            ExpansionTile(title: const Text('Extremities'), children: [
               Column(
                 children: [
                   Text(widget.patient.phrExtremitiesWNL ? 'Present' : 'None'),
@@ -311,7 +318,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
               )
             ]),
             ExpansionTile(
-              title: Text('Skin'),
+              title: const Text('Skin'),
               children: [
                 Column(
                   children: [
@@ -324,18 +331,31 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                 ),
               ],
             ),
-            Text('Doctor Assessment'),
+            const SizedBox(
+              height: 20,
+            ),
+            const Text('Doctor Assessment', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+            const SizedBox(
+              height: 20,
+            ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
+              padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Container(
                 height: 200,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  color: Colors.blue,
+                  boxShadow:  [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 5,
+                      offset: const Offset(10,20)
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.white,
                 ),
                 child: Padding(
-                  padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+                  padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
                   child: Text(widget.patient.phrAssessment),
                 ),
               ),

@@ -260,18 +260,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                 Container(
                   width: 700,
                   height: 800,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.all(Radius.circular(90)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
+                  decoration: patientCard,
                   child: PageView.builder(
                     itemCount: _filteredPatients.length,
                     itemBuilder: (context, index) {
@@ -292,12 +281,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                             Container(
                               width: MediaQuery.of(context).size.width,
                               height: 150,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(50),
-                                    topLeft: Radius.circular(50)),
-                                color: Color(0xff66d0ed),
-                              ),
+                              decoration: upperCardBox,
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 30, bottom: 30),
                                 child: Row(
@@ -413,12 +397,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                                 child: Container(
                                     width: MediaQuery.of(context).size.width,
                                     height: 150,
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          bottomRight: Radius.circular(50),
-                                          bottomLeft: Radius.circular(50)),
-                                      color: Color(0xff66d0ed),
-                                    ),
+                                    decoration: viewPatientBox,
                                     child: const Padding(
                                       padding: EdgeInsets.symmetric(vertical: 30),
                                       child: Row(
