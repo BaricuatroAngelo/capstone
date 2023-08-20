@@ -38,8 +38,8 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
               children: [
                 Column(
                   children: [
-                    Text(widget.patient.phrAllergies ? 'Present' : 'None'),
-                    Text(widget.patient.specifyAllergies.toString()),
+                    Text('Allergies: ${widget.patient.phrAllergies ? 'Present' : 'None'}'),
+                    Text('Specify Allergies: ${widget.patient.specifyAllergies.toString()}'),
                   ],
                 ),
               ],
@@ -49,10 +49,12 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
               children: [
                 Column(
                   children: [
-                    Text(widget.patient.phrHistoryOfPresentIllness.toString()),
-                    Text(widget.patient.phrNonVerbalPatient.toString()),
-                    Text(widget.patient.phrHxFromParent ? 'Present' : 'None'),
-                    Text(widget.patient.phrHxFromFamily ? 'Present' : 'None'),
+                    Text('History of Present Illness: ${widget.patient.phrHistoryOfPresentIllness.toString()}'),
+                    Text('Non-verbal Patient: ${
+                      widget.patient.phrNonVerbalPatient ? 'True' : 'False'
+                    }'),
+                    Text('HxFromParent: ${widget.patient.phrHxFromParent ? 'Present' : 'None'}'),
+                    Text('HxFromFamily: ${widget.patient.phrHxFromFamily ? 'Present' : 'None'}'),
                     Text(
                         widget.patient.phrMedRecAvailable ? 'Present' : 'None'),
                     Text(widget.patient.phrPMH_Asthma ? 'Present' : 'None'),

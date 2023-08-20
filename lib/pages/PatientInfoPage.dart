@@ -1,4 +1,5 @@
 import 'package:capstone/pages/Models/Patient/EHR.dart';
+import 'package:capstone/pages/medicine_page.dart';
 import 'package:capstone/pages/patient/patientHealthRecord.dart';
 import 'package:flutter/material.dart';
 
@@ -26,9 +27,17 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
   void navigateToHealthRecordPage() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => PatientHealthRecordPage(
-        // Pass any necessary data to the PatientHealthRecordPage
         patient: widget.patient,
         authToken: widget.authToken,
+      ),
+    ));
+  }
+
+  void navigateToMedicinePage() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => MedicineSelectionPage(
+        patient: widget.patient,
+        authToken: widget.authToken, patientId: widget.patientId,
       ),
     ));
   }
@@ -137,7 +146,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
             padding: EdgeInsets.only(top: centerPosition + 150, left: 250, right: 0),
             child: GestureDetector(
               onTap: (){
-                navigateToHealthRecordPage();
+                navigateToMedicinePage();
               },
               child: Container(
                 decoration: BoxDecoration(

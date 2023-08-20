@@ -232,7 +232,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
                   ),
                 )),
             Padding(
-              padding: const EdgeInsets.only(top: 1100, left: 30, right: 20),
+              padding: const EdgeInsets.only(top: 1080, left: 30, right: 20),
               child: TextButton(
                   onPressed: _logout,
                   child: Center(

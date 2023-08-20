@@ -1,14 +1,19 @@
 import 'package:capstone/design/containers/containers.dart';
 import 'package:capstone/design/containers/text.dart';
+import 'package:capstone/pages/Models/Patient/EHR.dart';
 import 'package:capstone/pages/selectedMeds.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../design/containers/widgets/urlWidget.dart';
 import 'Models/medicine.dart';
 
 class MedicineSelectionPage extends StatefulWidget {
-  const MedicineSelectionPage({super.key});
+  final String patientId;
+  final PatientHealthRecord patient;
+  final String authToken;
+  const MedicineSelectionPage({super.key, required this.patientId, required this.authToken, required this.patient});
 
   @override
   MedicineSelectionPageState createState() => MedicineSelectionPageState();
@@ -25,7 +30,7 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
   }
 
   Future<void> fetchMedicineOptions() async {
-    final url = Uri.parse('http://172.30.5.244:8000/api/medicines');
+    final url = Uri.parse('${Env.prefix}/api/medicines');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -153,11 +158,12 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
                       height: 10,
                     ),
                     Container(
-                      width: 400,
+                      width: MediaQuery.of(context).size.width,
                       decoration: selectBoxDecor,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: DropdownButton<Medicine>(
+                          isExpanded: true,
                           hint: const Text('Select a medicine'),
                           value: null,
                           onChanged: (selectedMedicine) {
@@ -173,8 +179,19 @@ class MedicineSelectionPageState extends State<MedicineSelectionPage> {
                               value: medicine,
                               child: Column(
                                 children: [
-                                  Text(medicine.medicineName),
-                                  Text(medicine.medicineDosage),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(medicine.medicineName, style: TextStyle(fontSize: 22),),
+                                          Text(medicine.medicineBrand, style: TextStyle(color: Colors.black.withOpacity(0.4)),)
+                                        ],
+                                      ),
+                                      Text(medicine.medicineDosage, style: TextStyle(color: Colors.black.withOpacity(0.4), fontSize: 22),),
+                                    ],
+                                  )
                                 ],
                               ),
                             );

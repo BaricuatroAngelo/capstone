@@ -1,5 +1,6 @@
 import 'package:capstone/design/containers/containers.dart';
 import 'package:capstone/design/containers/text.dart';
+import 'package:capstone/pages/Models/Patient/EHR.dart';
 import 'package:capstone/pages/medicine_page.dart';
 import 'package:flutter/material.dart';
 
@@ -7,7 +8,9 @@ import 'Models/medicine.dart';
 
 class SelectedMeds extends StatefulWidget {
   final String patientId;
-  const SelectedMeds({super.key, required this.patientId});
+  final PatientHealthRecord patient;
+  final String authToken;
+  const SelectedMeds({super.key, required this.patientId, required this.patient, required this.authToken});
 
   @override
   SelectedMedsState createState() => SelectedMedsState();
@@ -42,8 +45,6 @@ class SelectedMedsState extends State<SelectedMeds> {
             child: Center(
               child: InkWell(
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const MedicineSelectionPage()));
                 },
                 child: Container(
                   height: 50,

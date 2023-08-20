@@ -1,4 +1,7 @@
+import 'package:accordion/accordion.dart';
+import 'package:accordion/controllers.dart';
 import 'package:capstone/design/containers/containers.dart';
+import 'package:capstone/pages/wardPatients.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -136,10 +139,8 @@ class HomePageState extends State<HomePage> {
     return _assignedRooms.any((assignedRoom) => assignedRoom.roomId == roomId);
   }
 
-
   Future<void> _fetchResidentData() async {
-    final url =
-        Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
+    final url = Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
 
     try {
       final response = await http.get(
@@ -181,8 +182,8 @@ class HomePageState extends State<HomePage> {
         setState(() {
           _assignedRooms =
               responseData.map((data) => AssignedRoom.fromJson(data)).toList();
-          _assignedRoomIds =
-              Set.from(_assignedRooms.map((assignedRoom) => assignedRoom.roomId));
+          _assignedRoomIds = Set.from(
+              _assignedRooms.map((assignedRoom) => assignedRoom.roomId));
         });
       } else {
         _showSnackBar('Failed to fetch assigned rooms');
@@ -236,13 +237,59 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  void _navigateToWardPatientPage(String roomId) async {
+    if (roomId.startsWith('RAE')) {
+      final patientHealthRecordResponse = await http.get(
+        Uri.parse(
+            '${Env.prefix}/api/PatientHealthRecord/getPatientbyRoom/$roomId'),
+        headers: {'Authorization': 'Bearer ${widget.authToken}'},
+      );
+
+      if (patientHealthRecordResponse.statusCode == 200) {
+        final List<dynamic> patientDataList =
+        jsonDecode(patientHealthRecordResponse.body);
+
+        if (patientDataList.isNotEmpty) {
+          // Find the patient record with the matching room_id
+          dynamic patientData = patientDataList.firstWhere(
+                  (data) => data['room_id'] == roomId,
+              orElse: () => null);
+
+          if (patientData != null) {
+            PatientHealthRecord patientHealthRecord =
+            PatientHealthRecord.fromJson(patientData);
+
+            // Navigate to the RoomPatientsPage with the patient's health record and room_id
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RoomPatientsPage(
+                  roomId: roomId,
+                  authToken: widget.authToken,
+                ),
+              ),
+            );
+          } else {
+            _showNoPatientDialog(context, roomId);
+          }
+        } else {
+          _showNoPatientDialog(context, roomId);
+        }
+      } else {
+        _showNoPatientDialog(context, roomId);
+      }
+    }
+  }
+
+
   void _showNoPatientDialog(BuildContext context, String roomId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('No Patient in Room $roomId'),
-          content: const Text('There is currently no patient assigned to this room.'),
+          content: const Text(
+              'There is currently no patient assigned to this room.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -255,7 +302,6 @@ class HomePageState extends State<HomePage> {
       },
     );
   }
-
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -276,58 +322,46 @@ class HomePageState extends State<HomePage> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final centerPosition = screenHeight / 2;
-    return DefaultTabController(
-      initialIndex: 0,
-      length: _roomsByFloor.keys.length,
-      child: Scaffold(
-        backgroundColor: const Color(0xffE3F9FF),
-        body: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              height: 250,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xff66d0ed).withOpacity(0.4),
-                    const Color(0xff82eefd),
-                  ],
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                ),
+    return Scaffold(
+      backgroundColor: const Color(0xffE3F9FF),
+      body: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            height: 250,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xff66d0ed).withOpacity(0.4),
+                  const Color(0xff82eefd),
+                ],
               ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Padding(
-                  //   padding: const EdgeInsets.only(top: 50, left: 16),
-                  //   child: Text('Hello,\n${_resident?.residentFName ?? ''}',
-                  //       style: GoogleFonts.poppins(
-                  //         textStyle: const TextStyle(
-                  //             fontSize: 40,
-                  //             color: Colors.black54,
-                  //             fontWeight: FontWeight.w700 // Use primary color
-                  //             ),
-                  //       )),
-                  // ),
-                  Center(
-                      child: SizedBox(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: SizedBox(
                     height: _calculateContainerHeight(context),
                     width: _calculateContainerWidth(context),
                     child: const Image(
                       image: AssetImage('asset/ipimslogo.png'),
                     ),
-                  ))
-                ],
-              ),
+                  ),
+                )
+              ],
             ),
-            Padding(
+          ),
+          SingleChildScrollView(
+            child: Padding(
               padding: EdgeInsets.only(top: (screenHeight - (800)) / 2),
               child: Container(
                 height: MediaQuery.of(context).size.height,
@@ -352,12 +386,17 @@ class HomePageState extends State<HomePage> {
                         children: _assignedRooms.map((assignedRoom) {
                           return Container(
                             width: 200,
-                            height: 130, // Adjust the width as needed
+                            height: 130,
                             margin: const EdgeInsets.symmetric(horizontal: 8),
                             child: GestureDetector(
                               onTap: () {
-                                _navigateToPatientDetailPage(
-                                    assignedRoom.roomId);
+                                if (assignedRoom.roomId.startsWith('RAE')) {
+                                  _navigateToWardPatientPage(
+                                      assignedRoom.roomId);
+                                } else {
+                                  _navigateToPatientDetailPage(
+                                      assignedRoom.roomId);
+                                }
                               },
                               child: Card(
                                 elevation: 7,
@@ -398,8 +437,8 @@ class HomePageState extends State<HomePage> {
                       ),
                     ),
                     const Padding(
-                      padding:
-                          EdgeInsets.only(left: 20, right: 20, top: 30, bottom: 30),
+                      padding: EdgeInsets.only(
+                          left: 20, right: 20, top: 30, bottom: 30),
                       child: Divider(
                         thickness: 2,
                       ),
@@ -411,88 +450,106 @@ class HomePageState extends State<HomePage> {
                         style: TextStyle(
                             fontSize: _calculateFontSize(context),
                             color: Colors.black,
-                            fontWeight: FontWeight.bold // Use primary color
-                            ),
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(
                       height: 20,
                     ),
-                    TabBar(
-                      indicatorColor: Colors.black26,
-                      dividerColor: Colors.blue,
-                      isScrollable: true,
-                      indicatorSize: TabBarIndicatorSize.label,
-                      tabs: _roomsByFloor.keys.map((roomFloor) {
-                        return Container(
-                          width: 200,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                            color: const Color(0xff82eefd),
-                          ),
-                          child: Tab(
-                            child: Text(
-                              roomFloor,
-                              style: TextStyle(
-                                color: Colors.black,
-                                // Set the color to make the text visible
-                                fontWeight: FontWeight.bold,
-                                fontSize: _calculateFontSize(context),
+                    Accordion(
+                      scaleWhenAnimating: true,
+                      openAndCloseAnimation: true,
+                      headerPadding: const EdgeInsets.symmetric(
+                          vertical: 7, horizontal: 15),
+                      sectionClosingHapticFeedback: SectionHapticFeedback.light,
+                      sectionOpeningHapticFeedback: SectionHapticFeedback.heavy,
+                      children: [
+                        for (var floorEntry in _roomsByFloor.entries)
+                          AccordionSection(
+                            headerBackgroundColor: const Color(0xff82eefd),
+                            headerBackgroundColorOpened:
+                                const Color(0xff66d0ed),
+                            header: Padding(
+                              padding: EdgeInsets.only(
+                                  left: 20, top: 10, bottom: 10),
+                              child: Text(
+                                floorEntry.key,
+                                style: TextStyle(
+                                  fontSize: _calculateFontSize(context),
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    Expanded(
-                      child: Container(
-                        color: Colors.white,
-                        child: TabBarView(
-                          children: _roomsByFloor.keys.map((roomFloor) {
-                            List<Room> rooms = _roomsByFloor[roomFloor]!;
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20, right: 20, top: 20, bottom: 30),
+                            content: SizedBox(
+                              height: 300, // Set the height you desire
                               child: ListView.builder(
-                                physics: const BouncingScrollPhysics(),
-                                itemCount: rooms.length,
-                                itemBuilder: (context, index) {
-                                  Room room = rooms[index];
-                                  return Card(
-                                    shadowColor: const Color(0xff82eefd),
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: GestureDetector(
-                                      onTap: (){
-                                        _navigateToPatientDetailPage(room.roomId);
-                                      },
-                                      child: ListTile(
-                                        title: Text(
-                                          'Room ID: ${room.roomId}',
-                                          style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold),
+                                scrollDirection: Axis.vertical,
+                                itemCount: (floorEntry.value.length / 3).ceil(),
+                                itemBuilder: (context, rowIndex) {
+                                  final startIdx = rowIndex * 3;
+                                  final endIdx = (rowIndex * 3 + 3)
+                                      .clamp(0, floorEntry.value.length);
+                                  final rowRooms = floorEntry.value
+                                      .sublist(startIdx, endIdx);
+
+                                  return Row(
+                                    children: rowRooms.map((room) {
+                                      return Container(
+                                        width: 250,
+                                        // Adjust the width as needed
+                                        height: 100,
+                                        // Adjust the height as needed
+                                        margin: const EdgeInsets.only(left: 30),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            if (room.roomId.startsWith('RAE')) {
+                                              _navigateToWardPatientPage(
+                                                  room.roomId);
+                                            } else {
+                                              _navigateToPatientDetailPage(
+                                                  room.roomId);
+                                            }
+                                          },
+                                          child: Card(
+                                            elevation: 7,
+                                            shadowColor:
+                                                const Color(0xff82eefd),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8),
+                                              child: Center(
+                                                child: Text(
+                                                  'Room ${room.roomId}',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize:
+                                                        _calculateFontSize(
+                                                            context),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                        subtitle: Text('Room ${room.roomName}'),
-                                        // Add more details as needed
-                                      ),
-                                    )
+                                      );
+                                    }).toList(),
                                   );
                                 },
                               ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

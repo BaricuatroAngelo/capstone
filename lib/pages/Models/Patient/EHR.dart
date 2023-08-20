@@ -7,7 +7,7 @@ class PatientHealthRecord {
   final String vaccinationStatus;
 
   final String phrHistoryOfPresentIllness;
-  final String phrNonVerbalPatient;
+  final bool phrNonVerbalPatient;
   final bool phrHxFromParent;
   final bool phrHxFromFamily;
   final bool phrMedRecAvailable;
@@ -319,7 +319,7 @@ class PatientHealthRecord {
       sex: json['patient_sex'],
       vaccinationStatus: json['patient_vaccination_stat'],
       phrHistoryOfPresentIllness: json['phr_historyOfPresentIllness'],
-      phrNonVerbalPatient: json['phr_nonVerbalPatient'],
+      phrNonVerbalPatient: json['phr_nonVerbalPatient'] == 1 ? true : false,
       phrHxFromParent: json['phr_HxFromParent'] == 1 ? true : false,
       phrHxFromFamily: json['phr_HxFromFamily'] == 1 ? true : false,
       phrMedRecAvailable: json['phr_medRecAvailable'] == 1 ? true : false,

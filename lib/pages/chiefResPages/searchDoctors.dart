@@ -136,7 +136,7 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
   }
 
   void _onResidentSelected(Resident resident) {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       Navigator.push(
         context,
         PageRouteBuilder(
@@ -151,6 +151,7 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
               child: ResidentInfoPage(
                 residentId: resident.residentId,
                 authToken: widget.authToken,
+                resident: resident,
               ),
             );
           },

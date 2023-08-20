@@ -5,6 +5,7 @@ class Room {
   final String roomType;
   final double roomPrice;
   final String floorId;
+  bool isExpanded;
 
   Room({
     required this.roomId,
@@ -13,6 +14,7 @@ class Room {
     required this.roomType,
     required this.roomPrice,
     required this.floorId,
+    this.isExpanded = false,
   });
 
   factory Room.fromJson(Map<String, dynamic> json) {
