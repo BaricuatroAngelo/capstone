@@ -1,5 +1,7 @@
 import 'package:capstone/pages/Models/resident.dart';
 import 'package:capstone/pages/chiefResPages/chiefResLogin.dart';
+import 'package:capstone/pages/debugPage.dart';
+import 'package:capstone/pages/r_homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

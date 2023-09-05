@@ -1,135 +1,101 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart'; // Import the date formatting library
 
-class PostResultsPage extends StatefulWidget {
-  const PostResultsPage({Key? key}) : super(key: key);
+import '../design/containers/widgets/urlWidget.dart';
+import 'Models/Patient/EHR.dart';
+
+class LabResultsPage extends StatefulWidget {
+  final String authToken;
+  final String patientId;
+  final PatientHealthRecord patient;
+  LabResultsPage({
+    required this.authToken,
+    required this.patientId,
+    required this.patient,
+  });
 
   @override
-  PostResultsPageState createState() => PostResultsPageState();
+  _LabResultsPageState createState() => _LabResultsPageState();
 }
 
-class PostResultsPageState extends State<PostResultsPage> {
-  final TextEditingController resultController = TextEditingController();
+class _LabResultsPageState extends State<LabResultsPage> {
+  TextEditingController labResultDateController = TextEditingController();
+  TextEditingController resultsController = TextEditingController();
 
-  Future<void> postResults() async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/Results');
-
-    try {
-      final result = resultController.text;
-      if (result.trim().isEmpty) {
-        _showSnackBar('Result cannot be empty');
-        return;
-      }
-
-      final response = await http.post(
-        url,
-        body: {
-          'result': result,
-        },
-      );
-
-      print(response.statusCode);
-
-      if (response.statusCode == 201) {
-        // Successful post, you can handle the success here.
-        _showSnackBar('Result added successfully');
-        Navigator.of(context).pop();
-      } else {
-        // Failed to post results, you can handle the failure here.
-        // Show an error message or take appropriate action.
-        print(response.statusCode);
-        _showSnackBar('Failed to add result. Please try again.');
-      }
-    } catch (e) {
-      // An error occurred, you can handle the error here.
-      // Show an error message or take appropriate action.
-      print(e);
-      _showSnackBar('An error occurred. Please try again later.');
-    }
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the labResultDateController with today's date
+    final currentDate = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
+    labResultDateController.text = formattedDate;
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 3),
-      ),
+  Future<void> _submitResults() async {
+    final url = Uri.parse('${Env.prefix}/api/results'); // Replace with your API URL
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer ${widget.authToken}',
+      },
+      body: {
+        'labResultDate': labResultDateController.text,
+        'results': resultsController.text,
+        'patient_id': widget.patientId,
+      },
     );
+
+    print(response.body);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      // Successfully submitted lab results
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lab results submitted successfully!'),
+        ),
+      );
+      // Clear the input fields after successful submission
+      resultsController.clear();
+    } else {
+      // Failed to submit lab results
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to submit lab results. Please try again.'),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-        backgroundColor: const Color(0xffe3f9ff),
-        appBar: AppBar(
-          title: const Text('Results Page'),
-        ),
-        body: Stack(
-          clipBehavior: Clip.none,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lab Results'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Positioned(
-              top: 30,
-              left: 20,
-              child: Text(
-                'Results Page',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
-                ),
+            TextFormField(
+              enabled: false,
+              controller: labResultDateController,
+              decoration: InputDecoration(
+                labelText: 'Lab Result Date',
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, top: 70, right: 20),
-              child: Container(
-                height: 600,
-                width: MediaQuery.of(context).size.width,
-                color: Colors.white,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: SingleChildScrollView(
-                        child: TextFormField(
-                          controller: resultController,
-                          maxLines: null,
-                          textAlign: TextAlign.left,
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(16.0),
-                            hintText: 'Type Here...',
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            TextFormField(
+              controller: resultsController,
+              decoration: InputDecoration(
+                labelText: 'Results',
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 690, left: 20, right: 20),
-              child: InkWell(
-                onTap: () {
-                  FocusScope.of(context).unfocus();
-                  postResults();
-                },
-                child: Container(
-                  height: 70,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Center(
-                    child: Text('OK'),
-                  ),
-                ),
-              ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _submitResults,
+              child: Text('Submit Results'),
             ),
           ],
         ),

@@ -13,7 +13,7 @@ import 'Models/Floor/Room/AssignedRoom.dart';
 import 'PatientInfoPage.dart';
 
 class HomePage extends StatefulWidget {
-  final String? residentId;
+  final String residentId;
   final String authToken;
 
   const HomePage({Key? key, required this.residentId, required this.authToken})
@@ -92,7 +92,7 @@ class HomePageState extends State<HomePage> {
   Map<String, List<Room>> _roomsByFloor = {};
 
   Future<void> _fetchRooms() async {
-    final url = Uri.parse('${Env.prefix}/api/Rooms');
+    final url = Uri.parse('${Env.prefix}/api/rooms');
     try {
       final response = await http.get(
         url,
@@ -160,6 +160,7 @@ class HomePageState extends State<HomePage> {
         _showSnackBar('Failed to fetch resident data');
       }
     } catch (e) {
+      print(e);
       _showSnackBar('An error occurred. Please try again later.');
     }
   }
@@ -167,7 +168,7 @@ class HomePageState extends State<HomePage> {
   Set<String> _assignedRoomIds = {};
 
   Future<void> _fetchAssignedRooms() async {
-    final url = Uri.parse('${Env.prefix}/api/ResAssRooms/${widget.residentId}');
+    final url = Uri.parse('${Env.prefix}/api/resAssRooms/${widget.residentId}');
 
     try {
       final response = await http.get(
@@ -189,6 +190,7 @@ class HomePageState extends State<HomePage> {
         _showSnackBar('Failed to fetch assigned rooms');
       }
     } catch (e) {
+      print(e);
       _showSnackBar('An error occurred. Please try again later.');
     }
   }
@@ -196,7 +198,7 @@ class HomePageState extends State<HomePage> {
   void _navigateToPatientDetailPage(String roomId) async {
     final patientHealthRecordResponse = await http.get(
       Uri.parse(
-          '${Env.prefix}/api/PatientHealthRecord/getPatientbyRoom/$roomId'),
+          '${Env.prefix}/api/patientHealthRecord/getPatientbyRoom/$roomId'),
       headers: {'Authorization': 'Bearer ${widget.authToken}'},
     );
 
@@ -223,6 +225,7 @@ class HomePageState extends State<HomePage> {
                 authToken: widget.authToken,
                 patient: patientHealthRecord,
                 patientId: patientHealthRecord.patientId,
+                residentId: widget.residentId,
               ),
             ),
           );
@@ -241,23 +244,24 @@ class HomePageState extends State<HomePage> {
     if (roomId.startsWith('RAE')) {
       final patientHealthRecordResponse = await http.get(
         Uri.parse(
-            '${Env.prefix}/api/PatientHealthRecord/getPatientbyRoom/$roomId'),
+            '${Env.prefix}/api/patientHealthRecord/getPatientbyRoom/$roomId'),
         headers: {'Authorization': 'Bearer ${widget.authToken}'},
       );
 
+      print(patientHealthRecordResponse.body);
       if (patientHealthRecordResponse.statusCode == 200) {
         final List<dynamic> patientDataList =
-        jsonDecode(patientHealthRecordResponse.body);
+            jsonDecode(patientHealthRecordResponse.body);
 
         if (patientDataList.isNotEmpty) {
           // Find the patient record with the matching room_id
           dynamic patientData = patientDataList.firstWhere(
-                  (data) => data['room_id'] == roomId,
+              (data) => data['room_id'] == roomId,
               orElse: () => null);
 
           if (patientData != null) {
             PatientHealthRecord patientHealthRecord =
-            PatientHealthRecord.fromJson(patientData);
+                PatientHealthRecord.fromJson(patientData);
 
             // Navigate to the RoomPatientsPage with the patient's health record and room_id
             Navigator.push(
@@ -280,7 +284,6 @@ class HomePageState extends State<HomePage> {
       }
     }
   }
-
 
   void _showNoPatientDialog(BuildContext context, String roomId) {
     showDialog(
@@ -319,9 +322,20 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
+    // final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
-    final centerPosition = screenHeight / 2;
+    // final centerPosition = screenHeight / 2;
+    if (_resident == null) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child:
+              CircularProgressIndicator(), // Display CircularProgressIndicator
+        ),
+      );
+    }
+
+    // Continue building the UI once data is available
     return Scaffold(
       backgroundColor: const Color(0xffE3F9FF),
       body: Stack(
@@ -470,7 +484,7 @@ class HomePageState extends State<HomePage> {
                             headerBackgroundColorOpened:
                                 const Color(0xff66d0ed),
                             header: Padding(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                   left: 20, top: 10, bottom: 10),
                               child: Text(
                                 floorEntry.key,
@@ -548,7 +562,7 @@ class HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

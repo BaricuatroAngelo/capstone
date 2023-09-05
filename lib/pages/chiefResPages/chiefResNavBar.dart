@@ -1,3 +1,4 @@
+import 'package:capstone/pages/debugPage.dart';
 import 'package:capstone/pages/ProfilePage.dart';
 import 'package:capstone/pages/chiefResPages/chiefHomePage.dart';
 import 'package:capstone/pages/chiefResPages/chiefMessage.dart';

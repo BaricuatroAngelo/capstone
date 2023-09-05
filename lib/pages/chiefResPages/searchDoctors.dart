@@ -45,7 +45,9 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
     final url = Uri.parse('${Env.prefix}/api/residents');
 
     try {
-      final response = await http.get(url);
+      final response = await http.get(url, headers: {
+        'Authorization': 'Bearer ${widget.authToken}',
+      });
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);

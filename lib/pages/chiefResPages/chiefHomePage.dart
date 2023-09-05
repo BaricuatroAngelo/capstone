@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../../debugPage.dart';
+import '../debugPage.dart';
 import '../../design/containers/containers.dart';
 import '../../design/containers/widgets/urlWidget.dart';
 import '../Models/Floor/Room/Room.dart';
@@ -27,7 +27,7 @@ class ChiefHomePageState extends State<ChiefHomePage> {
   late Map<String, List<Room>> _roomsByFloor = {};
 
   Future<void> _fetchRooms() async {
-    final url = Uri.parse('${Env.prefix}/api/Rooms');
+    final url = Uri.parse('${Env.prefix}/api/rooms');
     try {
       final response = await http.get(
         url,
@@ -95,6 +95,7 @@ class ChiefHomePageState extends State<ChiefHomePage> {
                 authToken: widget.authToken,
                 patient: patientHealthRecord,
                 patientId: patientHealthRecord.patientId,
+                residentId: widget.residentId,
               ),
             ),
           );

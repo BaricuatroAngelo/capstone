@@ -56,7 +56,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   }
 
   Future<void> _fetchPatients() async {
-    final url = Uri.parse('${Env.prefix}/api/PatientHealthRecord');
+    final url = Uri.parse('${Env.prefix}/api/patientHealthRecord');
 
     try {
       final response = await http.get(
@@ -168,6 +168,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                 authToken: widget.authToken,
                 patient: patient,
                 roomId: patient.roomId,
+                residentId: widget.residentId,
               ),
             );
           },

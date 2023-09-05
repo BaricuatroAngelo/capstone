@@ -86,13 +86,15 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
   }
 
   Future<void> _fetchResidentData() async {
-    final url =
-        Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
+    final url = Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
 
     try {
       final response = await http
           .get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
       final responseData = json.decode(response.body);
+
+      print(response.statusCode);
+      print(response.body);
 
       if (response.statusCode == 200) {
         setState(() {
@@ -107,6 +109,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
       }
     } catch (e) {
       _showSnackBar('An error occurred. Please try again later.');
+      print(e);
       setState(() {
         _isLoading = false;
       });
@@ -195,7 +198,8 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
               left: 30,
               child: const Padding(
                 padding: EdgeInsets.only(right: 200),
-                child: Text('_____________________________________________________________________________________________________________________________________'),
+                child: Text(
+                    '_____________________________________________________________________________________________________________________________________'),
               ),
             ),
             if (!_isLoading) ...[
@@ -214,6 +218,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
                         'Username', _resident?.residentUserName ?? ''),
                     buildProfileInfoTile(
                         'Department ID', _resident?.departmentId ?? ''),
+                    buildProfileInfoTile('Role', _resident!.role),
                   ],
                 ),
               ),

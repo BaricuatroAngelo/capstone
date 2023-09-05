@@ -94,6 +94,9 @@ class _ProfilePageState extends State<ProfilePage> {
           .get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
       final responseData = json.decode(response.body);
 
+      print(response.statusCode);
+      print(response.body);
+
       if (response.statusCode == 200) {
         setState(() {
           _resident = Resident.fromJson(responseData);
@@ -107,6 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     } catch (e) {
       _showSnackBar('An error occurred. Please try again later.');
+      print(e);
       setState(() {
         _isLoading = false;
       });
@@ -202,6 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         'Username', _resident?.residentUserName ?? ''),
                     buildProfileInfoTile(
                         'Department ID', _resident?.departmentId ?? ''),
+                    buildProfileInfoTile('Role', _resident!.role),
                   ],
                 ),
               ),

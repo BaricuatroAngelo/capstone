@@ -7,6 +7,7 @@ class Resident {
   final String residentLName;
   final String residentMName;
   final String residentPassword;
+  final String role;
   final String departmentId;
 
   Resident({
@@ -16,6 +17,7 @@ class Resident {
     required this.residentLName,
     required this.residentMName,
     required this.residentPassword,
+    required this.role,
     required this.departmentId,
   });
 
@@ -27,6 +29,7 @@ class Resident {
       residentLName: json['resident_lName'] ?? '',
       residentMName: json['resident_mName'] ?? '',
       residentPassword: json['resident_password'] ?? '',
+      role: json['role'] ?? '',
       departmentId: json['department_id'] ?? '',
     );
   }
