@@ -38,7 +38,8 @@ class _FileUploadPageState extends State<FileUploadPage> {
 
   Future<void> _uploadFile() async {
     if (_selectedFile != null) {
-      final url = Uri.parse('${Env.prefix}/api/fileUpload'); // Replace with your API URL
+      final url = Uri.parse(
+          '${Env.prefix}/api/fileUpload'); // Replace with your API URL
       final request = http.MultipartRequest('POST', url);
 
       request.headers['Authorization'] = 'Bearer ${widget.authToken}';
@@ -68,17 +69,37 @@ class _FileUploadPageState extends State<FileUploadPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(title: const Text('File Upload')),
+      appBar: AppBar(
+        backgroundColor: const Color(0xff66d0ed),
+        elevation: 2,
+        toolbarHeight: 80,
+        title: Center(
+          child: Padding(
+            padding: EdgeInsets.only(right: 50),
+            child: Text(
+              'File Upload',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
               onPressed: _pickFile,
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                primary: const Color(0xff66d0ed),
+              ),
               child: const Text('Select File'),
             ),
             const SizedBox(height: 20),
@@ -88,6 +109,13 @@ class _FileUploadPageState extends State<FileUploadPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _uploadFile,
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                primary: const Color(0xff66d0ed),
+              ),
               child: const Text('Upload File'),
             ),
           ],

@@ -348,7 +348,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
                     Icon(
                       Icons.assignment,
                       color: Colors.white,
-                      size: 30,
+                      size: 40,
                     ),
                     SizedBox(width: 10),
                     Text(
@@ -391,7 +391,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
                     Icon(
                       Icons.medical_services,
                       color: Colors.white,
-                      size: 30,
+                      size: 40,
                     ),
                     SizedBox(width: 10),
                     Text(
@@ -434,7 +434,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
                     Icon(
                       Icons.analytics,
                       color: Colors.white,
-                      size: 30,
+                      size: 40,
                     ),
                     SizedBox(width: 10),
                     Text(

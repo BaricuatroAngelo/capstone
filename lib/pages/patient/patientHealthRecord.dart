@@ -36,9 +36,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
         scrollDirection: Axis.vertical,
         child: GridView.count(
           crossAxisCount: 2,
-          // Number of columns in the grid
           shrinkWrap: true,
-          // To make GridView scrollable in a SingleChildScrollView
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(48),
           mainAxisSpacing: 48,
@@ -618,7 +616,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                               ),
                               ListTile(
                                 title: const Text(
-                                  'T:',
+                                  'T*:',
                                   style: TextStyle(fontSize: 30),
                                 ),
                                 trailing: Text(
@@ -682,9 +680,10 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.inbox_outlined,
-                          size: 50,
+                        Image(
+                          image: AssetImage('asset/blood-pressure.png'),
+                          height: 100,
+                          width: 100,
                         ),
                         Text(
                           'Constitutional',
@@ -1670,9 +1669,10 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.inbox_outlined,
-                          size: 50,
+                        Image(
+                          image: AssetImage('asset/abnormal.png'),
+                          height: 100,
+                          width: 100,
                         ),
                         Text(
                           'Extremities',

@@ -7,14 +7,18 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../design/containers/widgets/urlWidget.dart';
+import 'Models/Patient/patientMedicine.dart';
 import 'Models/medicine.dart';
 
 class MedicineSelectionPage extends StatefulWidget {
-  final String authToken; // You'll need to pass the auth token here.
+  final String authToken;
   final String patientId;
   final PatientHealthRecord patient;
+
   MedicineSelectionPage(
-      {required this.authToken, required this.patientId, required this.patient});
+      {required this.authToken,
+      required this.patientId,
+      required this.patient});
 
   @override
   _MedicineSelectionPageState createState() => _MedicineSelectionPageState();
@@ -22,6 +26,7 @@ class MedicineSelectionPage extends StatefulWidget {
 
 class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
   List<Medicine> _medicineOptions = [];
+  List<PatientMedicine> _patientMedicines = [];
   Medicine? _selectedMedicine;
   String? _selectedFrequency;
 
@@ -29,22 +34,18 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
   void initState() {
     super.initState();
     fetchMedicineOptions();
+    fetchPatientMedicines();
   }
 
   String generatePatientMedicineId(int currentIndex) {
-    // Define a prefix (e.g., "PM")
-    final prefix = 'PM';
+    const prefix = 'PM';
 
-    // Generate the numeric part by incrementing currentIndex by 1
     final numericPart = (currentIndex + 1).toString();
 
-    // Calculate the padding length based on your desired length (e.g., 2 for double digits)
     final paddingLength = 2 - numericPart.length;
 
-    // Create the numeric part with leading zeros if needed
     final paddedNumericPart = '0' * paddingLength + numericPart;
 
-    // Combine the prefix and numeric part to form the patientMedicine_id
     final patientMedicineId = '$prefix$paddedNumericPart';
 
     return patientMedicineId;
@@ -52,7 +53,8 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
 
   Future<void> storeSelectedMedicine() async {
     if (_selectedMedicine != null && _selectedFrequency != null) {
-      final url = Uri.parse('${Env.prefix}/api/patientMedicines'); // Replace with your API URL.
+      final url = Uri.parse(
+          '${Env.prefix}/api/patientMedicines'); // Replace with your API URL.
       final response = await http.post(
         url,
         headers: {'Authorization': 'Bearer ${widget.authToken}'},
@@ -65,7 +67,6 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
       );
 
       if (response.statusCode == 200) {
-        // Medicine added successfully
         setState(() {
           _selectedMedicine = null;
           _selectedFrequency = null;
@@ -77,8 +78,47 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
     }
   }
 
+  Future<void> fetchPatientMedicines() async {
+    final url = Uri.parse(
+        '${Env.prefix}/api/patientMedicines'); // Replace with your API URL.
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer ${widget.authToken}'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List<dynamic>;
+      final patientMedicines =
+          data.map((json) => PatientMedicine.fromJson(json)).toList();
+
+      setState(() {
+        _patientMedicines = patientMedicines;
+      });
+    } else {
+      // Handle API error
+      print('Failed to fetch patient medicines');
+    }
+  }
+
+  Medicine getMedicineById(String medicineId) {
+    final medicine = _medicineOptions.firstWhere(
+      (medicine) => medicine.medicineId == medicineId,
+      orElse: () => Medicine(
+        // Provide default values here
+        medicineId: 'Unknown',
+        medicineName: 'Unknown',
+        medicineBrand: 'Unknown',
+        medicineDosage: 'Unknown',
+        medicineType: 'Unknown',
+        medicinePrice: 'Unknown',
+      ),
+    );
+    return medicine;
+  }
+
   Future<void> fetchMedicineOptions() async {
-    final url = Uri.parse('${Env.prefix}/api/medicines'); // Replace with your API URL.
+    final url =
+        Uri.parse('${Env.prefix}/api/medicines'); // Replace with your API URL.
     final response = await http.get(
       url,
       headers: {'Authorization': 'Bearer ${widget.authToken}'},
@@ -87,6 +127,9 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as List<dynamic>;
       final medicines = data.map((json) => Medicine.fromJson(json)).toList();
+
+      medicines.sort((a, b) => a.medicineType.compareTo(b.medicineType));
+
       setState(() {
         _medicineOptions = medicines;
       });
@@ -96,11 +139,32 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
     }
   }
 
+  Future<void> reloadPage() async {
+    await fetchPatientMedicines();
+    setState(() {}); // Trigger a rebuild of the UI
+  }
+
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Medicine Selection'),
+        backgroundColor: const Color(0xff66d0ed),
+        elevation: 2,
+        toolbarHeight: 80,
+        title: Padding(
+            padding: EdgeInsets.only(left: (screenWidth - 400) / 2),
+            child: const Text(
+              'Medicine Selection',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            )),
+        actions: [
+          IconButton(
+              onPressed: () {
+                reloadPage();
+              },
+              icon: const Icon(Icons.refresh, size: 30,)),
+        ],
       ),
       body: Center(
         child: Padding(
@@ -115,8 +179,9 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                   final isSelected = medicine == _selectedMedicine;
                   final itemStyle = isSelected
                       ? const TextStyle(
-                    color: Colors.grey, // Set the color to grey for selected item
-                  )
+                          color: Colors
+                              .grey, // Set the color to grey for selected item
+                        )
                       : null; // Null style for unselected items
 
                   return DropdownMenuItem<Medicine>(
@@ -124,18 +189,28 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          medicine.medicineName,
-                          style: itemStyle,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              medicine.medicineName,
+                              style: itemStyle,
+                            ),
+                            Text(
+                              medicine.medicineType,
+                              style: itemStyle,
+                            )
+                          ],
                         ),
                         Text(
                           '${medicine.medicineBrand} ${medicine.medicineDosage}',
                           style: isSelected
-                              ? TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          )
-                              : const TextStyle(fontSize: 12, color: Colors.grey),
+                              ? const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                )
+                              : const TextStyle(
+                                  fontSize: 12, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -146,6 +221,13 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                     _selectedMedicine = value;
                   });
                 },
+              ),
+              const SizedBox(height: 20),
+              Text(
+                _selectedMedicine != null
+                    ? 'Selected Medicine: ${_selectedMedicine!.medicineBrand} ${_selectedMedicine!.medicineName} (${_selectedMedicine!.medicineDosage}, ${_selectedMedicine!.medicineType})'
+                    : 'Selected Medicine: ',
+                style: const TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 20),
               DropdownButton<String>(
@@ -175,21 +257,61 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                _selectedMedicine != null
-                    ? 'Selected Medicine: ${_selectedMedicine!.medicineBrand} ${_selectedMedicine!.medicineName} (${_selectedMedicine!.medicineDosage})'
-                    : 'No medicine selected',
-                style: const TextStyle(fontSize: 18),
-              ),
-              Text(
                 _selectedFrequency != null
                     ? 'Selected Frequency: $_selectedFrequency'
-                    : 'No frequency selected',
+                    : 'Selected Frequency:',
                 style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Text(
+                'Patient Medicines:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Container(
+                  height: 200,
+                  width: screenWidth,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  child: ListView.builder(
+                    itemCount: _patientMedicines.length,
+                    itemBuilder: (context, index) {
+                      final patientMedicine = _patientMedicines[index];
+                      final medicine =
+                          getMedicineById(patientMedicine.medicineId);
+
+                      return ListTile(
+                        title: Text(medicine.medicineName),
+                        trailing: Text(medicine.medicineType),
+                        subtitle: Text(patientMedicine.medicineFrequency),
+                        // Customize the list item as needed.
+                      );
+                    },
+                  )),
+              const SizedBox(
+                height: 20,
               ),
               ElevatedButton(
                 onPressed: () {
                   storeSelectedMedicine();
                 },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  primary: const Color(0xff66d0ed),
+                ),
                 child: const Text('Add Selected Medicine'),
               ),
             ],

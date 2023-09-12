@@ -28,55 +28,38 @@ class HomePageState extends State<HomePage> {
   List<AssignedRoom> _assignedRooms = [];
 
   double _calculateContainerHeight(BuildContext context) {
-    // Get the screen height
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Define your desired height range based on the screen height
-    // You can adjust the values as per your preference
     if (screenHeight < 600) {
       // Small phones
       return 150;
     } else if (screenHeight < 1000) {
-      // Medium-sized phones and small tablets
       return 200;
     } else {
-      // Larger tablets and devices
       return 200;
     }
   }
 
   double _calculateContainerWidth(BuildContext context) {
-    // Get the screen height
     final screenWidth = MediaQuery.of(context).size.height;
 
-    // Define your desired height range based on the screen height
-    // You can adjust the values as per your preference
     if (screenWidth < 600) {
-      // Small phones
       return 150;
     } else if (screenWidth < 1000) {
-      // Medium-sized phones and small tablets
       return 200;
     } else {
-      // Larger tablets and devices
       return 300;
     }
   }
 
   double _calculateFontSize(BuildContext context) {
-    // Get the screen height
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Define your desired font size range based on the screen height
-    // You can adjust the values as per your preference
     if (screenHeight < 600) {
-      // Small phones
       return 16;
     } else if (screenHeight < 1000) {
-      // Medium-sized phones and small tablets
       return 18;
     } else {
-      // Larger tablets and devices
       return 24;
     }
   }
@@ -207,7 +190,6 @@ class HomePageState extends State<HomePage> {
           jsonDecode(patientHealthRecordResponse.body);
 
       if (patientDataList.isNotEmpty) {
-        // Find the patient record with the matching room_id
         dynamic patientData = patientDataList.firstWhere(
             (data) => data['room_id'] == roomId,
             orElse: () => null);
@@ -216,7 +198,7 @@ class HomePageState extends State<HomePage> {
           PatientHealthRecord patientHealthRecord =
               PatientHealthRecord.fromJson(patientData);
 
-          // Navigate to the PatientDetailPage with the patient's health record and room_id
+
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -254,7 +236,6 @@ class HomePageState extends State<HomePage> {
             jsonDecode(patientHealthRecordResponse.body);
 
         if (patientDataList.isNotEmpty) {
-          // Find the patient record with the matching room_id
           dynamic patientData = patientDataList.firstWhere(
               (data) => data['room_id'] == roomId,
               orElse: () => null);
@@ -263,7 +244,7 @@ class HomePageState extends State<HomePage> {
             PatientHealthRecord patientHealthRecord =
                 PatientHealthRecord.fromJson(patientData);
 
-            // Navigate to the RoomPatientsPage with the patient's health record and room_id
+
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -296,7 +277,7 @@ class HomePageState extends State<HomePage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: const Text('OK'),
             ),
@@ -330,7 +311,7 @@ class HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         body: Center(
           child:
-              CircularProgressIndicator(), // Display CircularProgressIndicator
+              CircularProgressIndicator(),
         ),
       );
     }
@@ -511,9 +492,7 @@ class HomePageState extends State<HomePage> {
                                     children: rowRooms.map((room) {
                                       return Container(
                                         width: 250,
-                                        // Adjust the width as needed
                                         height: 100,
-                                        // Adjust the height as needed
                                         margin: const EdgeInsets.only(left: 30),
                                         child: GestureDetector(
                                           onTap: () {
