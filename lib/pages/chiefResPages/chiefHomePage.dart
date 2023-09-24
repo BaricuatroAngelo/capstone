@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:capstone/pages/Models/Patient/patient.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../debugPage.dart';
@@ -83,18 +84,17 @@ class ChiefHomePageState extends State<ChiefHomePage> {
             orElse: () => null);
 
         if (patientData != null) {
-          PatientHealthRecord patientHealthRecord =
-              PatientHealthRecord.fromJson(patientData);
+          Patient patientHealthRecord =
+              Patient.fromJson(patientData);
 
           // Navigate to the PatientDetailPage with the patient's health record and room_id
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => PatientDetailPage(
-                roomId: roomId,
                 authToken: widget.authToken,
                 patient: patientHealthRecord,
-                patientId: patientHealthRecord.patientId,
+                patientId: patientHealthRecord.patient_id,
                 residentId: widget.residentId,
               ),
             ),

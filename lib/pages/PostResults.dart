@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:capstone/pages/Models/Patient/patient.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -11,7 +12,7 @@ import 'Models/results.dart';
 class LabResultsPage extends StatefulWidget {
   final String authToken;
   final String patientId;
-  final PatientHealthRecord patient;
+  final Patient patient;
 
   const LabResultsPage({
     super.key,
@@ -221,7 +222,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Patient ${widget.patient.patientId} Results:',
+                  'Patient ${widget.patient.patient_id} Results:',
                   style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,

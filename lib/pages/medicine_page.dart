@@ -7,13 +7,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../design/containers/widgets/urlWidget.dart';
+import 'Models/Patient/patient.dart';
 import 'Models/Patient/patientMedicine.dart';
 import 'Models/medicine.dart';
 
 class MedicineSelectionPage extends StatefulWidget {
   final String authToken;
   final String patientId;
-  final PatientHealthRecord patient;
+  final Patient patient;
 
   MedicineSelectionPage(
       {required this.authToken,
@@ -173,16 +174,17 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               DropdownButton<Medicine>(
-                hint: const Text('Select a medicine'),
+                hint: const Text('Select a medicine', style: TextStyle(fontSize: 24),),
                 value: _selectedMedicine,
                 items: _medicineOptions.map((medicine) {
                   final isSelected = medicine == _selectedMedicine;
                   final itemStyle = isSelected
                       ? const TextStyle(
                           color: Colors
-                              .grey, // Set the color to grey for selected item
+                              .grey,
+                    fontSize: 18,
                         )
-                      : null; // Null style for unselected items
+                      : null;
 
                   return DropdownMenuItem<Medicine>(
                     value: medicine,
@@ -206,11 +208,11 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                           '${medicine.medicineBrand} ${medicine.medicineDosage}',
                           style: isSelected
                               ? const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 18,
                                   color: Colors.grey,
                                 )
                               : const TextStyle(
-                                  fontSize: 12, color: Colors.grey),
+                                  fontSize: 18, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -227,11 +229,11 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                 _selectedMedicine != null
                     ? 'Selected Medicine: ${_selectedMedicine!.medicineBrand} ${_selectedMedicine!.medicineName} (${_selectedMedicine!.medicineDosage}, ${_selectedMedicine!.medicineType})'
                     : 'Selected Medicine: ',
-                style: const TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 24),
               ),
               const SizedBox(height: 20),
               DropdownButton<String>(
-                hint: const Text('Select frequency'),
+                hint: const Text('Select frequency', style: TextStyle(fontSize: 24),),
                 value: _selectedFrequency,
                 items: <String>[
                   'daily',
@@ -260,17 +262,17 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                 _selectedFrequency != null
                     ? 'Selected Frequency: $_selectedFrequency'
                     : 'Selected Frequency:',
-                style: const TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 24),
               ),
               const SizedBox(
                 height: 20,
               ),
               const Text(
                 'Patient Medicines:',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(
-                height: 20,
+                height: 26,
               ),
               Container(
                   height: 200,
@@ -290,9 +292,9 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                           getMedicineById(patientMedicine.medicineId);
 
                       return ListTile(
-                        title: Text(medicine.medicineName),
-                        trailing: Text(medicine.medicineType),
-                        subtitle: Text(patientMedicine.medicineFrequency),
+                        title: Text(medicine.medicineName, style: const TextStyle(fontSize: 24),),
+                        trailing: Text(medicine.medicineType, style: const TextStyle(fontSize: 24),),
+                        subtitle: Text(patientMedicine.medicineFrequency, style: const TextStyle(fontSize: 24),),
                         // Customize the list item as needed.
                       );
                     },

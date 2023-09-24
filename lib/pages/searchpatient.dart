@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 import 'package:capstone/design/containers/containers.dart';
+import 'package:capstone/design/containers/text.dart';
 import 'package:capstone/pages/Models/Patient/EHR.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -8,6 +9,7 @@ import 'dart:convert';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import '../design/containers/widgets/urlWidget.dart';
 import '../providers/constants.dart';
+import 'Models/Patient/patient.dart';
 import 'PatientInfoPage.dart';
 
 class SearchPatientPage extends StatefulWidget {
@@ -23,13 +25,49 @@ class SearchPatientPage extends StatefulWidget {
 }
 
 class _SearchPatientPageState extends State<SearchPatientPage> {
-  List<PatientHealthRecord> _patients = [];
-  List<PatientHealthRecord> _filteredPatients = [];
+  List<Patient> _patients = [];
+  List<Patient> _filteredPatients = [];
   SortType _sortType = SortType.Name;
   bool _isNameAscending = true;
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   bool _isLoading = true;
+
+  double _calculateContainerHeight(BuildContext context) {
+    // Get the screen height
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Define your desired height range based on the screen height
+    // You can adjust the values as per your preference
+    if (screenHeight < 600) {
+      // Small phones
+      return 150;
+    } else if (screenHeight < 1000) {
+      // Medium-sized phones and small tablets
+      return 200;
+    } else {
+      // Larger tablets and devices
+      return 300;
+    }
+  }
+
+  double _calculateContainerWidth(BuildContext context) {
+    // Get the screen height
+    final screenWidth = MediaQuery.of(context).size.height;
+
+    // Define your desired height range based on the screen height
+    // You can adjust the values as per your preference
+    if (screenWidth < 600) {
+      // Small phones
+      return 150;
+    } else if (screenWidth < 1000) {
+      // Medium-sized phones and small tablets
+      return 200;
+    } else {
+      // Larger tablets and devices
+      return 300;
+    }
+  }
 
   double _calculateFontSize(BuildContext context) {
     // Get the screen height
@@ -56,7 +94,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   }
 
   Future<void> _fetchPatients() async {
-    final url = Uri.parse('${Env.prefix}/api/patientHealthRecord');
+    final url = Uri.parse('${Env.prefix}/api/patients');
 
     try {
       final response = await http.get(
@@ -73,9 +111,8 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
         setState(() {
-          _patients = responseData
-              .map((data) => PatientHealthRecord.fromJson(data))
-              .toList();
+          _patients =
+              responseData.map((data) => Patient.fromJson(data)).toList();
           _filteredPatients = List.from(_patients);
           _isLoading = false;
         });
@@ -103,55 +140,19 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
     );
   }
 
-  void _sortData(SortType sortType) {
-    setState(() {
-      if (_sortType == sortType) {
-        _isNameAscending = !_isNameAscending;
-      } else {
-        _isNameAscending = true;
-      }
-      _sortType = sortType;
-
-      _filteredPatients.sort((a, b) {
-        int compare;
-        if (sortType == SortType.Name) {
-          compare = a.firstName.compareTo(b.firstName);
-        } else if (sortType == SortType.ID) {
-          compare = a.patientId.compareTo(b.patientId);
-        } else if (sortType == SortType.Room) {
-          compare = a.roomId!.compareTo(b.roomId!);
-        } else {
-          compare = 0;
-        }
-        return _isNameAscending ? compare : -compare;
-      });
-    });
-  }
-
   void _filterPatients(String query) {
     setState(() {
       _isSearching = query.isNotEmpty;
       _filteredPatients = _patients.where((patient) {
         final fullName =
-            '${patient.firstName} ${patient.lastName}'.toLowerCase();
+            '${patient.patient_fName} ${patient.patient_lName}'.toLowerCase();
         return fullName.contains(query.toLowerCase()) ||
-            patient.patientId.toLowerCase().contains(query.toLowerCase()) ||
-            patient.phrStartTime.toLowerCase().contains(query.toLowerCase());
+            patient.patient_id.toLowerCase().contains(query.toLowerCase());
       }).toList();
     });
   }
 
-  void _applyFilter(String filterType) {
-    if (filterType == 'Name') {
-      _sortData(SortType.Name);
-    } else if (filterType == 'Patient ID') {
-      _sortData(SortType.ID);
-    } else if (filterType == 'Room') {
-      _sortData(SortType.Room);
-    }
-  }
-
-  void _onPatientSelected(PatientHealthRecord patient) {
+  void _onPatientSelected(Patient patient) {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       Navigator.of(context).push(
         PageRouteBuilder(
@@ -164,10 +165,9 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                 end: Offset.zero,
               ).animate(animation),
               child: PatientDetailPage(
-                patientId: patient.patientId,
+                patientId: patient.patient_id,
                 authToken: widget.authToken,
                 patient: patient,
-                roomId: patient.roomId,
                 residentId: widget.residentId,
               ),
             );
@@ -201,6 +201,9 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
+                          style: TextStyle(
+                            fontSize: 22
+                          ),
                           controller: _searchController,
                           onChanged: (query) => setState(() {
                             _filterPatients(query);
@@ -211,40 +214,40 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                             suffixIcon: IconButton(
                               icon: const Icon(Icons.filter_list),
                               onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text('Sort By'),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ListTile(
-                                            title: const Text('ID'),
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                              _applyFilter('Patient ID');
-                                            },
-                                          ),
-                                          ListTile(
-                                            title: const Text('Name'),
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                              _applyFilter('Name');
-                                            },
-                                          ),
-                                          ListTile(
-                                            title: const Text('Room'),
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                              _applyFilter('Room');
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
+                                // showDialog(
+                                //   context: context,
+                                //   builder: (context) {
+                                //     return AlertDialog(
+                                //       title: const Text('Sort By'),
+                                //       content: Column(
+                                //         mainAxisSize: MainAxisSize.min,
+                                //         children: [
+                                //           ListTile(
+                                //             title: const Text('ID'),
+                                //             onTap: () {
+                                //               Navigator.pop(context);
+                                //               _applyFilter('Patient ID');
+                                //             },
+                                //           ),
+                                //           ListTile(
+                                //             title: const Text('Name'),
+                                //             onTap: () {
+                                //               Navigator.pop(context);
+                                //               _applyFilter('Name');
+                                //             },
+                                //           ),
+                                //           ListTile(
+                                //             title: const Text('Room'),
+                                //             onTap: () {
+                                //               Navigator.pop(context);
+                                //               _applyFilter('Room');
+                                //             },
+                                //           ),
+                                //         ],
+                                //       ),
+                                //     );
+                                //   },
+                                // );
                               },
                             ),
                             floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -259,240 +262,102 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                   ),
                 ),
                 space,
-                Stack(
-                  children: [
-                    Container(
-                      width: 600,
-                      height: 850,
-                      decoration: patientCard,
-                      child: _filteredPatients.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'Patient does not exist...',
-                                style:
-                                    TextStyle(fontSize: 24, color: Colors.grey),
-                              ),
-                            )
-                          : CardSwiper(
-                              isLoop: true,
-                              allowedSwipeDirection: AllowedSwipeDirection.only(
-                                  left: true,
-                                  right: true,
-                                  up: false,
-                                  down: false),
-                              cardsCount: _filteredPatients.length,
-                              numberOfCardsDisplayed: _filteredPatients.length,
-                              cardBuilder: (context, index, percentThresholdX,
-                                  percentThresholdY) {
-                                final patient = _filteredPatients[index];
-                                print(_filteredPatients[index]);
-                                String fullName = patient.firstName;
-                                if (patient.middleName.isNotEmpty) {
-                                  fullName += ' ${patient.middleName[0]}.';
-                                }
-                                fullName += ' ${patient.lastName}';
-
-                                return Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(70)),
+                if (_isSearching) ...[
+                  ListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: _filteredPatients.map((patient) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        child: GestureDetector(
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                            _onPatientSelected(patient);
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 10),
                                   ),
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        height: 150,
-                                        decoration: upperCardBox,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 30, bottom: 30),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                ]),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: 300,
+                                  width: _calculateContainerWidth(context),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(50),
+                                    color: const Color(0xff99e9ff),
+                                  ),
+                                  child: const Image(
+                                    image: AssetImage('asset/patient.png'),
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 30),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            patient.patient_id,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 50, // You can adjust the font size as needed
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Text(
+                                            'Patient Name: ${patient.patient_fName} ${patient.patient_lName}',
+                                            style: const TextStyle(
+                                              fontSize: 36, // You can adjust the font size as needed
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Row(
                                             children: [
                                               Text(
-                                                'Patient ${patient.patientId}',
+                                                'Sex: ${patient.patient_sex}',
                                                 style: const TextStyle(
-                                                    fontSize: 40,
-                                                    color: Colors.white,
-                                                    fontWeight:
-                                                        FontWeight.bold),
+                                                  fontSize:
+                                                  36, // You can adjust the font size as needed
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 20,
+                                              ),
+                                              Text(
+                                                'Age: ${patient.patient_age.toString()}',
+                                                style: const TextStyle(
+                                                  fontSize:
+                                                  36, // You can adjust the font size as needed
+                                                ),
                                               ),
                                             ],
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 150),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            const SizedBox(height: 16),
-                                            ListTile(
-                                              leading: const Icon(Icons.person,
-                                                  size: 42),
-                                              title: Text(
-                                                'Name: $fullName',
-                                                style: const TextStyle(
-                                                    fontSize: 26),
-                                              ),
-                                            ),
-                                            const Divider(),
-                                            ListTile(
-                                              leading: const SizedBox(
-                                                height: 50,
-                                                width: 50,
-                                                child: Image(
-                                                  image: AssetImage(
-                                                      'asset/gender.png'),
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                'Sex: ${patient.sex}',
-                                                style: const TextStyle(
-                                                    fontSize: 26),
-                                              ),
-                                            ),
-                                            const Divider(),
-                                            ListTile(
-                                              leading: const SizedBox(
-                                                height: 50,
-                                                width: 50,
-                                                child: Image(
-                                                  image: AssetImage(
-                                                      'asset/age.png'),
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                'Age: ${patient.age}',
-                                                style: const TextStyle(
-                                                    fontSize: 26),
-                                              ),
-                                            ),
-                                            const Divider(),
-                                            ListTile(
-                                              leading: const SizedBox(
-                                                height: 50,
-                                                width: 50,
-                                                child: Image(
-                                                  image: AssetImage(
-                                                      'asset/vaccinated.png'),
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                'Vaccine Taken: ${patient.vaccinationStatus}',
-                                                style: const TextStyle(
-                                                    fontSize: 26),
-                                              ),
-                                            ),
-                                            const Divider(),
-                                            ListTile(
-                                              leading: const SizedBox(
-                                                height: 50,
-                                                width: 50,
-                                                child: Image(
-                                                  image: AssetImage(
-                                                      'asset/height.png'),
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                'Height: ${patient.phrHeightCM} cm',
-                                                style: const TextStyle(
-                                                    fontSize: 26),
-                                              ),
-                                            ),
-                                            const Divider(),
-                                            ListTile(
-                                              leading: const SizedBox(
-                                                height: 50,
-                                                width: 50,
-                                                child: Image(
-                                                  image: AssetImage(
-                                                      'asset/weight-loss.png'),
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                'Weight: ${patient.phrWeightKg} Kg',
-                                                style: const TextStyle(
-                                                    fontSize: 26),
-                                              ),
-                                            ),
-                                            const Divider(),
-                                            ListTile(
-                                              leading: const SizedBox(
-                                                height: 50,
-                                                width: 50,
-                                                child: Image(
-                                                  image: AssetImage(
-                                                      'asset/contract.png'),
-                                                  color: Colors.black54,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                'Admission Time: ${patient.phrStartTime}',
-                                                style: const TextStyle(
-                                                    fontSize: 26),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 700),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            FocusScope.of(context).unfocus();
-                                            _onPatientSelected(patient);
-                                          },
-                                          child: Container(
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            height: 150,
-                                            decoration: viewPatientBox,
-                                            child: const Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 30),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    'View Patient Page',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 30,
-                                                        color: Colors.white),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                    )),
+                              ],
                             ),
-                    ),
-                  ],
-                )
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ]
               ],
             ),
           ),

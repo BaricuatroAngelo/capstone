@@ -1,6 +1,7 @@
 import 'package:accordion/accordion.dart';
 import 'package:accordion/controllers.dart';
 import 'package:capstone/design/containers/containers.dart';
+import 'package:capstone/pages/Models/Patient/patient.dart';
 import 'package:capstone/pages/wardPatients.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -125,6 +126,7 @@ class HomePageState extends State<HomePage> {
   Future<void> _fetchResidentData() async {
     final url = Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
 
+
     try {
       final response = await http.get(
         url,
@@ -195,18 +197,17 @@ class HomePageState extends State<HomePage> {
             orElse: () => null);
 
         if (patientData != null) {
-          PatientHealthRecord patientHealthRecord =
-              PatientHealthRecord.fromJson(patientData);
+          Patient patientHealthRecord =
+              Patient.fromJson(patientData);
 
 
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => PatientDetailPage(
-                roomId: roomId,
                 authToken: widget.authToken,
                 patient: patientHealthRecord,
-                patientId: patientHealthRecord.patientId,
+                patientId: patientHealthRecord.patient_id,
                 residentId: widget.residentId,
               ),
             ),
