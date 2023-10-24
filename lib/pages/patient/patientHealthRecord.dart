@@ -124,29 +124,32 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                   onTap: () {
                     navigateToCategoryAttribute(_categories[index].formCat_id);
                   },
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              catImages[index],
-                              height: 100,
-                              width: 100,
-                            ),
-                            const SizedBox(height: 10,),
-                            Text(
-                              _categories[index].formCat_name,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        )
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Center(
+                        child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  catImages[index],
+                                  height: 100,
+                                  width: 100,
+                                ),
+                                const SizedBox(height: 10,),
+                                Text(
+                                  _categories[index].formCat_name,
+                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            )
+                        ),
                       ),
                     ),
                   ),
