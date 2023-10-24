@@ -23,12 +23,12 @@ class PatientHealthRecordPage extends StatefulWidget {
 class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
   List<FormCat> _categories = [];
   List<String> catImages = [
-    'asset/abnormal.png',
+    'asset/constitution.png',
     'asset/sore-throat.png',
-    'asset/guts.png',
-    'asset/abnormal.png',
-    'asset/abnormal.png',
-    'asset/abnormal.png',
+    'asset/allergies.png',
+    'asset/surgery.png',
+    'asset/socialHistory.png',
+    'asset/familyHistory.png',
     'asset/contract.png',
     'asset/neck.png',
     'asset/lungs.png',
@@ -37,7 +37,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
     'asset/urinary.png',
     'asset/abnormal.png',
     'asset/skin.png',
-    'asset/contract.png',
+    'asset/past.png',
   ];
 
   Future<void> fetchForm() async {
