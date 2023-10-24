@@ -22,6 +22,23 @@ class PatientHealthRecordPage extends StatefulWidget {
 
 class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
   List<FormCat> _categories = [];
+  List<String> catImages = [
+    'asset/abnormal.png',
+    'asset/sore-throat.png',
+    'asset/guts.png',
+    'asset/abnormal.png',
+    'asset/abnormal.png',
+    'asset/abnormal.png',
+    'asset/contract.png',
+    'asset/neck.png',
+    'asset/lungs.png',
+    'asset/heart-beat.png',
+    'asset/guts.png',
+    'asset/urinary.png',
+    'asset/abnormal.png',
+    'asset/skin.png',
+    'asset/contract.png',
+  ];
 
   Future<void> fetchForm() async {
     final url = Uri.parse('${Env.prefix}/api/formCategories');
@@ -46,7 +63,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
         _showSnackBar('Failed to load data!');
       }
     } catch (e) {
-      _showSnackBar('An Error Occured. Please try again!');
+      _showSnackBar('An Error Occurred. Please try again!');
       print(e);
     }
   }
@@ -90,13 +107,13 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
         future: fetchForm(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
             return GridView.builder(
               physics: const BouncingScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: 48,
                 crossAxisSpacing: 48,
@@ -109,19 +126,24 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                   },
                   child: Card(
                     elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Image.asset(
+                              catImages[index],
+                              height: 100,
+                              width: 100,
+                            ),
+                            const SizedBox(height: 10,),
                             Text(
                               _categories[index].formCat_name,
-                              style: TextStyle(fontSize: 18),
-                            ),
-                            Text(
-                              _categories[index].formCat_description,
-                              style: TextStyle(fontSize: 18),
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                           ],
                         )
