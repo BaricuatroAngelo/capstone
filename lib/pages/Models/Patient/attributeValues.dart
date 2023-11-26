@@ -13,10 +13,10 @@ class AttributeValues {
 
   factory AttributeValues.fromJson(Map<String, dynamic> json) {
     return AttributeValues(
-      attributeVal_id: json['attributeVal_id'],
-      attributeVal_values: json['attributeVal_values'],
-      patient_id: json['patient_id'],
-      categoryAtt_id: json['categoryAtt_id'],
+      attributeVal_id: json['attributeVal_id'] ?? '',
+      attributeVal_values: json['attributeVal_values'] ?? '',
+      patient_id: json['patient_id'] ?? '',
+      categoryAtt_id: json['categoryAtt_id'] ?? '',
     );
   }
 }

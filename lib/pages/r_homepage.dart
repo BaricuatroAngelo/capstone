@@ -181,53 +181,59 @@ class HomePageState extends State<HomePage> {
   }
 
   void _navigateToPatientDetailPage(String roomId) async {
-    final patientHealthRecordResponse = await http.get(
-      Uri.parse(
-          '${Env.prefix}/api/patientHealthRecord/getPatientbyRoom/$roomId'),
-      headers: {'Authorization': 'Bearer ${widget.authToken}'},
-    );
+    try {
+      final patientHealthRecordResponse = await http.get(
+        Uri.parse('${Env.prefix}/api/patAssRooms/getPatientbyRoom/$roomId'),
+        headers: {'Authorization': 'Bearer ${widget.authToken}'},
+      );
 
-    if (patientHealthRecordResponse.statusCode == 200) {
-      final List<dynamic> patientDataList =
-          jsonDecode(patientHealthRecordResponse.body);
+      if (patientHealthRecordResponse.statusCode == 200) {
+        final List<dynamic> patientDataList =
+        jsonDecode(patientHealthRecordResponse.body);
 
-      if (patientDataList.isNotEmpty) {
-        dynamic patientData = patientDataList.firstWhere(
-            (data) => data['room_id'] == roomId,
-            orElse: () => null);
-
-        if (patientData != null) {
-          Patient patientHealthRecord =
-              Patient.fromJson(patientData);
-
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PatientDetailPage(
-                authToken: widget.authToken,
-                patient: patientHealthRecord,
-                patientId: patientHealthRecord.patient_id,
-                residentId: widget.residentId,
-              ),
-            ),
+        if (patientDataList.isNotEmpty) {
+          dynamic patientData = patientDataList.firstWhere(
+                (data) => data['room_id'] == roomId,
+            orElse: () => null,
           );
+
+          if (patientData != null) {
+            String patientId = patientData['patient_id'];
+            Patient patientHealthRecord = Patient.fromJson(patientData);
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PatientDetailPage(
+                  authToken: widget.authToken,
+                  patient: patientHealthRecord,
+                  patientId: patientId,
+                  residentId: widget.residentId,
+                ),
+              ),
+            );
+          } else {
+            _showNoPatientDialog(context, roomId);
+          }
         } else {
           _showNoPatientDialog(context, roomId);
         }
       } else {
         _showNoPatientDialog(context, roomId);
       }
-    } else {
+    } catch (e) {
+      print(e);
       _showNoPatientDialog(context, roomId);
     }
   }
+
+
 
   void _navigateToWardPatientPage(String roomId) async {
     if (roomId.startsWith('RAE')) {
       final patientHealthRecordResponse = await http.get(
         Uri.parse(
-            '${Env.prefix}/api/patientHealthRecord/getPatientbyRoom/$roomId'),
+            '${Env.prefix}/api/patAssRooms/getPatientbyRoom/$roomId'),
         headers: {'Authorization': 'Bearer ${widget.authToken}'},
       );
 

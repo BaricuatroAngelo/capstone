@@ -6,6 +6,7 @@ import 'package:capstone/pages/PostResults.dart';
 import 'package:capstone/pages/debugPage.dart';
 import 'package:capstone/pages/medicine_page.dart';
 import 'package:capstone/pages/patient/patientHealthRecord.dart';
+import 'package:capstone/pages/patientPhysicalExam.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../design/containers/containers.dart';
@@ -69,68 +70,16 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
     );
   }
 
-  // Future<void> transferPatient(String roomId) async {
-  //   final url = Uri.parse(
-  //       '${Env.prefix}/api/patientHealthRecord/transferPatient/${widget.patientId}');
-  //
-  //   final Map<String, dynamic> data = {
-  //     'room_id': roomId,
-  //   };
-  //
-  //   try {
-  //     final response = await http.post(
-  //       url,
-  //       headers: {'Authorization': 'Bearer ${widget.authToken}'},
-  //       body: data,
-  //     );
-  //
-  //     print(response.statusCode);
-  //     if (response.statusCode == 200) {
-  //       setState(() {
-  //         widget.roomId = roomId; // Update the roomId variable
-  //       });
-  //       _showSnackBar('Patient transferred successfully');
-  //     } else {
-  //       _showSnackBar('Failed to transfer patient');
-  //     }
-  //   } catch (e) {
-  //     _showSnackBar('An error occurred. Please try again later.');
-  //     print(e);
-  //   }
-  // }
-
-  // Future<void> performPatientCheckout() async {
-  //   // Check if the patient is eligible for checkout
-  //   if (widget.roomId == null) {
-  //     _showSnackBar('Patient has already been checked out');
-  //     return;
-  //   }
-  //
-  //   final url = Uri.parse(
-  //       '${Env.prefix}/api/patientHealthRecord/checkoutPatient/${widget.patientId}');
-  //
-  //   try {
-  //     final response = await http.get(
-  //       url,
-  //       headers: {'Authorization': 'Bearer ${widget.authToken}'},
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       // Handle a successful patient checkout, e.g., show a success message
-  //       _showSnackBar('Patient checked out successfully');
-  //       setState(() {
-  //         widget.roomId = null; // Update the patient's roomId
-  //       });
-  //     } else {
-  //       // Handle a failed checkout, e.g., show an error message
-  //       _showSnackBar('Failed to check out patient');
-  //     }
-  //   } catch (e) {
-  //     // Handle network or other errors, e.g., show an error message
-  //     _showSnackBar('An error occurred. Please try again later.');
-  //     print(e);
-  //   }
-  // }
+  void navigateToPhysicalExamPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PhysExam(
+            authToken: widget.authToken,
+            patient: widget.patient,
+            patientId: widget.patientId),
+      ),
+    );
+  }
 
   void navigateToHealthRecordPage() {
     Navigator.of(context).push(MaterialPageRoute(
@@ -159,6 +108,72 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
         patientId: widget.patientId,
       ),
     ));
+  }
+
+  Future<void> checkoutPatient(String patientId, String authToken) async {
+    final url = Uri.parse('${Env.prefix}/api/patAssRooms/checkout/$patientId');
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $authToken'},
+      );
+      if (response.statusCode == 200) {
+        print(response.statusCode);
+      } else {
+        // Handle unsuccessful checkout
+        showPatientNotAssignedDialog(context);
+      }
+    } catch (e) {
+      // Handle exceptions
+      print('Exception during checkout: $e');
+    }
+  }
+
+  void showPatientNotAssignedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Patient Not Assigned'),
+          content: Text('This patient is not currently assigned to a room.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void confirmCheckout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Checkout'),
+          content: Text('Are you sure you want to checkout this patient?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Dismiss the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                checkoutPatient(widget.patientId, widget.authToken);
+                Navigator.of(context).pop(true); // Dismiss the dialog
+              },
+              child: Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -200,73 +215,29 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           Padding(
             padding: const EdgeInsets.only(right: 20),
             child: IconButton(
-              onPressed: () {
-                // showDialog(
-                //   context: context,
-                //   builder: (context) {
-                //     return AlertDialog(
-                //       title: Text('Transfer Patient'),
-                //       content: DropdownButtonFormField<String>(
-                //         value: _selectedRoomId ?? widget.roomId,
-                //         items: _rooms.map((room) {
-                //           return DropdownMenuItem<String>(
-                //             value: room.roomId,
-                //             child: Text(room.roomName),
-                //           );
-                //         }).toList(),
-                //         onChanged: (newValue) {
-                //           setState(() {
-                //             _selectedRoomId =
-                //                 newValue; // Update the temporary variable
-                //           });
-                //         },
-                //       ),
-                //       actions: [
-                //         TextButton(
-                //           onPressed: () {
-                //             Navigator.of(context).pop();
-                //           },
-                //           child: Text('Cancel'),
-                //         ),
-                //         TextButton(
-                //           onPressed: () {
-                //             if (_selectedRoomId != null) {
-                //               transferPatient(
-                //                   _selectedRoomId!); // Use the selected room ID
-                //               setState(() {
-                //                 widget.roomId =
-                //                     _selectedRoomId; // Update the roomId variable
-                //               });
-                //             }
-                //             Navigator.of(context).pop();
-                //           },
-                //           child: Text('Transfer'),
-                //         ),
-                //       ],
-                //     );
-                //   },
-                // );
-              },
+              onPressed: () {},
               icon: Icon(
                 Icons.transfer_within_a_station,
                 size: 30,
               ),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(right: 20),
-            child: IconButton(
-              onPressed: (){},
-              icon: const Icon(
-                Icons.check,
-                size: 30,
-              ),
+          IconButton(
+            onPressed: () {
+              confirmCheckout(context); // Show confirmation dialog
+            },
+            icon: Icon(
+              Icons.check,
+              size: 30,
             ),
           ),
           Padding(
             padding: EdgeInsets.only(right: 20),
             child: IconButton(
-              icon: const Icon(Icons.upload, size: 30,),
+              icon: const Icon(
+                Icons.upload,
+                size: 30,
+              ),
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => FileUploadPage(
@@ -451,6 +422,15 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton (
+        onPressed: () {
+          navigateToPhysicalExamPage();
+        },
+        tooltip: 'PhysExam',
+        child: Icon(Icons.tab),
+        backgroundColor: const Color(0xff66d0ed),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

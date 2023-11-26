@@ -1,7 +1,4 @@
-import 'package:capstone/design/containers/containers.dart';
-import 'package:capstone/design/containers/text.dart';
-import 'package:capstone/pages/Models/Patient/EHR.dart';
-import 'package:capstone/pages/selectedMeds.dart';
+import 'package:capstone/pages/patientMeds.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -38,20 +35,6 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
     fetchPatientMedicines();
   }
 
-  String generatePatientMedicineId(int currentIndex) {
-    const prefix = 'PM';
-
-    final numericPart = (currentIndex + 1).toString();
-
-    final paddingLength = 2 - numericPart.length;
-
-    final paddedNumericPart = '0' * paddingLength + numericPart;
-
-    final patientMedicineId = '$prefix$paddedNumericPart';
-
-    return patientMedicineId;
-  }
-
   Future<void> storeSelectedMedicine() async {
     if (_selectedMedicine != null && _selectedFrequency != null) {
       final url = Uri.parse(
@@ -74,6 +57,8 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
         });
       } else {
         // Handle API error
+        print(response.body);
+        print(response.statusCode);
         print('Failed to add selected medicine');
       }
     }
@@ -99,6 +84,16 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
       // Handle API error
       print('Failed to fetch patient medicines');
     }
+  }
+
+  void viewPatientMedicine() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            PatientMedicineListPage(patientMedicines: _patientMedicines),
+      ),
+    );
   }
 
   Medicine getMedicineById(String medicineId) {
@@ -164,7 +159,10 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
               onPressed: () {
                 reloadPage();
               },
-              icon: const Icon(Icons.refresh, size: 30,)),
+              icon: const Icon(
+                Icons.refresh,
+                size: 30,
+              )),
         ],
       ),
       body: Center(
@@ -174,15 +172,17 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               DropdownButton<Medicine>(
-                hint: const Text('Select a medicine', style: TextStyle(fontSize: 24),),
+                hint: const Text(
+                  'Select a medicine',
+                  style: TextStyle(fontSize: 24),
+                ),
                 value: _selectedMedicine,
                 items: _medicineOptions.map((medicine) {
                   final isSelected = medicine == _selectedMedicine;
                   final itemStyle = isSelected
                       ? const TextStyle(
-                          color: Colors
-                              .grey,
-                    fontSize: 18,
+                          color: Colors.grey,
+                          fontSize: 18,
                         )
                       : null;
 
@@ -233,7 +233,10 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
               ),
               const SizedBox(height: 20),
               DropdownButton<String>(
-                hint: const Text('Select frequency', style: TextStyle(fontSize: 24),),
+                hint: const Text(
+                  'Select frequency',
+                  style: TextStyle(fontSize: 24),
+                ),
                 value: _selectedFrequency,
                 items: <String>[
                   'daily',
@@ -274,48 +277,42 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
               const SizedBox(
                 height: 26,
               ),
-              Container(
-                  height: 200,
-                  width: screenWidth,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: ListView.builder(
-                    itemCount: _patientMedicines.length,
-                    itemBuilder: (context, index) {
-                      final patientMedicine = _patientMedicines[index];
-                      final medicine =
-                          getMedicineById(patientMedicine.medicineId);
-
-                      return ListTile(
-                        title: Text(medicine.medicineName, style: const TextStyle(fontSize: 24),),
-                        trailing: Text(medicine.medicineType, style: const TextStyle(fontSize: 24),),
-                        subtitle: Text(patientMedicine.medicineFrequency, style: const TextStyle(fontSize: 24),),
-                        // Customize the list item as needed.
-                      );
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      storeSelectedMedicine();
                     },
-                  )),
-              const SizedBox(
-                height: 20,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  storeSelectedMedicine();
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding:
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding:
                       const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                  primary: const Color(0xff66d0ed),
-                ),
-                child: const Text('Add Selected Medicine'),
-              ),
+                      primary: const Color(0xff66d0ed),
+                    ),
+                    child: const Text('Add Selected Medicine'),
+                  ),
+                  SizedBox(
+                    width: 30,
+                  ),
+                  ElevatedButton(
+                    onPressed: (){
+                      viewPatientMedicine();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                      primary: const Color(0xff66d0ed),
+                    ),
+                    child: const Text('View Patient Medicine'),
+                  )
+                ],
+              )
             ],
           ),
         ),

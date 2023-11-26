@@ -291,6 +291,10 @@ const homeContainer = BoxDecoration(
   ),
 );
 
+const physExContainer = BoxDecoration(
+  color: Colors.white,
+);
+
 const loadingContainer = BoxDecoration(
   color: Colors.white,
   boxShadow: [

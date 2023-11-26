@@ -73,6 +73,13 @@ class catAttValuesState extends State<catAttValues> {
         .toList();
   }
 
+  List<String> getAttributeValues(String categoryAttId) {
+    return _attributeValues
+        .where((value) => value.categoryAtt_id == categoryAttId)
+        .map((value) => value.attributeVal_values)
+        .toList();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +114,15 @@ class catAttValuesState extends State<catAttValues> {
                   if (_attributes[index].formCat_id == widget.formCatId) {
                     return ListTile(
                       title: Text(_attributes[index].categoryAtt_name),
+                      trailing: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_attributeValues.isNotEmpty)
+                            ..._attributeValues.map((value) => Text('Attribute Value: $value')),
+                        ],
+                      ),
                     );
+
                   } else {
                     return SizedBox.shrink(); // Hide irrelevant items
                   }

@@ -1,4 +1,4 @@
-class PhysicExam {
+  class PhysicExam {
   final String physicExamId;
   final DateTime physicExamDate;
   final String patientHead;
