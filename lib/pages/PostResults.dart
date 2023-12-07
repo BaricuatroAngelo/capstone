@@ -222,7 +222,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Patient ${widget.patient.patient_id} Results:',
+                  'Patient ${widget.patient.patientId} Results:',
                   style: const TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,

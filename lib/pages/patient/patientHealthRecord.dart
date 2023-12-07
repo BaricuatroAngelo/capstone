@@ -11,9 +11,10 @@ import '../Models/Patient/EHR.dart';
 class PatientHealthRecordPage extends StatefulWidget {
   final String authToken;
   final Patient patient;
+  final String patientId;
 
   const PatientHealthRecordPage(
-      {super.key, required this.patient, required this.authToken});
+      {super.key, required this.patient, required this.authToken, required this.patientId});
 
   @override
   State<PatientHealthRecordPage> createState() =>
@@ -21,6 +22,7 @@ class PatientHealthRecordPage extends StatefulWidget {
 }
 
 class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
+
   List<FormCat> _categories = [];
   List<String> catImages = [
     'asset/constitution.png',
@@ -81,7 +83,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
         catAttValues(
             authToken: widget.authToken, patient: widget.patient,
-            formCatId:formCatId)));
+            formCatId:formCatId,)));
   }
 
   @override
@@ -98,7 +100,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
         title: Padding(
           padding: EdgeInsets.only(left: (screenWidth - 630) / 2),
           child: Text(
-            '${widget.patient.patient_id} Patient Health Record',
+            '${widget.patient.patientId} Patient Health Record',
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
         ),

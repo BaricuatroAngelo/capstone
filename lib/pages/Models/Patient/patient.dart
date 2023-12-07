@@ -1,5 +1,5 @@
 class Patient {
-  final String patient_id;
+  final String patientId;
   final String patient_fName;
   final String patient_mName;
   final String patient_lName;
@@ -7,7 +7,7 @@ class Patient {
   final String patient_sex;
 
   Patient({
-    required this.patient_id,
+    required this.patientId,
     required this.patient_fName,
     required this.patient_mName,
     required this.patient_lName,
@@ -17,7 +17,7 @@ class Patient {
 
   factory Patient.fromJson(Map<String, dynamic> json) {
     return Patient(
-      patient_id: json['patient_id'],
+      patientId: json['patient_id'],
       patient_fName: json['patient_fName'],
       patient_mName: json['patient_mName'],
       patient_lName: json['patient_lName'],

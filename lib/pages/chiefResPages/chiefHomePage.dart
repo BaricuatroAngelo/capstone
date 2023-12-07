@@ -94,7 +94,7 @@ class ChiefHomePageState extends State<ChiefHomePage> {
               builder: (context) => PatientDetailPage(
                 authToken: widget.authToken,
                 patient: patientHealthRecord,
-                patientId: patientHealthRecord.patient_id,
+                patientId: patientHealthRecord.patientId,
                 residentId: widget.residentId,
               ),
             ),

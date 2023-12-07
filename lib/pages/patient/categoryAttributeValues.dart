@@ -1,4 +1,5 @@
 import 'package:capstone/pages/Models/Patient/attributeValues.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../design/containers/widgets/urlWidget.dart';
@@ -24,21 +25,36 @@ class catAttValues extends StatefulWidget {
 class catAttValuesState extends State<catAttValues> {
   List<CategoryAttribute> _attributes = [];
   List<AttributeValues> _attributeValues = [];
+  bool _isLoading = false;
+
+  Future<void> fetchAttValuesWithDelay(Duration duration) async {
+    await Future.delayed(duration);
+    await fetchAttValues();
+  }
+
+  Future<void> fetchCatAttWithDelay(Duration duration) async {
+    await Future.delayed(duration);
+    await fetchCatAtt();
+  }
+
 
   Future<void> fetchAttValues() async {
-    final url = Uri.parse('${Env.prefix}/api/attributeValues');
+    await Future.delayed(Duration(seconds: 5)); // Add a delay
+
+    final url = Uri.parse('${Env.prefix}/api/attributeValues/getPHRM/${widget.patient.patientId}');
 
     try {
-      final response = await http
-          .get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
-      if (response.statusCode == 200) {
-        final List<dynamic> responseData = jsonDecode(response.body);
-        final List<AttributeValues> attVals =
-            responseData.map((data) => AttributeValues.fromJson(data)).toList();
+      final response = await http.get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
 
-        setState(() {
-          _attributeValues = attVals;
-        });
+      if (mounted && response.statusCode == 200) {
+        final List<dynamic> responseData = jsonDecode(response.body);
+        final List<AttributeValues> attVals = responseData.map((data) => AttributeValues.fromJson(data)).toList();
+
+        if (mounted) {
+          setState(() {
+            _attributeValues = attVals;
+          });
+        }
       }
     } catch (e) {
       print(e);
@@ -46,90 +62,113 @@ class catAttValuesState extends State<catAttValues> {
   }
 
   Future<void> fetchCatAtt() async {
+    await Future.delayed(Duration(seconds: 5)); // Add a delay
+
     final url = Uri.parse('${Env.prefix}/api/categoryAttributes');
 
     try {
-      final response = await http.get(url, headers: {
-        'Authorization': 'Bearer ${widget.authToken}',
-      });
-      if (response.statusCode == 200) {
+      final response = await http.get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
+
+      if (mounted && response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
-        final List<CategoryAttribute> catAtt = responseData
-            .map((data) => CategoryAttribute.fromJson(data))
-            .toList();
-        setState(() {
-          _attributes = catAtt;
-        });
+        final List<CategoryAttribute> catAtt = responseData.map((data) => CategoryAttribute.fromJson(data)).toList();
+        final List<CategoryAttribute> filteredCatAtt = catAtt.where((value) => value.formCat_id == widget.formCatId).toList();
+
+        if (mounted) {
+          setState(() {
+            _attributes = filteredCatAtt;
+          });
+        }
       }
     } catch (e) {
       print(e);
     }
   }
 
-  List<String> getCategoryAttributeNames(String formCatId) {
-    return _attributes
-        .where((attribute) => attribute.formCat_id == formCatId)
-        .map((attribute) => attribute.categoryAtt_name)
-        .toList();
-  }
-
-  List<String> getAttributeValues(String categoryAttId) {
-    return _attributeValues
-        .where((value) => value.categoryAtt_id == categoryAttId)
-        .map((value) => value.attributeVal_values)
-        .toList();
-  }
 
 
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final List<String> attributeNames =
-        getCategoryAttributeNames(widget.formCatId);
 
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xff66d0ed),
-          elevation: 2,
-          toolbarHeight: 80,
-          title: Padding(
-            padding: EdgeInsets.only(left: (screenWidth - 200) / 2),
-            child: Text(
-              widget.formCatId,
-              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
+      appBar: AppBar(
+        backgroundColor: const Color(0xff66d0ed),
+        elevation: 2,
+        toolbarHeight: 80,
+        title: Padding(
+          padding: EdgeInsets.only(left: (screenWidth - 200) / 2),
+          child: Text(
+            widget.formCatId,
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
         ),
-        body: FutureBuilder(
-          future: fetchCatAtt(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else {
-              return ListView.builder(
-                itemCount: _attributes.length,
-                itemBuilder: (context, index) {
-                  if (_attributes[index].formCat_id == widget.formCatId) {
-                    return ListTile(
-                      title: Text(_attributes[index].categoryAtt_name),
-                      trailing: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (_attributeValues.isNotEmpty)
-                            ..._attributeValues.map((value) => Text('Attribute Value: $value')),
-                        ],
-                      ),
-                    );
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              fetchAttValuesWithDelay(Duration(seconds: 5));
+              fetchCatAttWithDelay(Duration(seconds: 5));
+            },
+          ),
+        ],
+      ),
+      body: FutureBuilder(
+        future: fetchCatAtt(),
+        // This starts fetching when the widget is built
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            return ListView.builder(
+              itemCount: _attributes.length,
+              itemBuilder: (context, index) {
+                final String attributeName =
+                    _attributes[index].categoryAtt_name;
+                final List<String> relevantValues = _attributeValues
+                    .where((value) =>
+                        value.categoryAtt_id == _attributes[index].formCat_id)
+                    .map((value) => value.attributeVal_values)
+                    .toList();
 
-                  } else {
-                    return SizedBox.shrink(); // Hide irrelevant items
-                  }
-                },
-              );
-            }
-          },
-        ));
+                return Card(
+                  elevation: 2,
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    title: Text(
+                      attributeName,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 24),
+                    ),
+                    trailing: relevantValues.isNotEmpty
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: relevantValues
+                                .map(
+                                  (value) => Text(
+                                    'Attribute Value: $value',
+                                    style: const TextStyle(
+                                        color: Colors.grey, fontSize: 24),
+                                  ),
+                                )
+                                .toList(),
+                          )
+                        : const Text(
+                            'None',
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 24),
+                          ),
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
   }
 }

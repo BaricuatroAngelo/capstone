@@ -84,7 +84,7 @@ class PatientCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        patient.patient_id,
+                        patient.patientId,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 30, // You can adjust the font size as needed

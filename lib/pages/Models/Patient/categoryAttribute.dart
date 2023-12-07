@@ -14,8 +14,8 @@ class CategoryAttribute {
   factory CategoryAttribute.fromJson(Map<String, dynamic> json) {
     return CategoryAttribute(
       categoryAtt_id: json['categoryAtt_id'],
-      categoryAtt_name: json['categoryAtt_name'],
-      categoryAtt_dataType: json['categoryAtt_dataType'],
+      categoryAtt_name: json['categoryAtt_name'] ?? '',
+      categoryAtt_dataType: json['categoryAtt_dataType'] ?? '',
       formCat_id: json['formCat_id'],
     );
   }

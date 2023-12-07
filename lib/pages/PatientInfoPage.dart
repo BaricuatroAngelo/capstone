@@ -7,6 +7,7 @@ import 'package:capstone/pages/debugPage.dart';
 import 'package:capstone/pages/medicine_page.dart';
 import 'package:capstone/pages/patient/patientHealthRecord.dart';
 import 'package:capstone/pages/patientPhysicalExam.dart';
+import 'package:capstone/pages/testPHR.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../design/containers/containers.dart';
@@ -34,6 +35,92 @@ class PatientDetailPage extends StatefulWidget {
 class _PatientDetailPageState extends State<PatientDetailPage> {
   List<Room> _rooms = [];
   String? _selectedRoomId;
+
+  Future<void> transferPatient(String patientId, String roomId, String authToken) async {
+    final checkUrl = Uri.parse('${Env.prefix}/api/patAssRooms/$patientId'); // API endpoint to check if patient exists in patAssRooms
+
+    try {
+      final checkResponse = await http.get(
+        checkUrl,
+        headers: {'Authorization': 'Bearer $authToken'},
+      );
+
+      if (checkResponse.statusCode == 200) {
+        // Patient exists in patAssRooms, proceed with transfer
+        final transferUrl = Uri.parse('${Env.prefix}/api/patAssRooms/transferPatient/$patientId');
+
+        try {
+          final response = await http.put(
+            transferUrl,
+            headers: {'Authorization': 'Bearer $authToken'},
+            body: {'room_id': roomId},
+          );
+
+          if (response.statusCode == 200) {
+            // Handle successful transfer
+            _showSnackBar('Patient transferred successfully');
+          } else {
+            // Handle unsuccessful transfer
+            _showSnackBar('Failed to transfer patient');
+          }
+        } catch (e) {
+          // Handle exceptions during transfer
+          _showSnackBar('An error occurred during transfer');
+          print('Exception during transfer: $e');
+        }
+      } else if (checkResponse.statusCode == 404) {
+        // Patient not found in patAssRooms
+        showPatientNotAssignedDialog(context);
+      } else {
+        // Handle other cases if needed
+        _showSnackBar('Failed to check patient assignment');
+      }
+    } catch (e) {
+      // Handle exceptions during check
+      _showSnackBar('An error occurred while checking patient assignment');
+      print('Exception during patient check: $e');
+    }
+  }
+
+
+  void _onRoomSelected(String? roomId) {
+    setState(() {
+      _selectedRoomId = roomId;
+    });
+  }
+
+// Function to trigger patient transfer
+  void confirmTransfer(BuildContext context) {
+    if (_selectedRoomId == null) {
+      _showSnackBar('Please select a room');
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Transfer'),
+          content: Text('Are you sure you want to transfer this patient to ${_selectedRoomId}'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Dismiss the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                transferPatient(widget.patientId, _selectedRoomId!, widget.authToken);
+                Navigator.of(context).pop(true); // Dismiss the dialog
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> _fetchRooms() async {
     final url = Uri.parse('${Env.prefix}/api/rooms');
@@ -86,6 +173,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
       builder: (context) => PatientHealthRecordPage(
         patient: widget.patient,
         authToken: widget.authToken,
+        patientId: widget.patientId,
       ),
     ));
   }
@@ -110,38 +198,72 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
     ));
   }
 
+  void navigateToTestPHR() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => PHRScreen (
+        patientId: widget.patientId,
+        authToken: widget.authToken,
+        patient: widget.patient,
+      )
+    ));
+  }
+
   Future<void> checkoutPatient(String patientId, String authToken) async {
-    final url = Uri.parse('${Env.prefix}/api/patAssRooms/checkout/$patientId');
+    final checkUrl = Uri.parse('${Env.prefix}/api/patAssRooms/$patientId'); // API endpoint to check if patient exists in patAssRooms
+
     try {
-      final response = await http.get(
-        url,
+      final checkResponse = await http.get(
+        checkUrl,
         headers: {'Authorization': 'Bearer $authToken'},
       );
-      if (response.statusCode == 200) {
-        print(response.statusCode);
-      } else {
-        // Handle unsuccessful checkout
+
+      if (checkResponse.statusCode == 200) {
+        // Patient exists in patAssRooms, proceed with checkout
+        final checkoutUrl = Uri.parse('${Env.prefix}/api/patAssRooms/checkout/$patientId');
+
+        try {
+          final response = await http.get(
+            checkoutUrl,
+            headers: {'Authorization': 'Bearer $authToken'},
+          );
+
+          if (response.statusCode == 200) {
+            print(response.statusCode);
+          } else {
+            // Handle unsuccessful checkout
+            showPatientNotAssignedDialog(context);
+          }
+        } catch (e) {
+          // Handle exceptions during checkout
+          print('Exception during checkout: $e');
+        }
+      } else if (checkResponse.statusCode == 404) {
+        // Patient not found in patAssRooms
         showPatientNotAssignedDialog(context);
+      } else {
+        // Handle other cases if needed
+        print('Failed to check patient assignment');
       }
     } catch (e) {
-      // Handle exceptions
-      print('Exception during checkout: $e');
+      // Handle exceptions during check
+      print('Exception during patient check: $e');
     }
   }
+
 
   void showPatientNotAssignedDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Patient Not Assigned'),
-          content: Text('This patient is not currently assigned to a room.'),
+          title: const Text('Patient Not Assigned',style: TextStyle(fontSize: 24)),
+          content: const Text('This patient is not currently assigned to a room.',style: TextStyle(fontSize: 24)),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Dismiss the dialog
               },
-              child: Text('OK'),
+              child: const Text('OK',style: TextStyle(fontSize: 24)),
             ),
           ],
         );
@@ -154,27 +276,76 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Checkout'),
-          content: Text('Are you sure you want to checkout this patient?'),
+          title: const Text('Confirm Checkout', style: TextStyle(fontSize: 24)  ,),
+          content: const Text('Are you sure you want to checkout this patient?', style: TextStyle(fontSize: 24),),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false); // Dismiss the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel', style: TextStyle(fontSize: 24),),
             ),
             TextButton(
               onPressed: () {
                 checkoutPatient(widget.patientId, widget.authToken);
                 Navigator.of(context).pop(true); // Dismiss the dialog
               },
-              child: Text('Confirm'),
+              child: const Text('Confirm', style: TextStyle(fontSize: 24),),
             ),
           ],
         );
       },
     );
   }
+
+  void _openRoomSelection() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView( // Wrap with SingleChildScrollView
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Select a Room',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const AlwaysScrollableScrollPhysics(), // Set physics
+                  itemCount: _rooms.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    Room room = _rooms[index];
+                    return ListTile(
+                      title: Text(room.roomName),
+                      onTap: () {
+                        Navigator.pop(context, room.roomId);
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((selectedRoomId) {
+      if (selectedRoomId != null) {
+        setState(() {
+          _selectedRoomId = selectedRoomId;
+        });
+        confirmTransfer(context);
+      }
+    });
+  }
+
 
   @override
   void initState() {
@@ -215,8 +386,8 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           Padding(
             padding: const EdgeInsets.only(right: 20),
             child: IconButton(
-              onPressed: () {},
-              icon: Icon(
+              onPressed: _openRoomSelection,
+              icon: const Icon(
                 Icons.transfer_within_a_station,
                 size: 30,
               ),
@@ -226,13 +397,13 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
             onPressed: () {
               confirmCheckout(context); // Show confirmation dialog
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.check,
               size: 30,
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(right: 20),
+            padding: const EdgeInsets.only(right: 20),
             child: IconButton(
               icon: const Icon(
                 Icons.upload,
@@ -427,7 +598,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           navigateToPhysicalExamPage();
         },
         tooltip: 'PhysExam',
-        child: Icon(Icons.tab),
+        child: const Icon(Icons.tab),
         backgroundColor: const Color(0xff66d0ed),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

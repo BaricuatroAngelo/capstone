@@ -14,7 +14,7 @@ class physExamVal {
   factory physExamVal.fromJson(Map<String, dynamic> json) {
     return physExamVal (
       pavId: json['PAV_id'],
-      pavValue: json['PAV_value'],
+      pavValue: json['PAV_value'] ?? '',
       peaId: json['PEA_id'],
       patient_id: json['patient_id']
     );

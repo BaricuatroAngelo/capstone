@@ -147,7 +147,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
         final fullName =
             '${patient.patient_fName} ${patient.patient_lName}'.toLowerCase();
         return fullName.contains(query.toLowerCase()) ||
-            patient.patient_id.toLowerCase().contains(query.toLowerCase());
+            patient.patientId.toLowerCase().contains(query.toLowerCase());
       }).toList();
     });
   }
@@ -165,7 +165,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                 end: Offset.zero,
               ).animate(animation),
               child: PatientDetailPage(
-                patientId: patient.patient_id,
+                patientId: patient.patientId,
                 authToken: widget.authToken,
                 patient: patient,
                 residentId: widget.residentId,
@@ -310,7 +310,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            patient.patient_id,
+                                            patient.patientId,
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 50, // You can adjust the font size as needed

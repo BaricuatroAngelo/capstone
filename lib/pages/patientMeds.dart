@@ -1,49 +1,105 @@
 import 'package:flutter/material.dart';
+import 'Models/Patient/patient.dart';
 import 'Models/Patient/patientMedicine.dart';
 import 'Models/medicine.dart';
 
 class PatientMedicineListPage extends StatelessWidget {
   final List<PatientMedicine> patientMedicines;
+  final List<Medicine> medicinesList;
+  final String patientId;
+  final Patient patient;
 
-  PatientMedicineListPage({required this.patientMedicines});
+  PatientMedicineListPage({
+    required this.patientMedicines,
+    required this.patientId,
+    required this.patient,
+    required this.medicinesList,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: const Color(0xffE3F9FF),
       appBar: AppBar(
         backgroundColor: const Color(0xff66d0ed),
         elevation: 2,
         toolbarHeight: 80,
-        title: Padding(
-            padding: EdgeInsets.only(left: (screenWidth - 400) / 2),
-            child: const Text(
-              'Medicine Selection',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            )),
+        title: Center(
+          child: Text(
+            '$patientId Selected Medicine',
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
-      body: ListView.builder(
+      body: patientMedicines.isEmpty ?
+          Center(
+            child: Text(
+              'Patient has yet to take medications',
+              style: TextStyle(
+                fontSize: 30,
+                color: Colors.grey,
+              ),
+            ),
+          ) : ListView.builder(
         itemCount: patientMedicines.length,
         itemBuilder: (context, index) {
           final patientMedicine = patientMedicines[index];
-          // Retrieve the Medicine object for the patientMedicine
-          // You might have to pass the list of Medicines too
-          // Then, retrieve the medicine details based on patientMedicine.medicineId
-          // You can utilize getMedicineById from your previous code
-          // and display the medicine details in ListTile or any other widget
-          // Example:
-          // final medicine = getMedicineById(patientMedicine.medicineId);
 
-          return ListTile(
-            title: Text(
-              'Medicine Name: ${patientMedicine.medicineId}',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Josefin Sans',
+          // Find the Medicine object corresponding to patientMedicine.medicineId
+          Medicine? medicine = medicinesList.firstWhere(
+                (medicine) => medicine.medicineId == patientMedicine.medicineId,
+            orElse: () => Medicine(
+              medicineId: '',
+              medicineName: 'Unknown Medicine',
+              medicineBrand: 'Unknown Brand',
+              medicineDosage: 'Unknown Dosage',
+              medicinePrice: 'Unknown Price',
+              medicineType: 'Unknown Type',
+            ),
+          );
+
+          return Card(
+            elevation: 2,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ListTile(
+              leading: Icon(
+                Icons.medical_services,
+                size: 40,
+                color: Colors.blue,
               ),
-            ), // Replace with actual medicine details
-            subtitle: Text('Frequency: ${patientMedicine.medicineFrequency}'),
+              title: Text(
+                '${medicine?.medicineName ?? 'Unknown Medicine'}',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Frequency: ${patientMedicine.medicineFrequency}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    'Type: ${medicine?.medicineType ?? 'Unknown Type'}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.info_outline),
+                onPressed: () {
+                  // Add functionality to show more medicine details
+                },
+              ),
+            ),
           );
         },
       ),

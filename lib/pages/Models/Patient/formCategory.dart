@@ -13,6 +13,6 @@ class FormCat {
     return FormCat(
         formCat_id: json['formCat_id'],
         formCat_name: json['formCat_name'],
-        formCat_description: json['formCat_description']);
+        formCat_description: json['formCat_description'] ?? '');
   }
 }
