@@ -87,6 +87,7 @@ class LoginPageState extends State<LoginPage> {
     } catch (e) {
       setState(() {
         print(e);
+        print(http.Response);
         _errorMessage = 'An error occurred. Please try again later.';
       });
     } finally {
