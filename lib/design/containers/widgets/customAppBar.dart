@@ -4,7 +4,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double screenHeight;
   final double screenWidth;
 
-  GradientAppBar({
+  const GradientAppBar({super.key, 
     required this.screenHeight,
     required this.screenWidth,
   });
@@ -12,7 +12,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -31,7 +31,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: const Text('Patient Profile'),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -41,5 +41,5 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(80); // Adjust as needed
+  Size get preferredSize => const Size.fromHeight(80); // Adjust as needed
 }

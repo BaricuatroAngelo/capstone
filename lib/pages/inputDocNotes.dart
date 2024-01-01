@@ -38,7 +38,7 @@ class PostDocNotesPageState extends State<PostDocNotesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color(0xff99e9ff),
+        color: const Color(0xff99e9ff),
       ),
     );
   }

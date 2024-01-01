@@ -22,7 +22,7 @@ class FileUpload {
       fileId: json['file_id'],
       filePath: json['file_path'],
       fileName: json['file_name'],
-      fileSize: json['file_size'],
+      fileSize: int.tryParse(json['file_size'] ?? '') ?? 0,
       fileExtension: json['file_ext'],
       patientId: json['patient_id'],
       residentId: json['resident_id'],

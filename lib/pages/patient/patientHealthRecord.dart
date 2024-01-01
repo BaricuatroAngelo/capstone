@@ -4,9 +4,7 @@ import 'package:capstone/pages/patient/categoryAttributeValues.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../design/containers/widgets/alertDialog.dart';
 import '../../design/containers/widgets/urlWidget.dart';
-import '../Models/Patient/EHR.dart';
 
 class PatientHealthRecordPage extends StatefulWidget {
   final String authToken;
@@ -98,7 +96,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
         elevation: 2,
         toolbarHeight: 80,
         title: Padding(
-          padding: EdgeInsets.only(left: (screenWidth - 630) / 2),
+          padding: EdgeInsets.only(left: (screenWidth - 300) / 2),
           child: Text(
             '${widget.patient.patientId} Patient Health Record',
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
@@ -147,7 +145,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
                                 const SizedBox(height: 10,),
                                 Text(
                                   _categories[index].formCat_name,
-                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             )

@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:capstone/design/containers/widgets/urlWidget.dart';
 import 'package:flutter/material.dart';
@@ -222,7 +221,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 )),
             Padding(
-              padding: const EdgeInsets.only(top: 1090, left: 30, right: 20),
+              padding: const EdgeInsets.only(top: 835,bottom: 0, left: 30, right: 20),
               child: TextButton(
                   onPressed: _logout,
                   child: Center(

@@ -57,15 +57,15 @@ class _AddPatientPageState extends State<AddPatientPage> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Success'),
-          content: Text('Patient data saved successfully.'),
+          title: const Text('Success'),
+          content: const Text('Patient data saved successfully.'),
           actions: [
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
                 // You can navigate back or perform any other action here.
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         ),
@@ -75,15 +75,15 @@ class _AddPatientPageState extends State<AddPatientPage> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text('Failed to save patient data.'),
+          title: const Text('Error'),
+          content: const Text('Failed to save patient data.'),
           actions: [
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
                 // You can handle the error as per your requirement.
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         ),

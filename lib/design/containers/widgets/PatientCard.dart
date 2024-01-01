@@ -46,6 +46,7 @@ class PatientCard extends StatelessWidget {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
@@ -79,7 +80,7 @@ class PatientCard extends StatelessWidget {
             const SizedBox(width: 20),
             Expanded(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 30),
+                  padding: const EdgeInsets.only(top: 30),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -109,7 +110,7 @@ class PatientCard extends StatelessWidget {
                               24, // You can adjust the font size as needed
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                           ),
                           Text(

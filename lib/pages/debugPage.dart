@@ -1,18 +1,20 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:capstone/pages/Models/fileUpload.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
+import 'package:open_file/open_file.dart';
 import '../design/containers/widgets/urlWidget.dart';
-import 'Models/Patient/EHR.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FileUploadPage extends StatefulWidget {
   final String authToken;
   final String residentId;
   final String patientId;
 
-  FileUploadPage(
+  const FileUploadPage(
       {super.key,
       required this.authToken,
       required this.residentId,
@@ -24,7 +26,7 @@ class FileUploadPage extends StatefulWidget {
 
 class _FileUploadPageState extends State<FileUploadPage> {
   File? _selectedFile;
-  late List<String> uploadedFiles = [];
+  List<FileUpload> uploadedFiles = [];
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -85,14 +87,13 @@ class _FileUploadPageState extends State<FileUploadPage> {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> files = json.decode(response.body);
-        if (files is List<dynamic>) {
-          setState(() {
-            uploadedFiles = files.map((file) => file['file_name'].toString()).toList();
-          });
-        } else {
-          print('Invalid data format received');
-        }
+        final List<dynamic> responseData = json.decode(response.body);
+        final List<FileUpload> filesUpload = responseData
+            .map((data) => FileUpload.fromJson(data))
+            .toList();
+        setState(() {
+          uploadedFiles = filesUpload;
+        });
       } else {
         print('Failed to fetch files: ${response.statusCode}');
       }
@@ -103,6 +104,7 @@ class _FileUploadPageState extends State<FileUploadPage> {
 
 
 
+
   @override
   void initState() {
     super.initState();
@@ -110,17 +112,26 @@ class _FileUploadPageState extends State<FileUploadPage> {
     fetchUploadedFiles();
   }
 
-  Widget _buildUploadedFilesGrid() {
+  void _downloadFile(String fileUrl) async {
+    final url = Uri.encodeFull(fileUrl);
+    if (await canLaunch(url.toString())) {
+      await launch(url.toString());
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Widget _buildUploadedFilesGrid(List<FileUpload> uploadedFiles) {
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3, // Number of columns in the grid
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
       ),
       itemCount: uploadedFiles.length,
       itemBuilder: (context, index) {
-        final fileName = uploadedFiles[index];
-        final fileExtension = fileName.split('.').last.toLowerCase();
+        final file = uploadedFiles[index];
+        final fileExtension = file.fileExtension.toLowerCase();
 
         // Determine the icon based on the file extension
         IconData iconData;
@@ -131,9 +142,8 @@ class _FileUploadPageState extends State<FileUploadPage> {
         }
 
         return GestureDetector(
-          onTap: () {
-            // Handle what happens when a file is tapped
-            // For example, open the file or view details
+          onTap: () async {
+            _downloadFile(file.filePath);
           },
           child: Container(
             decoration: BoxDecoration(
@@ -145,13 +155,13 @@ class _FileUploadPageState extends State<FileUploadPage> {
               children: [
                 Icon(
                   iconData,
-                  size: 40, // Adjust the icon size as needed
+                  size: 40,
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  fileName,
+                  file.fileName,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16), // Adjust font size if needed
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -162,7 +172,6 @@ class _FileUploadPageState extends State<FileUploadPage> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -171,7 +180,7 @@ class _FileUploadPageState extends State<FileUploadPage> {
         backgroundColor: const Color(0xff66d0ed),
         elevation: 2,
         toolbarHeight: 80,
-        title: Center(
+        title: const Center(
           child: Padding(
             padding: EdgeInsets.only(right: 50),
             child: Text(
@@ -212,8 +221,8 @@ class _FileUploadPageState extends State<FileUploadPage> {
             const SizedBox(height: 20,),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: _buildUploadedFilesGrid(),
+                padding: const EdgeInsets.all(8.0),
+                child: _buildUploadedFilesGrid(uploadedFiles),
               ),
             ),
             const SizedBox(height: 20),
@@ -222,9 +231,8 @@ class _FileUploadPageState extends State<FileUploadPage> {
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                primary: const Color(0xff66d0ed),
+                ), backgroundColor: const Color(0xff66d0ed),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
               ),
               child: const Text('Upload File'),
             ),

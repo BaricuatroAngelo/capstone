@@ -9,7 +9,7 @@ class CacheManager {
   CacheManager(this._prefs);
 
   Future<List<Map<String, dynamic>>> getCachedCategories() async {
-    final cachedData = _prefs.getString(_keyPrefix + 'formCategories');
+    final cachedData = _prefs.getString('${_keyPrefix}formCategories');
     if (cachedData != null) {
       return List<Map<String, dynamic>>.from(jsonDecode(cachedData));
     }
@@ -17,6 +17,6 @@ class CacheManager {
   }
 
   Future<void> cacheCategories(List<Map<String, dynamic>> categories) async {
-    await _prefs.setString(_keyPrefix + 'formCategories', jsonEncode(categories));
+    await _prefs.setString('${_keyPrefix}formCategories', jsonEncode(categories));
   }
 }

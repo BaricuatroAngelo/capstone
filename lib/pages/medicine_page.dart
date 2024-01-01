@@ -13,8 +13,8 @@ class MedicineSelectionPage extends StatefulWidget {
   final String patientId;
   final Patient patient;
 
-  MedicineSelectionPage(
-      {required this.authToken,
+  const MedicineSelectionPage(
+      {super.key, required this.authToken,
       required this.patientId,
       required this.patient});
 
@@ -200,7 +200,7 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                       width: 250,
                       ),
                     ),
-                  SizedBox(height: 20,),
+                  const SizedBox(height: 10,),
                   DropdownButton<Medicine>(
                     hint: const Text(
                       'Select a medicine',
@@ -212,7 +212,7 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                       final itemStyle = isSelected
                           ? const TextStyle(
                               color: Colors.grey,
-                              fontSize: 18,
+                              fontSize: 14,
                             )
                           : null;
 
@@ -238,11 +238,11 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                               '${medicine.medicineBrand} ${medicine.medicineDosage}',
                               style: isSelected
                                   ? const TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 16,
                                       color: Colors.grey,
                                     )
                                   : const TextStyle(
-                                      fontSize: 18, color: Colors.grey),
+                                      fontSize: 16, color: Colors.grey),
                             ),
                           ],
                         ),
@@ -254,21 +254,21 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                       });
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       _selectedMedicine != null
                           ? '${_selectedMedicine!.medicineName} (${_selectedMedicine!.medicineDosage}, ${_selectedMedicine!.medicineType})'
                           : 'Selected Medicine: ',
-                      style: const TextStyle(fontSize: 24),
+                      style: const TextStyle(fontSize: 20),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   DropdownButton<String>(
                     hint: const Text(
                       'Select frequency',
-                      style: TextStyle(fontSize: 24),
+                      style: TextStyle(fontSize: 20),
                     ),
                     value: _selectedFrequency,
                     items: <String>[
@@ -293,15 +293,15 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                       });
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Text(
                     _selectedFrequency != null
                         ? '$_selectedFrequency'
                         : 'Selected Frequency:',
-                    style: const TextStyle(fontSize: 24),
+                    style: const TextStyle(fontSize: 20),
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 10,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -313,14 +313,13 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
-                          ),
+                          ), backgroundColor: const Color(0xff66d0ed),
                           padding: const EdgeInsets.symmetric(
                               vertical: 16, horizontal: 24),
-                          primary: const Color(0xff66d0ed),
                         ),
                         child: const Text('Add Selected Medicine'),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 30,
                       ),
                       ElevatedButton(
@@ -330,10 +329,9 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
-                          ),
+                          ), backgroundColor: const Color(0xff66d0ed),
                           padding: const EdgeInsets.symmetric(
                               vertical: 16, horizontal: 24),
-                          primary: const Color(0xff66d0ed),
                         ),
                         child: const Text('View Patient Medicine'),
                       )

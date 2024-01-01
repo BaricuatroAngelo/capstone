@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 import '../design/containers/widgets/urlWidget.dart';
-import 'Models/Patient/EHR.dart';
 import 'Models/results.dart';
 
 class LabResultsPage extends StatefulWidget {
@@ -211,9 +210,8 @@ class _LabResultsPageState extends State<LabResultsPage> {
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
-                    ),
+                    ), backgroundColor: const Color(0xff66d0ed),
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                    primary: const Color(0xff66d0ed),
                   ),
                   child: const Text(
                     'Submit Results',

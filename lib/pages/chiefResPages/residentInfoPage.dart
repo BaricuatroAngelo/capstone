@@ -1,11 +1,8 @@
 import 'package:capstone/design/containers/containers.dart';
 import 'package:capstone/pages/Models/resident.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import '../../design/containers/widgets/profileInfoWidget.dart';
-import '../../design/containers/widgets/urlWidget.dart';
 
 class ResidentInfoPage extends StatefulWidget {
   final String authToken;

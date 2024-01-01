@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import '../design/containers/containers.dart';
 import '../design/containers/widgets/urlWidget.dart';
 import 'Models/Patient/chatGroupUsers.dart';
-import 'Models/chatGroup.dart';
 import 'Models/resident.dart';
 import 'messageRes.dart';
 
@@ -150,7 +149,7 @@ class _MessagePageState extends State<MessagePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select Resident'),
+          title: const Text('Select Resident'),
           content: SingleChildScrollView(
             child: ListBody(
               children: _filteredResidents.map((Resident resident) {
@@ -176,31 +175,19 @@ class _MessagePageState extends State<MessagePage> {
   void navigateToMessageResident(String chatId) {
     chatGroupUsers? selectedChatGroup = _chatGroups.firstWhere((group) => group.chatGroupId == chatId);
 
-    if (selectedChatGroup != null) {
-      String? associatedResidentId = selectedChatGroup.residentId;
+    String? associatedResidentId = selectedChatGroup.residentId;
 
-      if (associatedResidentId != null) {
-        Resident? selectedResident = _residents.firstWhere((resident) => resident.residentId == associatedResidentId);
+    Resident? selectedResident = _residents.firstWhere((resident) => resident.residentId == associatedResidentId);
 
-        if (selectedResident != null) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
-              MessageRes(
-                authToken: widget.authToken,
-                residentId: widget.residentId,
-                chatGroupId: chatId,
-                selectedResident: selectedResident,
-              ),
-          ));
-        } else {
-          _showSnackBar('Associated Resident not found');
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
+        MessageRes(
+          authToken: widget.authToken,
+          residentId: widget.residentId,
+          chatGroupId: chatId,
+          selectedResident: selectedResident,
+        ),
+    ));
         }
-      } else {
-        _showSnackBar('Associated Resident ID is null');
-      }
-    } else {
-      _showSnackBar('Chat Group not found');
-    }
-  }
 
 
   Future<void> reloadPage() async {
@@ -227,14 +214,14 @@ class _MessagePageState extends State<MessagePage> {
             left: 40,
             child: Title(
               color: Colors.black,
-              child: Text(
+              child: const Text(
                 'Messaging',
                 style: TextStyle(fontSize: 54, fontWeight: FontWeight.bold),
               ),
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 150, left: 30, right: 30, bottom: 30),
+            padding: const EdgeInsets.only(top: 150, left: 30, right: 30, bottom: 30),
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: 70,
@@ -243,33 +230,33 @@ class _MessagePageState extends State<MessagePage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       border: InputBorder.none,
                       labelText: 'Search Resident',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: Icon(Icons.search),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-          SizedBox(height: 20,),
+          const SizedBox(height: 30,),
           _chatGroups.isNotEmpty
               ? Padding(
-            padding: EdgeInsets.only(top: 250, left: 30, right: 30),
+            padding: const EdgeInsets.only(top: 220, left: 30, right: 30),
             child: ListView.builder(
               itemCount: _chatGroups.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   child: Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      leading: CircleAvatar(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      leading: const CircleAvatar(
                         backgroundColor: Colors.blue,
                         child: Text(
                           'CG',
@@ -278,9 +265,9 @@ class _MessagePageState extends State<MessagePage> {
                       ),
                       title: Text(
                         'Chat Group ${_chatGroups[index].chatGroupId}',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                       ),
-                      subtitle: Text(
+                      subtitle: const Text(
                         'This is a sample message text.',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -288,7 +275,7 @@ class _MessagePageState extends State<MessagePage> {
                           fontSize: 20,
                         ),
                       ),
-                      trailing: Text(
+                      trailing: const Text(
                         '12:30 PM', // Replace with the actual timestamp
                         style: TextStyle(color: Colors.grey, fontSize: 20),
                       ),
@@ -301,7 +288,7 @@ class _MessagePageState extends State<MessagePage> {
               },
             ),
           )
-              : Center(
+              : const Center(
             child: CircularProgressIndicator(),
           ),
         ],
@@ -310,8 +297,8 @@ class _MessagePageState extends State<MessagePage> {
         onPressed: () {
           _selectResident();// Call method to select a resident
         },
-        label: Text('Create Chat Group'),
-        icon: Icon(Icons.chat_bubble),
+        label: const Text('Create Chat Group'),
+        icon: const Icon(Icons.chat_bubble),
         backgroundColor: Colors.blue,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

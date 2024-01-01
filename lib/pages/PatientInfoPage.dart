@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:capstone/pages/Models/Patient/EHR.dart';
 import 'package:capstone/pages/Models/Patient/patient.dart';
 import 'package:capstone/pages/PostResults.dart';
 import 'package:capstone/pages/debugPage.dart';
@@ -20,7 +19,7 @@ class PatientDetailPage extends StatefulWidget {
   final Patient patient;
   final String residentId;
 
-  PatientDetailPage({
+  const PatientDetailPage({
     Key? key,
     required this.patient,
     required this.patientId,
@@ -101,7 +100,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirm Transfer'),
-          content: Text('Are you sure you want to transfer this patient to ${_selectedRoomId}'),
+          content: Text('Are you sure you want to transfer this patient to $_selectedRoomId'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -430,11 +429,11 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
             decoration: personName,
           ),
           Positioned(
-            left: (screenWidth - 400) / 2,
-            top: 120,
+            left: (screenWidth - 300) / 2,
+            top: 100,
             child: Container(
-              height: 400,
-              width: 400,
+              height: 300,
+              width: 300,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(60),
                 color: Colors.white,
@@ -464,7 +463,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: centerPosition, left: 250, right: 0),
+            padding: EdgeInsets.only(top: centerPosition, left: 100, right: 0),
             child: GestureDetector(
               onTap: () {
                 navigateToHealthRecordPage();
@@ -507,7 +506,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           ),
           Padding(
             padding:
-                EdgeInsets.only(top: centerPosition + 150, left: 250, right: 0),
+                EdgeInsets.only(top: centerPosition + 120, left: 100, right: 0),
             child: GestureDetector(
               onTap: () {
                 navigateToMedicinePage();
@@ -550,7 +549,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           ),
           Padding(
             padding:
-                EdgeInsets.only(top: centerPosition + 300, left: 250, right: 0),
+                EdgeInsets.only(top: centerPosition + 240, left: 100, right: 0),
             child: GestureDetector(
               onTap: () {
                 navigateToResultsPage();
@@ -598,8 +597,8 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           navigateToPhysicalExamPage();
         },
         tooltip: 'PhysExam',
-        child: const Icon(Icons.tab),
         backgroundColor: const Color(0xff66d0ed),
+        child: const Icon(Icons.tab),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

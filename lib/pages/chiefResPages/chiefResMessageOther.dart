@@ -26,7 +26,7 @@ class ChiefMessageRes extends StatefulWidget {
 }
 
 class _ChiefMessageResState extends State<ChiefMessageRes> {
-  TextEditingController _messageController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
   List<Messages> messages = [];
 
   Future<void> _sendMessage(String message) async {
@@ -132,16 +132,16 @@ class _ChiefMessageResState extends State<ChiefMessageRes> {
                           ? Alignment.centerRight
                           : Alignment.centerLeft,
                       child: Container(
-                        padding: EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         margin:
-                        EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                         decoration: BoxDecoration(
                           color: isSentByResident ? Colors.blue : Colors.grey,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           message.messages,
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
                     );
@@ -150,7 +150,7 @@ class _ChiefMessageResState extends State<ChiefMessageRes> {
               ),
               Container(
                 color: Colors.grey[200],
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
                     Expanded(
@@ -165,7 +165,7 @@ class _ChiefMessageResState extends State<ChiefMessageRes> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.send),
+                      icon: const Icon(Icons.send),
                       onPressed: () {
                         String message = _messageController.text;
                         _sendMessage(message);

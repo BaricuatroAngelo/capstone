@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:capstone/pages/chiefResPages/chiefResLogin.dart';
 import 'package:flutter/material.dart';
@@ -224,7 +223,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
               ),
             ],
             Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   top: 60,
                 ),
                 child: Center(

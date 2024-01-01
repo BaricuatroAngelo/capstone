@@ -1,5 +1,4 @@
 import 'package:capstone/pages/Models/Patient/attributeValues.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../design/containers/widgets/urlWidget.dart';
@@ -25,7 +24,7 @@ class catAttValues extends StatefulWidget {
 class catAttValuesState extends State<catAttValues> {
   List<CategoryAttribute> _attributes = [];
   List<AttributeValues> _attributeValues = [];
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   Future<void> fetchAttValuesWithDelay(Duration duration) async {
     await Future.delayed(duration);
@@ -39,7 +38,7 @@ class catAttValuesState extends State<catAttValues> {
 
 
   Future<void> fetchAttValues() async {
-    await Future.delayed(Duration(seconds: 5)); // Add a delay
+    await Future.delayed(const Duration(seconds: 5)); // Add a delay
 
     final url = Uri.parse('${Env.prefix}/api/attributeValues/getPHRM/${widget.patient.patientId}');
 
@@ -62,7 +61,7 @@ class catAttValuesState extends State<catAttValues> {
   }
 
   Future<void> fetchCatAtt() async {
-    await Future.delayed(Duration(seconds: 5)); // Add a delay
+    await Future.delayed(const Duration(seconds: 5)); // Add a delay
 
     final url = Uri.parse('${Env.prefix}/api/categoryAttributes');
 
@@ -105,10 +104,10 @@ class catAttValuesState extends State<catAttValues> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
-              fetchAttValuesWithDelay(Duration(seconds: 5));
-              fetchCatAttWithDelay(Duration(seconds: 5));
+              fetchAttValuesWithDelay(const Duration(seconds: 5));
+              fetchCatAttWithDelay(const Duration(seconds: 5));
             },
           ),
         ],
@@ -159,7 +158,7 @@ class catAttValuesState extends State<catAttValues> {
                           )
                         : const Text(
                             'None',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: Colors.grey, fontSize: 24),
                           ),
                   ),

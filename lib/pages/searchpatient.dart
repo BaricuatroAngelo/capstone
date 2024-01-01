@@ -1,12 +1,9 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 import 'package:capstone/design/containers/containers.dart';
-import 'package:capstone/design/containers/text.dart';
-import 'package:capstone/pages/Models/Patient/EHR.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import '../design/containers/widgets/urlWidget.dart';
 import '../providers/constants.dart';
 import 'Models/Patient/patient.dart';
@@ -27,8 +24,8 @@ class SearchPatientPage extends StatefulWidget {
 class _SearchPatientPageState extends State<SearchPatientPage> {
   List<Patient> _patients = [];
   List<Patient> _filteredPatients = [];
-  SortType _sortType = SortType.Name;
-  bool _isNameAscending = true;
+  final SortType _sortType = SortType.Name;
+  final bool _isNameAscending = true;
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   bool _isLoading = true;
@@ -201,7 +198,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextFormField(
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 22
                           ),
                           controller: _searchController,
@@ -305,7 +302,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                                 const SizedBox(width: 20),
                                 Expanded(
                                     child: Padding(
-                                      padding: EdgeInsets.only(top: 30),
+                                      padding: const EdgeInsets.only(top: 30),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -335,7 +332,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                                                   36, // You can adjust the font size as needed
                                                 ),
                                               ),
-                                              SizedBox(
+                                              const SizedBox(
                                                 width: 20,
                                               ),
                                               Text(

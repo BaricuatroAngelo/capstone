@@ -1,6 +1,6 @@
 import 'package:capstone/design/containers/containers.dart';
 import 'package:flutter/material.dart';
-import 'pages/medicine_page.dart'; // Import the MedicineSelectionPage.
+// Import the MedicineSelectionPage.
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home Page'),
+        title: const Text('Home Page'),
       ),
       body: Stack(
         clipBehavior: Clip.none,

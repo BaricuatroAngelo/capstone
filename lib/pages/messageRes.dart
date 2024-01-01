@@ -26,7 +26,7 @@ class MessageRes extends StatefulWidget {
 }
 
 class _MessageResState extends State<MessageRes> {
-  TextEditingController _messageController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
   List<Messages> messages = [];
   List<Resident> _residents =[];
   List<Resident> _filteredResidents = [];
@@ -173,10 +173,10 @@ class _MessageResState extends State<MessageRes> {
           elevation: 2,
           toolbarHeight: 80,
           title: Padding(
-            padding: EdgeInsets.only(left: (screenWidth - 900) / 2),
+            padding: EdgeInsets.only(left: (screenWidth - 350) / 2),
             child: Text(
               '${widget.selectedResident.residentFName} ${widget.selectedResident.residentLName}',
-              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -201,7 +201,7 @@ class _MessageResState extends State<MessageRes> {
                               children: [
                                 const SizedBox(width: 50),
                                 Text(
-                                  '${widget.selectedResident.residentFName}',
+                                  widget.selectedResident.residentFName,
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,

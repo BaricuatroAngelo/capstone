@@ -9,7 +9,7 @@ class PatientMedicineListPage extends StatelessWidget {
   final String patientId;
   final Patient patient;
 
-  PatientMedicineListPage({
+  const PatientMedicineListPage({super.key, 
     required this.patientMedicines,
     required this.patientId,
     required this.patient,
@@ -27,12 +27,12 @@ class PatientMedicineListPage extends StatelessWidget {
         title: Center(
           child: Text(
             '$patientId Selected Medicine',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
         ),
       ),
       body: patientMedicines.isEmpty ?
-          Center(
+          const Center(
             child: Text(
               'Patient has yet to take medications',
               style: TextStyle(
@@ -62,13 +62,13 @@ class PatientMedicineListPage extends StatelessWidget {
             elevation: 2,
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.medical_services,
                 size: 40,
                 color: Colors.blue,
               ),
               title: Text(
-                '${medicine?.medicineName ?? 'Unknown Medicine'}',
+                medicine.medicineName ?? 'Unknown Medicine',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -85,7 +85,7 @@ class PatientMedicineListPage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Type: ${medicine?.medicineType ?? 'Unknown Type'}',
+                    'Type: ${medicine.medicineType ?? 'Unknown Type'}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w400,

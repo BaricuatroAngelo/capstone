@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:capstone/design/containers/containers.dart';
 import 'package:capstone/pages/Models/Patient/patientPhysExamAttributes.dart';
 import 'package:capstone/pages/Models/Patient/patientPhysExamCategories.dart';
 import 'package:flutter/material.dart';
@@ -119,8 +118,7 @@ class PhysExamState extends State<PhysExam> {
         elevation: 0,
         backgroundColor: const Color(0xff66d0ed),
         toolbarHeight: 80,
-        title: Padding(
-          padding: EdgeInsets.only(left: (screenWidth - 630) / 2),
+        title: Center(
           child: Text(
             '${widget.patient.patientId} Physical Exam Record',
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
@@ -167,7 +165,7 @@ class PhysExamState extends State<PhysExam> {
               backgroundColor: const Color(0xffE3F9FF),
               body: Container(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 300),
+                  padding: const EdgeInsets.only(top: 300),
                   child: Container(
                     height: screenHeight,
                     width: double.infinity,
@@ -179,7 +177,7 @@ class PhysExamState extends State<PhysExam> {
                       future: _fetchPhysExamAtt(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator(); // Or any loading indicator
+                          return const CircularProgressIndicator(); // Or any loading indicator
                         } else if (snapshot.hasError) {
                           return Text('Error: ${snapshot.error}');
                         } else {
@@ -216,7 +214,7 @@ class PhysExamState extends State<PhysExam> {
               backgroundColor: const Color(0xffE3F9FF),
               body: Container(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 300),
+                  padding: const EdgeInsets.only(top: 300),
                   child: Container(
                     height: screenHeight,
                     width: double.infinity,
@@ -232,7 +230,7 @@ class PhysExamState extends State<PhysExam> {
               backgroundColor: const Color(0xffE3F9FF),
               body: Container(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 300),
+                  padding: const EdgeInsets.only(top: 300),
                   child: Container(
                     height: screenHeight,
                     width: double.infinity,
@@ -248,7 +246,7 @@ class PhysExamState extends State<PhysExam> {
               backgroundColor: const Color(0xffE3F9FF),
               body: Container(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 300),
+                  padding: const EdgeInsets.only(top: 300),
                   child: Container(
                     height: screenHeight,
                     width: double.infinity,

@@ -5,9 +5,7 @@ import 'package:capstone/pages/searchpatient.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:animations/animations.dart';
-import 'package:capstone/pages/Models/resident.dart';
 
-import 'debugPage.dart';
 
 // ignore_for_file: prefer_const_literals_to_create_immutables
 // ignore_for_file: prefer_const_constructors

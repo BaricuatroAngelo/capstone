@@ -37,7 +37,7 @@ class PHRScreen extends StatefulWidget {
   final String authToken;
   final Patient patient;
 
-  PHRScreen({required this.patientId, required this.authToken, required this.patient});
+  const PHRScreen({super.key, required this.patientId, required this.authToken, required this.patient});
 
   @override
   _PHRScreenState createState() => _PHRScreenState();
@@ -78,7 +78,7 @@ class _PHRScreenState extends State<PHRScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Patient Health Records'),
+        title: const Text('Patient Health Records'),
       ),
       body: ListView.builder(
         itemCount: _phrData.length,

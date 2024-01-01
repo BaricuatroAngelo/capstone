@@ -1,4 +1,3 @@
-import 'package:capstone/pages/debugPage.dart';
 import 'package:capstone/pages/loginpage.dart';
 import 'package:flutter/material.dart';
 

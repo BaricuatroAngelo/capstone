@@ -498,7 +498,7 @@ class HomePageState extends State<HomePage> {
                                   return Row(
                                     children: rowRooms.map((room) {
                                       return Container(
-                                        width: 250,
+                                        width: 150,
                                         height: 100,
                                         margin: const EdgeInsets.only(left: 30),
                                         child: GestureDetector(

@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'package:capstone/pages/Models/Patient/patient.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../debugPage.dart';
 import '../../design/containers/containers.dart';
 import '../../design/containers/widgets/urlWidget.dart';
 import '../Models/Floor/Room/Room.dart';
-import '../Models/Patient/EHR.dart';
 import '../PatientInfoPage.dart';
 
 class ChiefHomePage extends StatefulWidget {
@@ -278,7 +276,7 @@ class ChiefHomePageState extends State<ChiefHomePage> {
                       height: 20,
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TabBar(
                         isScrollable: true,
                         indicatorSize: TabBarIndicatorSize.label,

@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
-import 'dart:ffi';
 
 import 'package:capstone/design/containers/containers.dart';
 import 'package:capstone/pages/Models/resident.dart';
@@ -9,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter/services.dart';
 import '../../design/containers/ProfileDesignWidget.dart';
 import '../../design/containers/widgets/urlWidget.dart';
 import '../../providers/constants.dart';
@@ -250,7 +248,7 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Residents',
                           style: TextStyle(
                             fontSize: 30,
