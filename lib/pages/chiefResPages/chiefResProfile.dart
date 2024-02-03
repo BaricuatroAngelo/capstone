@@ -212,7 +212,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
                     buildProfileInfoTile(
                         'Resident ID', _resident?.residentId ?? ''),
                     buildProfileInfoTile('Name',
-                        '${_resident?.residentFName ?? ''} ${_resident?.residentMName ?? ''} ${_resident?.residentLName ?? ''}'),
+                        '${_resident?.residentFName ?? ''} ${_resident?.residentLName ?? ''}'),
                     buildProfileInfoTile(
                         'Username', _resident?.residentUserName ?? ''),
                     buildProfileInfoTile(

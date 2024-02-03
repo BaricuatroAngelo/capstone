@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:capstone/pages/searchChatGroups.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../design/containers/containers.dart';
@@ -9,25 +8,28 @@ import 'Models/Patient/chatGroupUsers.dart';
 import 'Models/resident.dart';
 import 'messageRes.dart';
 
-class MessagePage extends StatefulWidget {
+class SearchChatPage extends StatefulWidget {
   final String authToken;
   final String residentId;
 
-  const MessagePage({
+  const SearchChatPage({
     Key? key,
     required this.residentId,
     required this.authToken,
   }) : super(key: key);
 
   @override
-  State<MessagePage> createState() => _MessagePageState();
+  State<SearchChatPage> createState() => _SearchChatState();
 }
 
-class _MessagePageState extends State<MessagePage> {
+class _SearchChatState extends State<SearchChatPage> {
+  TextEditingController _searchController = TextEditingController();
   List<chatGroupUsers> _chatGroups = [];
+  List<chatGroupUsers> _filteredChatGroups = [];
   List<Resident> _residents = [];
   List<Resident> _filteredResidents = [];
   bool isLoading = true;
+  bool _isSearching = false;
 
   Future<void> fetchChatGroup() async {
     final createChatGroupUrl = Uri.parse('${Env.prefix}/api/chatGroupUsers');
@@ -44,9 +46,7 @@ class _MessagePageState extends State<MessagePage> {
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
         final List<chatGroupUsers> chats =
-            responseData.map((data) => chatGroupUsers.fromJson(data)).toList();
-
-        // Filtering out chats where residentId matches the current user's residentId
+        responseData.map((data) => chatGroupUsers.fromJson(data)).toList();
         final filteredChats = chats
             .where((chat) => chat.residentId != widget.residentId)
             .toList();
@@ -82,7 +82,7 @@ class _MessagePageState extends State<MessagePage> {
             _residents =
                 responseData.map((data) => Resident.fromJson(data)).toList();
             _residents.removeWhere(
-                (resident) => resident.residentId == widget.residentId);
+                    (resident) => resident.residentId == widget.residentId);
             _filteredResidents = List.from(_residents);
           });
         } else {
@@ -176,7 +176,7 @@ class _MessagePageState extends State<MessagePage> {
 
   void navigateToMessageResident(String chatId) {
     chatGroupUsers? selectedChatGroup =
-        _chatGroups.firstWhere((group) => group.chatGroupId == chatId);
+    _chatGroups.firstWhere((group) => group.chatGroupId == chatId);
 
     String? associatedResidentId = selectedChatGroup.residentId;
 
@@ -193,24 +193,45 @@ class _MessagePageState extends State<MessagePage> {
     ));
   }
 
-  void navigateToSearch() {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => SearchChatPage(
-            residentId: widget.residentId, authToken: widget.authToken)));
+  void _filterChatGroups(String query) {
+    setState(() {
+      _isSearching = query.isNotEmpty;
+
+      if (_isSearching) {
+        _filteredChatGroups = _chatGroups
+            .where((chat) =>
+            chat.chatGroupId.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      } else {
+        _filteredChatGroups = [];
+      }
+    });
   }
+
 
   Future<void> reloadPage() async {
     await fetchChatGroup();
     setState(() {}); // Trigger a rebuild of the UI
   }
 
+  void _onSearchTextChanged() {
+    _filterChatGroups(_searchController.text);
+  }
+
+
   @override
   void initState() {
     super.initState();
     fetchChatGroup();
     _fetchResidents();
+    _searchController.addListener(_onSearchTextChanged); // Add this line
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose(); // Dispose the controller when the widget is disposed
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -219,36 +240,30 @@ class _MessagePageState extends State<MessagePage> {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-        backgroundColor: const Color(0xffE3F9FF),
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: const Color(0xff66d0ed),
           elevation: 2,
           toolbarHeight: 80,
-          title: Row(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.white,
-                child: SizedBox.expand(
-                  child: FittedBox(
-                    fit: BoxFit.cover, // Adjust the fit as needed
-                    child: Image.asset('asset/ipimslogo.png'),
-                  ),
-                ),
-              ),
-              SizedBox(width: 20),
-              Text(
-                'Messages',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
+          title: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search...',
+              hintStyle: TextStyle(color: Colors.white70),
+              border: InputBorder.none,
+            ),
+            style: TextStyle(color: Colors.white),
+            onChanged: _filterChatGroups, // Apply filtering directly on typing
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.search),
+              icon: Icon(Icons.close),
               onPressed: () {
-                navigateToSearch();
+                setState(() {
+                  _searchController.clear();
+                  _filteredChatGroups = [];
+                  Navigator.pop(context);
+                });
               },
             ),
           ],
@@ -259,12 +274,17 @@ class _MessagePageState extends State<MessagePage> {
             const SizedBox(
               height: 30,
             ),
-            _chatGroups.isNotEmpty
+            _isSearching || _filteredChatGroups.isNotEmpty
                 ? Padding(
               padding: const EdgeInsets.only(top: 20, left: 30, right: 30),
               child: ListView.builder(
-                itemCount: _chatGroups.length,
+                itemCount: _isSearching
+                    ? _filteredChatGroups.length
+                    : _chatGroups.length,
                 itemBuilder: (context, index) {
+                  final chatGroup = _isSearching
+                      ? _filteredChatGroups[index]
+                      : _chatGroups[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 4, horizontal: 8),
@@ -284,7 +304,7 @@ class _MessagePageState extends State<MessagePage> {
                           ),
                         ),
                         title: Text(
-                          'Chat Group ${_chatGroups[index].chatGroupId}',
+                          'Chat Group ${chatGroup.chatGroupId}',
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20),
                         ),
@@ -302,8 +322,7 @@ class _MessagePageState extends State<MessagePage> {
                           TextStyle(color: Colors.grey, fontSize: 20),
                         ),
                         onTap: () {
-                          navigateToMessageResident(
-                              _chatGroups[index].chatGroupId);
+                          navigateToMessageResident(chatGroup.chatGroupId);
                         },
                       ),
                     ),
@@ -312,7 +331,7 @@ class _MessagePageState extends State<MessagePage> {
               ),
             )
                 : const Center(
-              child: CircularProgressIndicator(),
+              child: Text(''),
             ),
           ],
         ),

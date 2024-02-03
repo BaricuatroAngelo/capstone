@@ -20,7 +20,7 @@ class PatientHealthRecordPage extends StatefulWidget {
 }
 
 class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
-
+  bool _dataFetched = false;
   List<FormCat> _categories = [];
   List<String> catImages = [
     'asset/constitution.png',
@@ -58,6 +58,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
 
         setState(() {
           _categories = categoryVal;
+          _dataFetched = true;
         });
       } else {
         _showSnackBar('Failed to load data!');
@@ -85,6 +86,66 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    fetchForm();
+  }
+
+  Widget buildGridView() {
+    if (!_dataFetched) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (_categories.isEmpty) {
+      return const Center(child: Text('No data available'));
+    } else {
+      return GridView.builder(
+        physics: const BouncingScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 20,
+        ),
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              navigateToCategoryAttribute(_categories[index].formCat_id);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Center(
+                  child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            catImages[index],
+                            height: 100,
+                            width: 100,
+                          ),
+                          const SizedBox(height: 10,),
+                          Text(
+                            _categories[index].formCat_name,
+                            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      )
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery
         .of(context)
@@ -96,69 +157,14 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
         elevation: 2,
         toolbarHeight: 80,
         title: Padding(
-          padding: EdgeInsets.only(left: (screenWidth - 300) / 2),
+          padding: EdgeInsets.only(left: (screenWidth - 500) / 2),
           child: Text(
             '${widget.patient.patientId} Patient Health Record',
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
         ),
       ),
-      body: FutureBuilder(
-        future: fetchForm(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            return GridView.builder(
-              physics: const BouncingScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 48,
-                crossAxisSpacing: 48,
-              ),
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    navigateToCategoryAttribute(_categories[index].formCat_id);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Center(
-                        child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  catImages[index],
-                                  height: 100,
-                                  width: 100,
-                                ),
-                                const SizedBox(height: 10,),
-                                Text(
-                                  _categories[index].formCat_name,
-                                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            )
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          }
-        },
-      ),
+      body: buildGridView(),
     );
   }
 }

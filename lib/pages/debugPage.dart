@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
 import 'package:open_file/open_file.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../design/containers/widgets/urlWidget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -113,13 +114,22 @@ class _FileUploadPageState extends State<FileUploadPage> {
   }
 
   void _downloadFile(String fileUrl) async {
-    final url = Uri.encodeFull(fileUrl);
-    if (await canLaunch(url.toString())) {
-      await launch(url.toString());
-    } else {
-      throw 'Could not launch $url';
+    try {
+      // Using open_file to directly open the file
+      final file = File(fileUrl); // Assuming fileUrl contains the absolute file path
+
+      // Check if the file exists before attempting to open it
+      if (await file.exists()) {
+        await OpenFile.open(fileUrl); // Open the file
+      } else {
+        throw 'File does not exist: $fileUrl';
+      }
+    } catch (e) {
+      print('Error opening file: $e');
     }
   }
+
+
 
   Widget _buildUploadedFilesGrid(List<FileUpload> uploadedFiles) {
     return GridView.builder(

@@ -181,10 +181,9 @@ class LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
+                      Container(
                         height: _isLoading ? 60 : 50,
-                        width: _isLoading ? 60 : double.infinity,
+                        width: double.infinity,
                         decoration: _isLoading ? loadingContainer : selectBoxDecor,
                         child: InkWell(
                           onTap: _isLoading
@@ -195,14 +194,12 @@ class LoginPageState extends State<LoginPage> {
                               _login();
                             }
                           },
-                          child: _isLoading
-                              ? const Center(
-                            child: CircularProgressIndicator(
+                          child: Center(
+                            child: _isLoading
+                                ? const CircularProgressIndicator(
                               valueColor: AlwaysStoppedAnimation<Color>(Color(0xff99e9ff)),
-                            ),
-                          )
-                              : const Center(
-                            child: Text(
+                            )
+                                : const Text(
                               'Login',
                               style: TextStyle(
                                 color: Colors.black,

@@ -30,6 +30,7 @@ class PhysExamState extends State<PhysExam> {
   List<physExamCat> _physExamCat = [];
   List<physExamAtt> _physExamAtt = [];
   List<physExamVal> _physExamVal = [];
+  bool _dataFetched = false;
 
   Future<void> _fetchPhysExamCat() async {
     final url = Uri.parse('${Env.prefix}/api/physicalExam/categories');
@@ -45,6 +46,7 @@ class PhysExamState extends State<PhysExam> {
 
         setState(() {
           _physExamCat = examCatVal;
+          _dataFetched = true;
         });
       } else {
         print('Failed to load data!');
@@ -69,6 +71,7 @@ class PhysExamState extends State<PhysExam> {
         examAttVal.sort((a, b) => a.peaName.compareTo(b.peaName));
         setState(() {
           _physExamAtt = examAttVal;
+          _dataFetched = true;
         });
       } else {
         print('Failed to load data!');
@@ -93,6 +96,7 @@ class PhysExamState extends State<PhysExam> {
 
         setState(() {
           _physExamVal = physExVal;
+          _dataFetched = true;
         });
       } else {
         print('Failed to load data!');
@@ -105,8 +109,78 @@ class PhysExamState extends State<PhysExam> {
   @override
   void initState() {
     super.initState();
+    _fetchPhysExamCat();
     _fetchPhysExamAtt();
     _fetchPhysExamVal();
+  }
+
+  Widget buildListView(String categoryId) {
+    if (!_dataFetched) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (_physExamAtt.isEmpty) {
+      return const Center(child: Text('No data available'));
+    } else {
+      return ListView.builder(
+        itemCount: _physExamAtt.where((att) => att.physExamId == categoryId).length,
+        itemBuilder: (context, index) {
+          final filteredAttributes = _physExamAtt.where((att) => att.physExamId == categoryId).toList();
+          final String attNames = filteredAttributes[index].peaName;
+          final List<String> relevantValues = _physExamVal
+              .where((value) => value.peaId == filteredAttributes[index].peaId)
+              .map((value) {
+            final pavValue = value.pavValue;
+            return pavValue.length > 5 ? pavValue.substring(0, 5) + '...' : pavValue;
+          })
+              .toList();
+          return GestureDetector(
+            onTap: () {
+              _showDetailsDialog(attNames, relevantValues);
+            },
+            child: Card(
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: ListTile(
+                title: Text(
+                  attNames,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                ),
+                // Display relevant values here based on your requirement
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+  void _showDetailsDialog(String attributeName, List<String> attributeValues) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(attributeName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: attributeValues
+                .map(
+                  (value) => Text(
+                'Attribute Value: $value',
+                style: const TextStyle(color: Colors.grey, fontSize: 18),
+              ),
+            )
+                .toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -164,97 +238,149 @@ class PhysExamState extends State<PhysExam> {
             Scaffold(
               backgroundColor: const Color(0xffE3F9FF),
               body: Container(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 300),
-                  child: Container(
-                    height: screenHeight,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.white,
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 300),
+                      child: Container(
+                        height: screenHeight,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Colors.white,
+                        ),
+                        child: buildListView('PE0'),
+                      ),
                     ),
-                    child: FutureBuilder<void>(
-                      future: _fetchPhysExamAtt(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const CircularProgressIndicator(); // Or any loading indicator
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else {
-                          return ListView.builder(
-                            itemCount: _physExamAtt.where((att) => att.physExamId == 'PE0').length,
-                            itemBuilder: (context, index) {
-                              final filteredAttributes = _physExamAtt.where((att) => att.physExamId == 'PE0').toList();
-                              final String attNames = filteredAttributes[index].peaName;
-                              final List<String> relevantValues = _physExamVal
-                                  .where((value) =>
-                              value.peaId == filteredAttributes[index].peaId)
-                                  .map((value) => value.pavValue)
-                                  .toList();
-                              return Card(
-                                elevation: 2,
-                                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                                child: ListTile(
-                                  title: Text(
-                                    attNames,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        }
-                      },
+                    Positioned(
+                      top: 40, // Adjust the position of the avatar as needed
+                      left: screenWidth / 2 - 120, // Adjust left position based on the screen width and avatar size
+                      child: CircleAvatar(
+                        radius: 120,
+                        backgroundColor: Colors.white,
+                        child: Center(
+                          child: Image.asset(
+                            'asset/person.png', // Replace with your image path
+                            width: 180, // Adjust the width of the image
+                            height: 180, // Adjust the height of the image
+                            fit: BoxFit.cover, // Adjust the fit based on your needs
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
+                ),
+              ),
+            ),
+
+            Scaffold(
+              backgroundColor: const Color(0xffE3F9FF),
+              body: Container(
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 300),
+                      child: Container(
+                        height: screenHeight,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Colors.white,
+                        ),
+                        child: buildListView('PE1'),
+                      ),
+                    ),
+                    Positioned(
+                      top: 40, // Adjust the position of the avatar as needed
+                      left: screenWidth / 2 - 120, // Adjust left position based on the screen width and avatar size
+                      child: CircleAvatar(
+                        radius: 120,
+                        backgroundColor: Colors.white,
+                        child: Center(
+                          child: Image.asset(
+                            'asset/chest.png', // Replace with your image path
+                            width: 180, // Adjust the width of the image
+                            height: 180, // Adjust the height of the image
+                            fit: BoxFit.cover, // Adjust the fit based on your needs
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
             Scaffold(
               backgroundColor: const Color(0xffE3F9FF),
               body: Container(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 300),
-                  child: Container(
-                    height: screenHeight,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.white,
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 300),
+                      child: Container(
+                        height: screenHeight,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Colors.white,
+                        ),
+                        child: buildListView('PE2'),
+                      ),
                     ),
-                  ),
+                    Positioned(
+                      top: 40, // Adjust the position of the avatar as needed
+                      left: screenWidth / 2 - 120, // Adjust left position based on the screen width and avatar size
+                      child: CircleAvatar(
+                        radius: 120,
+                        backgroundColor: Colors.white,
+                        child: Center(
+                          child: Image.asset(
+                            'asset/leg.png', // Replace with your image path
+                            width: 180, // Adjust the width of the image
+                            height: 180, // Adjust the height of the image
+                            fit: BoxFit.cover, // Adjust the fit based on your needs
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
             Scaffold(
               backgroundColor: const Color(0xffE3F9FF),
               body: Container(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 300),
-                  child: Container(
-                    height: screenHeight,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.white,
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 300),
+                      child: Container(
+                        height: screenHeight,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Colors.white,
+                        ),
+                        child: buildListView('PE3'),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-            Scaffold(
-              backgroundColor: const Color(0xffE3F9FF),
-              body: Container(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 300),
-                  child: Container(
-                    height: screenHeight,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.white,
+                    Positioned(
+                      top: 40, // Adjust the position of the avatar as needed
+                      left: screenWidth / 2 - 120, // Adjust left position based on the screen width and avatar size
+                      child: CircleAvatar(
+                        radius: 120,
+                        backgroundColor: Colors.white,
+                        child: Center(
+                          child: Image.asset(
+                            'asset/elbow.png', // Replace with your image path
+                            width: 180, // Adjust the width of the image
+                            height: 180, // Adjust the height of the image
+                            fit: BoxFit.cover, // Adjust the fit based on your needs
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),

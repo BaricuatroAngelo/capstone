@@ -110,10 +110,10 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final centerPosition = screenHeight / 2;
-    final middleNameInitial = widget.resident.residentMName != 'null' &&
-            widget.resident.residentMName.isNotEmpty
-        ? '${widget.resident.residentMName[0]}. '
-        : '';
+    // final middleNameInitial = widget.resident.residentMName != 'null' &&
+    //         widget.resident.residentMName.isNotEmpty
+    //     ? '${widget.resident.residentMName[0]}. '
+    //     : '';
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xff66d0ed),
@@ -160,7 +160,7 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
             right: 0,
             child: Center(
               child: Text(
-                '${widget.resident.residentFName} $middleNameInitial${widget.resident.residentLName}',
+                '${widget.resident.residentFName} ${widget.resident.residentLName}',
                 style:
                     const TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
               ),
@@ -193,8 +193,8 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
                         widget.resident.residentFName ?? ''),
                     buildProfileInfoTile('Resident Last Name',
                         widget.resident.residentLName ?? ''),
-                    buildProfileInfoTile('Resident Middle Name',
-                        widget.resident.residentMName ?? ''),
+                    // buildProfileInfoTile('Resident Middle Name',
+                    //     widget.resident.residentMName ?? ''),
                     buildProfileInfoTile(
                         'Username', widget.resident.residentUserName ?? ''),
                     buildProfileInfoTile(

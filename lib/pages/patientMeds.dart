@@ -44,8 +44,6 @@ class PatientMedicineListPage extends StatelessWidget {
         itemCount: patientMedicines.length,
         itemBuilder: (context, index) {
           final patientMedicine = patientMedicines[index];
-
-          // Find the Medicine object corresponding to patientMedicine.medicineId
           Medicine? medicine = medicinesList.firstWhere(
                 (medicine) => medicine.medicineId == patientMedicine.medicineId,
             orElse: () => Medicine(

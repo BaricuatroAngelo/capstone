@@ -29,24 +29,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   bool _isLoading = true;
-
-  double _calculateContainerHeight(BuildContext context) {
-    // Get the screen height
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    // Define your desired height range based on the screen height
-    // You can adjust the values as per your preference
-    if (screenHeight < 600) {
-      // Small phones
-      return 150;
-    } else if (screenHeight < 1000) {
-      // Medium-sized phones and small tablets
-      return 200;
-    } else {
-      // Larger tablets and devices
-      return 300;
-    }
-  }
+  final ScrollController _scrollController = ScrollController();
 
   double _calculateContainerWidth(BuildContext context) {
     // Get the screen height
@@ -88,6 +71,20 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   void initState() {
     super.initState();
     _fetchPatients();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels == 0) {
+      _fetchPatients();
+    }
   }
 
   Future<void> _fetchPatients() async {
@@ -208,45 +205,6 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                           decoration: InputDecoration(
                             labelText: 'Search patient by name or ID',
                             prefixIcon: const Icon(Icons.search),
-                            suffixIcon: IconButton(
-                              icon: const Icon(Icons.filter_list),
-                              onPressed: () {
-                                // showDialog(
-                                //   context: context,
-                                //   builder: (context) {
-                                //     return AlertDialog(
-                                //       title: const Text('Sort By'),
-                                //       content: Column(
-                                //         mainAxisSize: MainAxisSize.min,
-                                //         children: [
-                                //           ListTile(
-                                //             title: const Text('ID'),
-                                //             onTap: () {
-                                //               Navigator.pop(context);
-                                //               _applyFilter('Patient ID');
-                                //             },
-                                //           ),
-                                //           ListTile(
-                                //             title: const Text('Name'),
-                                //             onTap: () {
-                                //               Navigator.pop(context);
-                                //               _applyFilter('Name');
-                                //             },
-                                //           ),
-                                //           ListTile(
-                                //             title: const Text('Room'),
-                                //             onTap: () {
-                                //               Navigator.pop(context);
-                                //               _applyFilter('Room');
-                                //             },
-                                //           ),
-                                //         ],
-                                //       ),
-                                //     );
-                                //   },
-                                // );
-                              },
-                            ),
                             floatingLabelBehavior: FloatingLabelBehavior.never,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -258,9 +216,12 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
                     ),
                   ),
                 ),
-                space,
+            const SizedBox(
+              height: 20,
+            ),
                 if (_isSearching) ...[
                   ListView(
+                    controller: _scrollController,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: _filteredPatients.map((patient) {

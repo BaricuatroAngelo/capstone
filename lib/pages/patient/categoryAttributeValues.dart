@@ -25,33 +25,19 @@ class catAttValuesState extends State<catAttValues> {
   List<CategoryAttribute> _attributes = [];
   List<AttributeValues> _attributeValues = [];
   final bool _isLoading = false;
-
-  Future<void> fetchAttValuesWithDelay(Duration duration) async {
-    await Future.delayed(duration);
-    await fetchAttValues();
-  }
-
-  Future<void> fetchCatAttWithDelay(Duration duration) async {
-    await Future.delayed(duration);
-    await fetchCatAtt();
-  }
-
+  bool _dataFetched = false;
 
   Future<void> fetchAttValues() async {
-    await Future.delayed(const Duration(seconds: 5)); // Add a delay
-
     final url = Uri.parse('${Env.prefix}/api/attributeValues/getPHRM/${widget.patient.patientId}');
-
     try {
       final response = await http.get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
-
       if (mounted && response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
         final List<AttributeValues> attVals = responseData.map((data) => AttributeValues.fromJson(data)).toList();
-
         if (mounted) {
           setState(() {
             _attributeValues = attVals;
+            _dataFetched = true;
           });
         }
       }
@@ -61,21 +47,18 @@ class catAttValuesState extends State<catAttValues> {
   }
 
   Future<void> fetchCatAtt() async {
-    await Future.delayed(const Duration(seconds: 5)); // Add a delay
-
     final url = Uri.parse('${Env.prefix}/api/categoryAttributes');
-
     try {
       final response = await http.get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
-
+      print(response.statusCode);
       if (mounted && response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
         final List<CategoryAttribute> catAtt = responseData.map((data) => CategoryAttribute.fromJson(data)).toList();
         final List<CategoryAttribute> filteredCatAtt = catAtt.where((value) => value.formCat_id == widget.formCatId).toList();
-
         if (mounted) {
           setState(() {
             _attributes = filteredCatAtt;
+            _dataFetched = true;
           });
         }
       }
@@ -84,7 +67,66 @@ class catAttValuesState extends State<catAttValues> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    fetchCatAtt();
+    fetchAttValues();
+  }
 
+  Widget buildListView() {
+    if (!_dataFetched) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (_attributes.isEmpty) {
+      return const Center(child: Text('No data available'));
+    } else {
+      return ListView.builder(
+        itemCount: _attributes.length,
+        itemBuilder: (context, index) {
+          final String attributeName =
+              _attributes[index].categoryAtt_name;
+          final List<String> relevantValues = _attributeValues
+              .where((value) =>
+          value.categoryAtt_id == _attributes[index].formCat_id)
+              .map((value) => value.attributeVal_values)
+              .toList();
+
+          return Card(
+            elevation: 2,
+            margin:
+            const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: ListTile(
+              title: Text(
+                attributeName,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 24),
+              ),
+              trailing: relevantValues.isNotEmpty
+                  ? Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: relevantValues
+                    .map(
+                      (value) =>
+                      Text(
+                        'Attribute Value: $value',
+                        style: const TextStyle(
+                            color: Colors.grey, fontSize: 24),
+                      ),
+                )
+                    .toList(),
+              )
+                  : const Text(
+                'None',
+                style: TextStyle(
+                    color: Colors.grey, fontSize: 24),
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,68 +148,11 @@ class catAttValuesState extends State<catAttValues> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              fetchAttValuesWithDelay(const Duration(seconds: 5));
-              fetchCatAttWithDelay(const Duration(seconds: 5));
             },
           ),
         ],
       ),
-      body: FutureBuilder(
-        future: fetchCatAtt(),
-        // This starts fetching when the widget is built
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            return ListView.builder(
-              itemCount: _attributes.length,
-              itemBuilder: (context, index) {
-                final String attributeName =
-                    _attributes[index].categoryAtt_name;
-                final List<String> relevantValues = _attributeValues
-                    .where((value) =>
-                        value.categoryAtt_id == _attributes[index].formCat_id)
-                    .map((value) => value.attributeVal_values)
-                    .toList();
-
-                return Card(
-                  elevation: 2,
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  child: ListTile(
-                    title: Text(
-                      attributeName,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 24),
-                    ),
-                    trailing: relevantValues.isNotEmpty
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: relevantValues
-                                .map(
-                                  (value) => Text(
-                                    'Attribute Value: $value',
-                                    style: const TextStyle(
-                                        color: Colors.grey, fontSize: 24),
-                                  ),
-                                )
-                                .toList(),
-                          )
-                        : const Text(
-                            'None',
-                            style: TextStyle(
-                                color: Colors.grey, fontSize: 24),
-                          ),
-                  ),
-                );
-              },
-            );
-          }
-        },
-      ),
+      body: buildListView(),
     );
   }
 }

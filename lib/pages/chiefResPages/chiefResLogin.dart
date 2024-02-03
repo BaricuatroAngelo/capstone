@@ -124,11 +124,10 @@ class ChiefResLoginState extends State<ChiefResLogin> {
                             child: TextFormField(
                               controller: _usernameController,
                               textAlign: TextAlign.left,
-                              // Set to TextAlign.center for center alignment
                               decoration: InputDecoration(
                                 labelText: 'Username',
                                 floatingLabelBehavior:
-                                    FloatingLabelBehavior.never,
+                                FloatingLabelBehavior.never,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(20),
                                   borderSide: BorderSide.none,
@@ -158,11 +157,10 @@ class ChiefResLoginState extends State<ChiefResLogin> {
                               controller: _passwordController,
                               obscureText: true,
                               textAlign: TextAlign.left,
-                              // Set to TextAlign.center for center alignment
                               decoration: InputDecoration(
                                 labelText: 'Password',
                                 floatingLabelBehavior:
-                                    FloatingLabelBehavior.never,
+                                FloatingLabelBehavior.never,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(20),
                                   borderSide: BorderSide.none,
@@ -179,35 +177,33 @@ class ChiefResLoginState extends State<ChiefResLogin> {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
+                      Container(
                         height: _isLoading ? 60 : 50,
-                        width: _isLoading ? 60 : double.infinity,
-                        decoration:
-                            _isLoading ? loadingContainer : selectBoxDecor,
+                        width: double.infinity,
+                        decoration: _isLoading ? loadingContainer : selectBoxDecor,
                         child: InkWell(
-                          onTap: () {
+                          onTap: _isLoading
+                              ? null // Disable button when loading
+                              : () {
                             FocusScope.of(context).unfocus();
                             if (_formKey.currentState!.validate()) {
                               _login();
                             }
                           },
-                          child: _isLoading
-                              ? const Center(
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Color(0xff99e9ff)),
-                                  ),
-                                )
-                              : const Center(
-                                  child: Text(
-                                    'Login',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
+                          child: Center(
+                            child: _isLoading
+                                ? const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xff99e9ff)),
+                            )
+                                : const Text(
+                              'Login',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       Row(
@@ -223,6 +219,7 @@ class ChiefResLoginState extends State<ChiefResLogin> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 16),
                       Text(
                         _errorMessage,
                         style: const TextStyle(color: Colors.red),

@@ -54,6 +54,7 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
         setState(() {
           _selectedMedicine = null;
           _selectedFrequency = null;
+          reloadPage();
         });
       } else {
         // Handle API error
