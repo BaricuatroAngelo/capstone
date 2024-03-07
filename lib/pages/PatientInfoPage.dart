@@ -383,7 +383,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 20),
+            padding: const EdgeInsets.only(right: 5),
             child: IconButton(
               onPressed: _openRoomSelection,
               icon: const Icon(
@@ -392,17 +392,20 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
               ),
             ),
           ),
-          IconButton(
-            onPressed: () {
-              confirmCheckout(context); // Show confirmation dialog
-            },
-            icon: const Icon(
-              Icons.check,
-              size: 30,
+          Padding(
+            padding: const EdgeInsets.only(right: 5),
+            child: IconButton(
+              onPressed: () {
+                confirmCheckout(context); // Show confirmation dialog
+              },
+              icon: const Icon(
+                Icons.check,
+                size: 30,
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 20),
+            padding: const EdgeInsets.only(right: 5),
             child: IconButton(
               icon: const Icon(
                 Icons.upload,

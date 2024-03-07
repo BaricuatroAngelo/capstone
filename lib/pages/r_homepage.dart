@@ -17,7 +17,8 @@ class HomePage extends StatefulWidget {
   final String residentId;
   final String authToken;
 
-  const HomePage({Key? key, required this.residentId, required this.authToken})
+  const HomePage(
+      {Key? key, required this.residentId, required this.authToken})
       : super(key: key);
 
   @override

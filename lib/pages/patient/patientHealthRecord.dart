@@ -145,6 +145,73 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
     }
   }
 
+  void _showPatientDetails(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Patient Information',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.6, // Set width to 80% of screen width
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildInfoRow('ID', '${widget.patient.patientId}'),
+                  _buildInfoRow('First Name', widget.patient.patient_fName),
+                  _buildInfoRow('Middle Name', widget.patient.patient_mName),
+                  _buildInfoRow('Last Name', widget.patient.patient_lName),
+                  _buildInfoRow('Age', widget.patient.patient_age.toString()),
+                  _buildInfoRow('Sex', widget.patient.patient_sex),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Text(
+            '$label: ',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 24,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery
@@ -165,6 +232,16 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
         ),
       ),
       body: buildGridView(),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            _showPatientDetails(context);
+          },
+          child: Icon(Icons.info),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

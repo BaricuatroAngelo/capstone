@@ -16,10 +16,10 @@ class FileUploadPage extends StatefulWidget {
   final String patientId;
 
   const FileUploadPage(
-      {super.key,
+      {Key? key,
       required this.authToken,
       required this.residentId,
-      required this.patientId});
+      required this.patientId}) : super(key: key);
 
   @override
   _FileUploadPageState createState() => _FileUploadPageState();
@@ -28,6 +28,15 @@ class FileUploadPage extends StatefulWidget {
 class _FileUploadPageState extends State<FileUploadPage> {
   File? _selectedFile;
   List<FileUpload> uploadedFiles = [];
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -64,9 +73,12 @@ class _FileUploadPageState extends State<FileUploadPage> {
         print(response.statusCode);
         print(response.stream.bytesToString());
         if (response.statusCode == 200) {
-          print('upload success');
+          _showSnackBar('upload success');
+          await reloadPage();
+
         } else {
-          print('failed to upload file');
+          _showSnackBar('failed to upload file');
+          await reloadPage();
         }
       } catch (e) {
         print(e);
@@ -127,6 +139,13 @@ class _FileUploadPageState extends State<FileUploadPage> {
     } catch (e) {
       print('Error opening file: $e');
     }
+  }
+
+  Future<void> reloadPage() async {
+    await fetchUploadedFiles();
+    setState(() {
+      _selectedFile=null;
+    }); // Trigger a rebuild of the UI
   }
 
 
@@ -205,6 +224,9 @@ class _FileUploadPageState extends State<FileUploadPage> {
               if (value == 'pick') {
                 _pickFile();
               }
+              else if (value == 'refresh') {
+                reloadPage();
+              }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
@@ -212,6 +234,13 @@ class _FileUploadPageState extends State<FileUploadPage> {
                 child: ListTile(
                   leading: Icon(Icons.attach_file),
                   title: Text('Select File'),
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'refresh',
+                child: ListTile(
+                  leading: Icon(Icons.refresh),
+                  title: Text('Refresh'),
                 ),
               ),
               // Add more options if needed
@@ -236,15 +265,18 @@ class _FileUploadPageState extends State<FileUploadPage> {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _uploadFile,
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ), backgroundColor: const Color(0xff66d0ed),
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            Container(
+              margin: const EdgeInsets.only(bottom: 20), // Adjust the margin here
+              child: ElevatedButton(
+                onPressed: _uploadFile,
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ), backgroundColor: const Color(0xff66d0ed),
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                ),
+                child: const Text('Upload File'),
               ),
-              child: const Text('Upload File'),
             ),
           ],
         ),
