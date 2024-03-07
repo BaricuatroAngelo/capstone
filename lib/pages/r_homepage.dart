@@ -483,62 +483,69 @@ class HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            content: SizedBox(
-                              height: 300, // Set the height you desire
-                              child: ListView.builder(
-                                scrollDirection: Axis.vertical,
-                                itemCount: (floorEntry.value.length / 3).ceil(),
-                                itemBuilder: (context, rowIndex) {
-                                  final startIdx = rowIndex * 3;
-                                  final endIdx = (rowIndex * 3 + 3)
-                                      .clamp(0, floorEntry.value.length);
-                                  final rowRooms = floorEntry.value
-                                      .sublist(startIdx, endIdx);
+                            content: SingleChildScrollView(
+                              child: SizedBox(
+                                height: 200, // Set the height you desire
+                                child: ListView.builder(
+                                  scrollDirection: Axis.vertical,
+                                  itemCount: (floorEntry.value.length / 3).ceil(),
+                                  itemBuilder: (context, rowIndex) {
+                                    final startIdx = rowIndex * 3;
+                                    final endIdx = (rowIndex * 3 + 3)
+                                        .clamp(0, floorEntry.value.length);
+                                    final rowRooms = floorEntry.value
+                                        .sublist(startIdx, endIdx);
 
-                                  return Row(
-                                    children: rowRooms.map((room) {
-                                      return Container(
-                                        width: 150,
-                                        height: 100,
-                                        margin: const EdgeInsets.only(left: 30),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            if (room.roomId.startsWith('RAE')) {
-                                              _navigateToWardPatientPage(
-                                                  room.roomId);
-                                            } else {
-                                              _navigateToPatientDetailPage(
-                                                  room.roomId);
-                                            }
-                                          },
-                                          child: Card(
-                                            elevation: 7,
-                                            shadowColor:
-                                                const Color(0xff82eefd),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8),
-                                              child: Center(
-                                                child: Text(
-                                                  'Room ${room.roomId}',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize:
-                                                        _calculateFontSize(
-                                                            context),
+                                    return Column(
+                                      children: [
+                                        Row(
+                                          children: rowRooms.map((room) {
+                                            return Container(
+                                              width: 150,
+                                              height: 100,
+                                              margin: const EdgeInsets.only(left: 30),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  if (room.roomId.startsWith('RAE')) {
+                                                    _navigateToWardPatientPage(
+                                                        room.roomId);
+                                                  } else {
+                                                    _navigateToPatientDetailPage(
+                                                        room.roomId);
+                                                  }
+                                                },
+                                                child: Card(
+                                                  elevation: 7,
+                                                  shadowColor:
+                                                  const Color(0xff82eefd),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                    BorderRadius.circular(8),
+                                                  ),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(8),
+                                                    child: Center(
+                                                      child: Text(
+                                                        'Room ${room.roomId}',
+                                                        style: TextStyle(
+                                                          fontWeight: FontWeight.w700,
+                                                          fontSize:
+                                                          _calculateFontSize(
+                                                              context),
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                          ),
+                                            );
+                                          }).toList(),
                                         ),
-                                      );
-                                    }).toList(),
-                                  );
-                                },
+                                        SizedBox(height: 10), // Add space between rows
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
                             ),
                           ),

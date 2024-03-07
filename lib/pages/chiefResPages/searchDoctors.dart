@@ -11,6 +11,7 @@ import 'dart:convert';
 import '../../design/containers/ProfileDesignWidget.dart';
 import '../../design/containers/widgets/urlWidget.dart';
 import '../../providers/constants.dart';
+import '../Models/Floor/Room/AssignedRoom.dart';
 
 class SearchResidentPage extends StatefulWidget {
   final String authToken;
@@ -30,6 +31,7 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
   late SortType _sortType = SortType.Name;
   bool _isNameAscending = true;
   final TextEditingController _searchController = TextEditingController();
+  List<AssignedRoom> _allAssignedRooms =[];
 
   bool _isLoading = true;
 
@@ -37,6 +39,32 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
   void initState() {
     super.initState();
     _fetchResidents();
+    _fetchAllAssignedRooms();
+  }
+
+  Future<void> _fetchAllAssignedRooms() async {
+    final url = Uri.parse('${Env.prefix}/api/resAssRooms');
+
+    try {
+      final response = await http.get (
+          url,
+          headers: {
+            'Authorization' : 'Bearer ${widget.authToken}'
+          }
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body);
+        final List<AssignedRoom> assignedRooms = responseData.map((data) => AssignedRoom.fromJson(data)).toList();
+        setState(() {
+          _allAssignedRooms = assignedRooms;
+        });
+      } else {
+        _showSnackBar('Failed to fetch resident assigned rooms.');
+      }
+    } catch (e){
+      print(e);
+    }
   }
 
   Future<void> _fetchResidents() async {
@@ -137,6 +165,9 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
 
   void _onResidentSelected(Resident resident) {
     SchedulerBinding.instance.addPostFrameCallback((_) {
+      // Find assigned room for the selected resident
+      AssignedRoom? room = _allAssignedRooms.firstWhere((room) => room.residentId == resident.residentId);
+
       Navigator.push(
         context,
         PageRouteBuilder(
@@ -152,6 +183,7 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
                 residentId: resident.residentId,
                 authToken: widget.authToken,
                 resident: resident,
+                assignedRoom: room, // Pass assigned room or default value
               ),
             );
           },
@@ -159,6 +191,7 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
       );
     });
   }
+
 
   @override
   Widget build(BuildContext context) {

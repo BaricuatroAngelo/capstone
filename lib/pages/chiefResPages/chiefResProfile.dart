@@ -180,7 +180,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
               ),
             ),
             Positioned(
-              top: centerPosition - 90,
+              top: centerPosition - 70,
               left: 30,
               child: Text(
                 'Resident Information',
@@ -190,15 +190,6 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
                       fontSize: _calculateFontSize(context),
                       color: const Color(0xff66d0ed)),
                 ),
-              ),
-            ),
-            Positioned(
-              top: centerPosition - 55,
-              left: 30,
-              child: const Padding(
-                padding: EdgeInsets.only(right: 200),
-                child: Text(
-                    '_____________________________________________________________________________________________________________________________________'),
               ),
             ),
             if (!_isLoading) ...[
@@ -236,7 +227,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
                   ),
                 )),
             Padding(
-              padding: const EdgeInsets.only(top: 1080, left: 30, right: 20),
+              padding: const EdgeInsets.only(top: 830, left: 30, right: 20),
               child: TextButton(
                   onPressed: _logout,
                   child: Center(

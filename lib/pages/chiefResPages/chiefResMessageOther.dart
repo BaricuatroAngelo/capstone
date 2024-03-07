@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:capstone/pages/Models/Patient/patient.dart';
 import 'package:capstone/pages/Models/messages.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -28,6 +29,46 @@ class ChiefMessageRes extends StatefulWidget {
 class _ChiefMessageResState extends State<ChiefMessageRes> {
   final TextEditingController _messageController = TextEditingController();
   List<Messages> messages = [];
+  List<Patient> _patients = [];
+  Patient? selectedPatient;
+  bool _isLoading = true;
+
+  Future<void> _fetchPatients() async {
+    final url = Uri.parse('${Env.prefix}/api/patients');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer ${widget.authToken}'},
+      );
+
+      print('Request URL: ${url.toString()}');
+      print('Request Headers: ${response.request?.headers}');
+
+      print(response.body);
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = jsonDecode(response.body);
+        final List<Patient> patients = responseData.map((data) => Patient.fromJson(data)).toList();
+        setState(() {
+          _patients = patients;
+          _isLoading = false;
+        });
+      } else {
+        // _showSnackBar('Failed to fetch patients');
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      // _showSnackBar('An error occurred. Please try again later.');
+      setState(() {
+        _isLoading = false;
+      });
+      print(e);
+    }
+  }
 
   Future<void> _sendMessage(String message) async {
     try {
@@ -93,6 +134,7 @@ class _ChiefMessageResState extends State<ChiefMessageRes> {
   void initState() {
     super.initState();
     _fetchMessages();
+    _fetchPatients();
   }
 
   @override
@@ -109,7 +151,7 @@ class _ChiefMessageResState extends State<ChiefMessageRes> {
             elevation: 2,
             toolbarHeight: 80,
             title: Padding(
-              padding: EdgeInsets.only(left: (screenWidth - 900) / 2),
+              padding: EdgeInsets.only(left: (screenWidth - 600) / 2),
               child: Text(
                 '${widget.selectedResident.residentUserName} Chat',
                 style:

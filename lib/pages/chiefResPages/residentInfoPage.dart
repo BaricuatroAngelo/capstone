@@ -1,109 +1,72 @@
+import 'dart:convert';
+
 import 'package:capstone/design/containers/containers.dart';
+import 'package:capstone/pages/Models/Floor/Room/AssignedRoom.dart';
 import 'package:capstone/pages/Models/resident.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 import '../../design/containers/widgets/profileInfoWidget.dart';
+import '../../design/containers/widgets/urlWidget.dart';
 
 class ResidentInfoPage extends StatefulWidget {
   final String authToken;
   final String residentId;
   final Resident resident;
+  final AssignedRoom assignedRoom; // Add this line
 
-  const ResidentInfoPage(
-      {super.key,
-      required this.residentId,
-      required this.authToken,
-      required this.resident});
+  const ResidentInfoPage({
+    Key? key,
+    required this.authToken,
+    required this.residentId,
+    required this.resident,
+    required this.assignedRoom, // Add this line
+  }) : super(key: key);
 
   @override
   ResidentInfoPageState createState() => ResidentInfoPageState();
 }
 
 class ResidentInfoPageState extends State<ResidentInfoPage> {
-  // Resident? resident;
-  // bool _isLoading = true;
-  // TextEditingController textControllerResidentFName = TextEditingController();
-  // TextEditingController textControllerResidentLName = TextEditingController();
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _fetchResidentDetails();
-  // }
-  //
-  // @override
-  // void dispose() {
-  //   textControllerResidentFName.dispose();
-  //   textControllerResidentLName.dispose();
-  //   // Dispose of other text controllers
-  //   super.dispose();
-  // }
-  //
-  // Future<void> _updateResidentDetails() async {
-  //   final url =
-  //   Uri.parse('${Env.prefix}/api/residents/updateResident/${widget.residentId}');
-  //   final updatedData = {
-  //     'resident_fName': textControllerResidentFName.text,
-  //     'resident_lName': textControllerResidentLName.text,
-  //     // Add more fields here for other details
-  //   };
-  //
-  //   try {
-  //     final response = await http.put(
-  //       url,
-  //       headers: {
-  //         'Authorization': 'Bearer ${widget.authToken}',
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: jsonEncode(updatedData),
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       _showSnackBar('Resident details updated successfully');
-  //     } else {
-  //       _showSnackBar('Failed to update resident details');
-  //     }
-  //   } catch (e) {
-  //     _showSnackBar('An error occurred while updating resident details');
-  //   }
-  // }
-  //
-  // Future<void> _fetchResidentDetails() async {
-  //   final url =
-  //       Uri.parse('http://10.0.2.2:8000/api/residents/${widget.residentId}');
-  //   try {
-  //     final response = await http.get(
-  //       url,
-  //       headers: {'Authorization': 'Bearer ${widget.authToken}'},
-  //     );
-  //     if (response.statusCode == 200) {
-  //       final responseData = jsonDecode(response.body);
-  //       setState(() {
-  //         resident = Resident.fromJson(responseData);
-  //         _isLoading = false;
-  //       });
-  //     } else {
-  //       _showSnackBar('Failed to fetch patient details');
-  //       setState(() {
-  //         _isLoading = false;
-  //       });
-  //     }
-  //   } catch (e) {
-  //     _showSnackBar('An error occurred. Please try again later.');
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
-  //
-  // void _showSnackBar(String message) {
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(
-  //       content: Text(message),
-  //       duration: const Duration(seconds: 3),
-  //     ),
-  //   );
-  // }
+  List<AssignedRoom> _allAssignedRooms = [];
+
+  void initState() {
+    super.initState();
+    _fetchAllAssignedRooms();
+  }
+
+  Future<void> _fetchAllAssignedRooms() async {
+    final url = Uri.parse('${Env.prefix}/api/resAssRooms');
+
+    try {
+      final response = await http.get (
+          url,
+          headers: {
+            'Authorization' : 'Bearer ${widget.authToken}'
+          }
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body);
+        final List<AssignedRoom> assignedRooms = responseData.map((data) => AssignedRoom.fromJson(data)).toList();
+        setState(() {
+          _allAssignedRooms = assignedRooms;
+        });
+      } else {
+        _showSnackBar('Failed to fetch resident assigned rooms.');
+      }
+    } catch (e){
+      print(e);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,11 +96,11 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
             decoration: personName,
           ),
           Positioned(
-            left: (screenWidth - 400) / 2,
+            left: (screenWidth - 300) / 2,
             top: 50,
             child: Container(
-              height: 400,
-              width: 400,
+              height: 300,
+              width: 300,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(30),
@@ -199,6 +162,7 @@ class ResidentInfoPageState extends State<ResidentInfoPage> {
                         'Username', widget.resident.residentUserName ?? ''),
                     buildProfileInfoTile(
                         'Department ID', widget.resident.departmentId ?? ''),
+                    buildProfileInfoTile('Assigned Room', widget.assignedRoom.roomId ?? ''),
                   ],
                 ),
               ),
