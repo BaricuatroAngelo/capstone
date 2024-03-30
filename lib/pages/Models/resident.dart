@@ -31,14 +31,14 @@ class Resident {
 
   factory Resident.fromJson(Map<String, dynamic> json) {
     return Resident(
-      residentId: json['resident_id'],
-      residentUserName: json['resident_userName'] ?? '',
-      residentFName: json['resident_fName'] ?? '',
-      residentLName: json['resident_lName'] ?? '',
-      residentMName: json['resident_mName'] ?? '',
-      residentPassword: json['resident_password'] ?? '',
-      role: json['role'] ?? '',
-      departmentId: json['department_id'],
+      residentId: json['resident_id'] as String,
+      residentUserName: json['resident_userName'] as String ?? '',
+      residentFName: json['resident_fName'] as String ?? '',
+      residentLName: json['resident_lName'] as String ?? '',
+      residentMName: json['resident_mName'] as String ?? '',
+      residentPassword: json['resident_password'] as String ?? '',
+      role: json['role'] as String ?? '',
+      departmentId: json['department_id'] as String,
       // residentGender: json['resident_gender'],
       // createdAt: json['created_at'],
       // updatedAt: json['updated_at'],

@@ -53,6 +53,12 @@ dependencies:
   contained_tab_bar_view: ^0.8.0
   url_launcher: ^6.2.2
   connectivity_plus: ^3.0.6
+  elegant_notification: ^1.13.1
+  dio: ^5.4.1
+  permission_handler: ^11.3.0
+  location: ^5.0.3
+#  fluttertoast: ^8.2.4
+#  file_saver: ^0.2.12
 
 
 dev_dependencies:
@@ -81,6 +87,7 @@ flutter:
   assets:
 
     - asset/
+    - packages/elegant_notification/assets/icons/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,12 +1,13 @@
 import 'dart:convert';
-
+import 'package:elegant_notification/elegant_notification.dart';
 import 'package:capstone/pages/Models/Patient/patient.dart';
 import 'package:capstone/pages/PostResults.dart';
-import 'package:capstone/pages/debugPage.dart';
+import 'package:capstone/pages/uploadPage.dart';
 import 'package:capstone/pages/medicine_page.dart';
 import 'package:capstone/pages/patient/patientHealthRecord.dart';
 import 'package:capstone/pages/patientPhysicalExam.dart';
 import 'package:capstone/pages/testPHR.dart';
+import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../design/containers/containers.dart';
@@ -35,8 +36,10 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
   List<Room> _rooms = [];
   String? _selectedRoomId;
 
-  Future<void> transferPatient(String patientId, String roomId, String authToken) async {
-    final checkUrl = Uri.parse('${Env.prefix}/api/patAssRooms/$patientId'); // API endpoint to check if patient exists in patAssRooms
+  Future<void> transferPatient(
+      String patientId, String roomId, String authToken) async {
+    final checkUrl = Uri.parse(
+        '${Env.prefix}/api/patAssRooms/$patientId'); // API endpoint to check if patient exists in patAssRooms
 
     try {
       final checkResponse = await http.get(
@@ -46,7 +49,8 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
 
       if (checkResponse.statusCode == 200) {
         // Patient exists in patAssRooms, proceed with transfer
-        final transferUrl = Uri.parse('${Env.prefix}/api/patAssRooms/transferPatient/$patientId');
+        final transferUrl = Uri.parse(
+            '${Env.prefix}/api/patAssRooms/transferPatient/$patientId');
 
         try {
           final response = await http.put(
@@ -57,30 +61,54 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
 
           if (response.statusCode == 200) {
             // Handle successful transfer
-            _showSnackBar('Patient transferred successfully');
+            ElegantNotification.success(
+                position: Alignment.topCenter,
+                animation: AnimationType.fromTop,
+                description: Text('Patient transferred successfully', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),))
+                .show(context);
           } else {
             // Handle unsuccessful transfer
-            _showSnackBar('Failed to transfer patient');
+            ElegantNotification.error(
+                position: Alignment.topCenter,
+                animation: AnimationType.fromTop,
+                description: Text('Failed to transfer patient',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+                .show(context);
           }
         } catch (e) {
           // Handle exceptions during transfer
-          _showSnackBar('An error occurred during transfer');
+          ElegantNotification.error(
+              position: Alignment.topCenter,
+              animation: AnimationType.fromTop,
+              description: Text('An error occurred during transfer',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+              .show(context);
           print('Exception during transfer: $e');
         }
       } else if (checkResponse.statusCode == 404) {
         // Patient not found in patAssRooms
-        showPatientNotAssignedDialog(context);
+        ElegantNotification.error(
+          position: Alignment.topCenter,
+          animation: AnimationType.fromTop,
+          description: Text('Patient is not assigned to a room.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        ).show(context);
       } else {
         // Handle other cases if needed
-        _showSnackBar('Failed to check patient assignment');
+        ElegantNotification.error(
+            position: Alignment.topCenter,
+            animation: AnimationType.fromTop,
+            description: Text('Failed to check patient assignment',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+            .show(context);
       }
     } catch (e) {
       // Handle exceptions during check
-      _showSnackBar('An error occurred while checking patient assignment');
+      ElegantNotification.error(
+          position: Alignment.topCenter,
+          animation: AnimationType.fromTop,
+          description:
+          Text('An error occurred while checking patient assignment',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+          .show(context);
       print('Exception during patient check: $e');
     }
   }
-
 
   void _onRoomSelected(String? roomId) {
     setState(() {
@@ -100,7 +128,8 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirm Transfer'),
-          content: Text('Are you sure you want to transfer this patient to $_selectedRoomId'),
+          content: Text(
+              'Are you sure you want to transfer this patient to $_selectedRoomId'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -110,7 +139,8 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
             ),
             TextButton(
               onPressed: () {
-                transferPatient(widget.patientId, _selectedRoomId!, widget.authToken);
+                transferPatient(
+                    widget.patientId, _selectedRoomId!, widget.authToken);
                 Navigator.of(context).pop(true); // Dismiss the dialog
               },
               child: const Text('Confirm'),
@@ -139,11 +169,16 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           _rooms = rooms;
         });
       } else {
-        _showSnackBar('Failed to fetch rooms');
+        ElegantNotification.error(
+            position: Alignment.topCenter,
+            animation: AnimationType.fromTop,
+            description: Text('Failed to load room list. Please try again.'));
       }
     } catch (e) {
-      _showSnackBar('An error occurred. Please try again later.');
-      print(e);
+      ElegantNotification.error(
+          position: Alignment.topCenter,
+          animation: AnimationType.fromTop,
+          description: Text('An error occured. Please try again.'));
     }
   }
 
@@ -199,16 +234,16 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
 
   void navigateToTestPHR() {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => PHRScreen (
-        patientId: widget.patientId,
-        authToken: widget.authToken,
-        patient: widget.patient,
-      )
-    ));
+        builder: (context) => PHRScreen(
+              patientId: widget.patientId,
+              authToken: widget.authToken,
+              patient: widget.patient,
+            )));
   }
 
   Future<void> checkoutPatient(String patientId, String authToken) async {
-    final checkUrl = Uri.parse('${Env.prefix}/api/patAssRooms/$patientId'); // API endpoint to check if patient exists in patAssRooms
+    final checkUrl = Uri.parse(
+        '${Env.prefix}/api/patAssRooms/$patientId'); // API endpoint to check if patient exists in patAssRooms
 
     try {
       final checkResponse = await http.get(
@@ -218,7 +253,8 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
 
       if (checkResponse.statusCode == 200) {
         // Patient exists in patAssRooms, proceed with checkout
-        final checkoutUrl = Uri.parse('${Env.prefix}/api/patAssRooms/checkout/$patientId');
+        final checkoutUrl =
+            Uri.parse('${Env.prefix}/api/patAssRooms/checkout/$patientId');
 
         try {
           final response = await http.get(
@@ -227,47 +263,54 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           );
 
           if (response.statusCode == 200) {
-            print(response.statusCode);
+            // Handle successful transfer
+            ElegantNotification.success(
+                    position: Alignment.topCenter,
+                    animation: AnimationType.fromTop,
+                    description: Text('Patient checkout is successful', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),))
+                .show(context);
           } else {
-            // Handle unsuccessful checkout
-            showPatientNotAssignedDialog(context);
+            // Handle unsuccessful transfer
+            ElegantNotification.error(
+                    position: Alignment.topCenter,
+                    animation: AnimationType.fromTop,
+                    description: Text('Failed to checkout patient',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+                .show(context);
           }
         } catch (e) {
-          // Handle exceptions during checkout
-          print('Exception during checkout: $e');
+          // Handle exceptions during transfer
+          ElegantNotification.error(
+                  position: Alignment.topCenter,
+                  animation: AnimationType.fromTop,
+                  description: Text('An error occurred during checkout',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+              .show(context);
+          print('Exception during transfer: $e');
         }
       } else if (checkResponse.statusCode == 404) {
         // Patient not found in patAssRooms
-        showPatientNotAssignedDialog(context);
+        ElegantNotification.error(
+          position: Alignment.topCenter,
+          animation: AnimationType.fromTop,
+          description: Text('Patient is not assigned to a room.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        ).show(context);
       } else {
         // Handle other cases if needed
-        print('Failed to check patient assignment');
+        ElegantNotification.error(
+                position: Alignment.topCenter,
+                animation: AnimationType.fromTop,
+                description: Text('Failed to check patient assignment',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+            .show(context);
       }
     } catch (e) {
       // Handle exceptions during check
+      ElegantNotification.error(
+              position: Alignment.topCenter,
+              animation: AnimationType.fromTop,
+              description:
+                  Text('An error occurred while checking patient assignment',style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)))
+          .show(context);
       print('Exception during patient check: $e');
     }
-  }
-
-
-  void showPatientNotAssignedDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Patient Not Assigned',style: TextStyle(fontSize: 24)),
-          content: const Text('This patient is not currently assigned to a room.',style: TextStyle(fontSize: 24)),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss the dialog
-              },
-              child: const Text('OK',style: TextStyle(fontSize: 24)),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void confirmCheckout(BuildContext context) {
@@ -275,21 +318,33 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Checkout', style: TextStyle(fontSize: 24)  ,),
-          content: const Text('Are you sure you want to checkout this patient?', style: TextStyle(fontSize: 24),),
+          title: const Text(
+            'Confirm Checkout',
+            style: TextStyle(fontSize: 24),
+          ),
+          content: const Text(
+            'Are you sure you want to checkout this patient?',
+            style: TextStyle(fontSize: 24),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false); // Dismiss the dialog
               },
-              child: const Text('Cancel', style: TextStyle(fontSize: 24),),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(fontSize: 24),
+              ),
             ),
             TextButton(
               onPressed: () {
                 checkoutPatient(widget.patientId, widget.authToken);
                 Navigator.of(context).pop(true); // Dismiss the dialog
               },
-              child: const Text('Confirm', style: TextStyle(fontSize: 24),),
+              child: const Text(
+                'Confirm',
+                style: TextStyle(fontSize: 24),
+              ),
             ),
           ],
         );
@@ -301,7 +356,8 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return SingleChildScrollView( // Wrap with SingleChildScrollView
+        return SingleChildScrollView(
+          // Wrap with SingleChildScrollView
           child: Container(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -344,7 +400,6 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
       }
     });
   }
-
 
   @override
   void initState() {
@@ -595,7 +650,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton (
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           navigateToPhysicalExamPage();
         },

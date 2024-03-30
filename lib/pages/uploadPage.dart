@@ -6,20 +6,22 @@ import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
 import 'package:open_file/open_file.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter/gestures.dart';
+
 import '../design/containers/widgets/urlWidget.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class FileUploadPage extends StatefulWidget {
   final String authToken;
   final String residentId;
   final String patientId;
 
-  const FileUploadPage(
-      {Key? key,
-      required this.authToken,
-      required this.residentId,
-      required this.patientId}) : super(key: key);
+  const FileUploadPage({
+    Key? key,
+    required this.authToken,
+    required this.residentId,
+    required this.patientId,
+  }) : super(key: key);
 
   @override
   _FileUploadPageState createState() => _FileUploadPageState();
@@ -28,8 +30,9 @@ class FileUploadPage extends StatefulWidget {
 class _FileUploadPageState extends State<FileUploadPage> {
   File? _selectedFile;
   List<FileUpload> uploadedFiles = [];
+  final Set<String> selectedFiles = Set<String>();
 
-  void _showSnackBar(String message) {
+  void _showSnackBar(String message, String s) {
     ScaffoldMessenger.of(context as BuildContext).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -37,6 +40,8 @@ class _FileUploadPageState extends State<FileUploadPage> {
       ),
     );
   }
+
+
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -71,13 +76,12 @@ class _FileUploadPageState extends State<FileUploadPage> {
       try {
         final response = await request.send();
         print(response.statusCode);
-        print(response.stream.bytesToString());
+        print(await response.stream.bytesToString());
         if (response.statusCode == 200) {
-          _showSnackBar('upload success');
+          _showSnackBar(context as String, 'Upload success');
           await reloadPage();
-
         } else {
-          _showSnackBar('failed to upload file');
+          _showSnackBar(context as String, 'Failed to upload file');
           await reloadPage();
         }
       } catch (e) {
@@ -115,9 +119,6 @@ class _FileUploadPageState extends State<FileUploadPage> {
     }
   }
 
-
-
-
   @override
   void initState() {
     super.initState();
@@ -125,30 +126,85 @@ class _FileUploadPageState extends State<FileUploadPage> {
     fetchUploadedFiles();
   }
 
-  void _downloadFile(String fileUrl) async {
-    try {
-      // Using open_file to directly open the file
-      final file = File(fileUrl); // Assuming fileUrl contains the absolute file path
 
-      // Check if the file exists before attempting to open it
-      if (await file.exists()) {
-        await OpenFile.open(fileUrl); // Open the file
+
+
+
+  // Inside the _downloadFile method
+  void _downloadFile(BuildContext context, String fileId, String fileName, String fileExtension) async {
+    try {
+      final url = Uri.parse('${Env.prefix}/api/fileUpload/download/$fileId');
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer ${widget.authToken}'},
+      );
+
+      if (response.statusCode == 200) {
+        final fileBytes = response.bodyBytes;
+
+        // Set the custom directory path
+        final customDirectory = Directory('/storage/emulated/0/Download/');
+        if (!await customDirectory.exists()) {
+          await customDirectory.create(recursive: true);
+        }
+
+        // Create the file path
+        final filePath = '${customDirectory.path}/$fileName';
+        final file = File(filePath);
+
+        // Write the file
+        await file.writeAsBytes(fileBytes);
+
+        print('File downloaded successfully: $filePath');
+
+        // Show a success message dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Download Success'),
+              content: Text('File downloaded successfully: $filePath'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
       } else {
-        throw 'File does not exist: $fileUrl';
+        throw 'Failed to download file: ${response.statusCode}';
       }
     } catch (e) {
-      print('Error opening file: $e');
+      print('Error downloading file: $e');
+      // Handle error
     }
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   Future<void> reloadPage() async {
     await fetchUploadedFiles();
     setState(() {
-      _selectedFile=null;
+      _selectedFile = null;
+      selectedFiles.clear();
     }); // Trigger a rebuild of the UI
   }
-
-
 
   Widget _buildUploadedFilesGrid(List<FileUpload> uploadedFiles) {
     return GridView.builder(
@@ -170,18 +226,25 @@ class _FileUploadPageState extends State<FileUploadPage> {
           iconData = Icons.description;
         }
 
-        return GestureDetector(
-          onTap: () async {
-            _downloadFile(file.filePath);
+        return InkWell(
+          onTap: () {
+            _downloadFile(context, file.fileId, file.fileName, file.fileExtension);
+          },
+          onLongPress: () {
+            _toggleFileSelection(context, file.fileId , file.fileName, file.fileExtension);
           },
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey),
               borderRadius: BorderRadius.circular(8.0),
+              color: selectedFiles.contains(file.fileId)
+                  ? Colors.blue.withOpacity(0.3)
+                  : Colors.transparent,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+
                 Icon(
                   iconData,
                   size: 40,
@@ -192,6 +255,13 @@ class _FileUploadPageState extends State<FileUploadPage> {
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 16),
                 ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _viewFile(file.fileId);
+                  },
+                  icon: Icon(Icons.visibility),
+                  label: Text('View'),
+                ),
               ],
             ),
           ),
@@ -199,6 +269,80 @@ class _FileUploadPageState extends State<FileUploadPage> {
       },
     );
   }
+
+
+
+  void _toggleFileSelection(BuildContext context, String fileId, String fileName, String fileExtension) {
+    setState(() {
+      if (selectedFiles.contains(fileId)) {
+        selectedFiles.remove(fileId);
+      } else {
+        if (selectedFiles.isEmpty) {
+          _downloadFile(context, fileId, fileName, fileExtension); // Download the file with fileName and fileExtension
+        } else {
+          selectedFiles.add(fileId); // Toggle file selection
+        }
+      }
+    });
+  }
+
+
+
+  Future<void> _viewFile(String fileId) async {
+    try {
+      final url = Uri.parse('${Env.prefix}/api/fileUpload/viewFile/$fileId');
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer ${widget.authToken}'},
+      );
+
+      if (response.statusCode == 200) {
+        final directory = await getTemporaryDirectory();
+        if (directory != null) {
+          final String contentType = response.headers['content-type'] ?? '';
+          String extension = '';
+
+          // Determine file extension based on content type
+          if (contentType.contains('application/pdf')) {
+            extension = '.pdf';
+          } else if (contentType.contains('image/jpeg')) {
+            extension = '.jpeg';
+          } else if (contentType.contains('image/png')) {
+            extension = '.png';
+          } else {
+            throw 'Unsupported file type';
+          }
+
+          final filePath = '${directory.path}/$fileId$extension';
+
+          final file = File(filePath);
+          await file.writeAsBytes(response.bodyBytes);
+
+          // Check if the file exists and open it
+          if (await file.exists()) {
+            OpenFile.open(filePath);
+          } else {
+            throw 'Failed to write file: File does not exist';
+          }
+        } else {
+          throw 'Failed to get temporary directory';
+        }
+      } else {
+        throw 'Failed to download file: ${response.statusCode}';
+      }
+    } catch (e) {
+      print('Error viewing file: $e');
+      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+        SnackBar(
+          content: Text('Error viewing file: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+
+
 
 
   @override
@@ -219,12 +363,12 @@ class _FileUploadPageState extends State<FileUploadPage> {
           ),
         ),
         actions: [
+
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'pick') {
                 _pickFile();
-              }
-              else if (value == 'refresh') {
+              } else if (value == 'refresh') {
                 reloadPage();
               }
             },

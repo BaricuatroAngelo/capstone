@@ -237,8 +237,8 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
                   ),
                 ),
               ),
-              SizedBox(width: 20),
-              Text(
+              const SizedBox(width: 20),
+              const Text(
                 'Messages',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
@@ -246,7 +246,7 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.search),
+              icon: const Icon(Icons.search),
               onPressed: () {
                 navigateToSearch();
               },

@@ -150,7 +150,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'Patient Information',
             style: TextStyle(
               fontSize: 24,
@@ -158,13 +158,13 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
             ),
           ),
           content: SingleChildScrollView(
-            child: Container(
+            child: SizedBox(
               width: MediaQuery.of(context).size.width * 0.6, // Set width to 80% of screen width
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildInfoRow('ID', '${widget.patient.patientId}'),
+                  _buildInfoRow('ID', widget.patient.patientId),
                   _buildInfoRow('First Name', widget.patient.patient_fName),
                   _buildInfoRow('Middle Name', widget.patient.patient_mName),
                   _buildInfoRow('Last Name', widget.patient.patient_lName),
@@ -179,7 +179,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Close'),
+              child: const Text('Close'),
             ),
           ],
         );
@@ -195,14 +195,14 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
         children: [
           Text(
             '$label: ',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
             ),
           ),
@@ -238,7 +238,7 @@ class PatientHealthRecordPageState extends State<PatientHealthRecordPage> {
           onPressed: () {
             _showPatientDetails(context);
           },
-          child: Icon(Icons.info),
+          child: const Icon(Icons.info),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

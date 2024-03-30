@@ -29,6 +29,7 @@ class ResidentInfoPage extends StatefulWidget {
 class ResidentInfoPageState extends State<ResidentInfoPage> {
   List<AssignedRoom> _allAssignedRooms = [];
 
+  @override
   void initState() {
     super.initState();
     _fetchAllAssignedRooms();

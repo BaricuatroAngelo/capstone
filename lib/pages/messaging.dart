@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:capstone/pages/searchChatGroups.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../design/containers/containers.dart';
 import '../design/containers/widgets/urlWidget.dart';
 import 'Models/Patient/chatGroupUsers.dart';
 import 'Models/resident.dart';
@@ -237,8 +236,8 @@ class _MessagePageState extends State<MessagePage> {
                   ),
                 ),
               ),
-              SizedBox(width: 20),
-              Text(
+              const SizedBox(width: 20),
+              const Text(
                 'Messages',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
@@ -246,7 +245,7 @@ class _MessagePageState extends State<MessagePage> {
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.search),
+              icon: const Icon(Icons.search),
               onPressed: () {
                 navigateToSearch();
               },

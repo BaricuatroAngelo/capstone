@@ -31,7 +31,7 @@ class ChiefHomePage extends StatefulWidget {
 class ChiefHomePageState extends State<ChiefHomePage> {
   Resident? _resident;
   List<AssignedRoom> _assignedRooms = [];
-  List<AssignedRoom> _allAssignedRooms = [];
+  final List<AssignedRoom> _allAssignedRooms = [];
 
   double _calculateContainerHeight(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;

@@ -1,4 +1,6 @@
 import 'package:capstone/pages/patientMeds.dart';
+import 'package:elegant_notification/elegant_notification.dart';
+import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -51,6 +53,13 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
       );
 
       if (response.statusCode == 200) {
+        final medicineName = _selectedMedicine!.medicineName;
+        final patientFirstName = widget.patient.patient_fName;
+        ElegantNotification.success(
+          position: Alignment.topCenter,
+          animation: AnimationType.fromTop,
+          description: Text('Successfully added $medicineName to patient $patientFirstName'),
+        ).show(context);
         setState(() {
           _selectedMedicine = null;
           _selectedFrequency = null;
@@ -60,7 +69,11 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
         // Handle API error
         print(response.body);
         print(response.statusCode);
-        print('Failed to add selected medicine');
+        ElegantNotification.error(
+          position: Alignment.topCenter,
+          animation: AnimationType.fromTop,
+          description: Text('Failed to add medicine'),
+        ).show(context);
       }
     }
   }

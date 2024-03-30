@@ -129,7 +129,7 @@ class PhysExamState extends State<PhysExam> {
               .where((value) => value.peaId == filteredAttributes[index].peaId)
               .map((value) {
             final pavValue = value.pavValue;
-            return pavValue.length > 5 ? pavValue.substring(0, 5) + '...' : pavValue;
+            return pavValue.length > 5 ? '${pavValue.substring(0, 5)}...' : pavValue;
           })
               .toList();
           return GestureDetector(

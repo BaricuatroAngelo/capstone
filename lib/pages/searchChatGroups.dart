@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../design/containers/containers.dart';
 import '../design/containers/widgets/urlWidget.dart';
 import 'Models/Patient/chatGroupUsers.dart';
 import 'Models/resident.dart';
@@ -23,7 +22,7 @@ class SearchChatPage extends StatefulWidget {
 }
 
 class _SearchChatState extends State<SearchChatPage> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<chatGroupUsers> _chatGroups = [];
   List<chatGroupUsers> _filteredChatGroups = [];
   List<Resident> _residents = [];
@@ -247,17 +246,17 @@ class _SearchChatState extends State<SearchChatPage> {
           toolbarHeight: 80,
           title: TextField(
             controller: _searchController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Search...',
               hintStyle: TextStyle(color: Colors.white70),
               border: InputBorder.none,
             ),
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
             onChanged: _filterChatGroups, // Apply filtering directly on typing
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.close),
+              icon: const Icon(Icons.close),
               onPressed: () {
                 setState(() {
                   _searchController.clear();
