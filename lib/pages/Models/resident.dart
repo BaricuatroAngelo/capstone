@@ -35,7 +35,7 @@ class Resident {
 
   factory Resident.fromJson(Map<String, dynamic> json) {
     return Resident(
-      residentId: json['resident_id'] as String,
+      residentId: json['resident_id'] as String? ?? '',
       residentUserName: json['resident_userName'] as String? ?? '',
       residentFName: json['resident_fName'] as String? ?? '',
       residentLName: json['resident_lName'] as String? ?? '',
