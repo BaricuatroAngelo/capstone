@@ -94,10 +94,7 @@ class _FileUploadPageState extends State<FileUploadPage> {
     try {
       final url = Uri.parse('${Env.prefix}/api/fileUpload');
       final response = await http.get(
-        url.replace(queryParameters: {
-          'residentId': widget.residentId,
-          'patientId': widget.patientId,
-        }),
+        url,
         headers: {
           'Authorization': 'Bearer ${widget.authToken}',
         },
@@ -108,8 +105,14 @@ class _FileUploadPageState extends State<FileUploadPage> {
         final List<FileUpload> filesUpload = responseData
             .map((data) => FileUpload.fromJson(data))
             .toList();
+
+        // Filter files based on patientId
+        final List<FileUpload> filteredFiles = filesUpload
+            .where((file) => file.patientId == widget.patientId)
+            .toList();
+
         setState(() {
-          uploadedFiles = filesUpload;
+          uploadedFiles = filteredFiles;
         });
       } else {
         print('Failed to fetch files: ${response.statusCode}');
@@ -118,6 +121,36 @@ class _FileUploadPageState extends State<FileUploadPage> {
       print('Error fetching files: $e');
     }
   }
+
+
+  // Future<void> fetchUploadedFiles() async {
+  //   try {
+  //     final url = Uri.parse('${Env.prefix}/api/fileUpload');
+  //     final response = await http.get(
+  //       url.replace(queryParameters: {
+  //         'residentId': widget.residentId,
+  //         'patientId': widget.patientId,
+  //       }),
+  //       headers: {
+  //         'Authorization': 'Bearer ${widget.authToken}',
+  //       },
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //       final List<dynamic> responseData = json.decode(response.body);
+  //       final List<FileUpload> filesUpload = responseData
+  //           .map((data) => FileUpload.fromJson(data))
+  //           .toList();
+  //       setState(() {
+  //         uploadedFiles = filesUpload;
+  //       });
+  //     } else {
+  //       print('Failed to fetch files: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching files: $e');
+  //   }
+  // }
 
   @override
   void initState() {
@@ -183,20 +216,6 @@ class _FileUploadPageState extends State<FileUploadPage> {
       // Handle error
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   Future<void> reloadPage() async {
     await fetchUploadedFiles();
@@ -340,10 +359,6 @@ class _FileUploadPageState extends State<FileUploadPage> {
       );
     }
   }
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
