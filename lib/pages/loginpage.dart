@@ -54,6 +54,7 @@ class LoginPageState extends State<LoginPage> {
 
           // Store the token in the _token variable
           _token = token;
+          print(resident);
 
           await Future.delayed(const Duration(seconds: 3));
 
