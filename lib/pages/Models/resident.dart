@@ -33,7 +33,7 @@ class Resident {
     // required this.rememberToken
   });
 
-  factory Resident.fromJson(Map<String, dynamic> json) {
+  factory Resident.fromJson(Map<String, dynamic>? json) {
     return Resident(
       residentId: json['resident_id'] as String? ?? '',
       residentUserName: json['resident_userName'] as String? ?? '',
