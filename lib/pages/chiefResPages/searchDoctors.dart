@@ -5,7 +5,6 @@ import 'package:capstone/design/containers/containers.dart';
 import 'package:capstone/pages/Models/resident.dart';
 import 'package:capstone/pages/chiefResPages/residentInfoPage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../design/containers/ProfileDesignWidget.dart';

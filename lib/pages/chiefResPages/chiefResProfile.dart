@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'package:capstone/design/containers/widgets/profileInfoWidget.dart';
 import '../../design/containers/widgets/urlWidget.dart';
 import '../Models/resident.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ChiefProfilePage extends StatefulWidget {
   final String? authToken;
