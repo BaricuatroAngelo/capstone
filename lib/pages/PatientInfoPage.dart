@@ -38,77 +38,51 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
 
   Future<void> transferPatient(
       String patientId, String roomId, String authToken) async {
-    final checkUrl = Uri.parse(
-        '${Env.prefix}/api/patAssRooms/$patientId'); // API endpoint to check if patient exists in patAssRooms
+    final transferUrl = Uri.parse(
+        '${Env.prefix}/api/patAssRooms/transferPatient/$patientId');
 
     try {
-      final checkResponse = await http.get(
-        checkUrl,
+      final response = await http.post(
+        transferUrl,
         headers: {'Authorization': 'Bearer $authToken'},
+        body: {'room_id': roomId},
       );
 
-      if (checkResponse.statusCode == 200) {
-        // Patient exists in patAssRooms, proceed with transfer
-        final transferUrl = Uri.parse(
-            '${Env.prefix}/api/patAssRooms/transferPatient/$patientId');
+      print(response.statusCode);
 
-        try {
-          final response = await http.put(
-            transferUrl,
-            headers: {'Authorization': 'Bearer $authToken'},
-            body: {'room_id': roomId},
-          );
-
-          if (response.statusCode == 200) {
-            // Handle successful transfer
-            ElegantNotification.success(
-                position: Alignment.topCenter,
-                animation: AnimationType.fromTop,
-                description: Text('Patient transferred successfully', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),))
-                .show(context);
-          } else {
-            // Handle unsuccessful transfer
-            ElegantNotification.error(
-                position: Alignment.topCenter,
-                animation: AnimationType.fromTop,
-                description: Text('Failed to transfer patient',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
-                .show(context);
-          }
-        } catch (e) {
-          // Handle exceptions during transfer
-          ElegantNotification.error(
-              position: Alignment.topCenter,
-              animation: AnimationType.fromTop,
-              description: Text('An error occurred during transfer',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
-              .show(context);
-          print('Exception during transfer: $e');
-        }
-      } else if (checkResponse.statusCode == 404) {
+      if (response.statusCode == 200) {
+        // Handle successful transfer
+        ElegantNotification.success(
+            position: Alignment.topCenter,
+            animation: AnimationType.fromTop,
+            description: const Text('Patient transferred successfully', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),))
+            .show(context);
+      } else if (response.statusCode == 404) {
         // Patient not found in patAssRooms
         ElegantNotification.error(
           position: Alignment.topCenter,
           animation: AnimationType.fromTop,
-          description: Text('Patient is not assigned to a room.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          description: const Text('Patient is not assigned to a room.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ).show(context);
       } else {
         // Handle other cases if needed
         ElegantNotification.error(
             position: Alignment.topCenter,
             animation: AnimationType.fromTop,
-            description: Text('Failed to check patient assignment',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+            description: const Text('Failed to transfer patient',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
             .show(context);
       }
     } catch (e) {
-      // Handle exceptions during check
+      // Handle exceptions during transfer
       ElegantNotification.error(
           position: Alignment.topCenter,
           animation: AnimationType.fromTop,
-          description:
-          Text('An error occurred while checking patient assignment',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+          description: const Text('An error occurred during transfer',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
           .show(context);
-      print('Exception during patient check: $e');
+      print('Exception during transfer: $e');
     }
   }
+
 
   void _onRoomSelected(String? roomId) {
     setState(() {
@@ -172,13 +146,13 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
         ElegantNotification.error(
             position: Alignment.topCenter,
             animation: AnimationType.fromTop,
-            description: Text('Failed to load room list. Please try again.'));
+            description: const Text('Failed to load room list. Please try again.'));
       }
     } catch (e) {
       ElegantNotification.error(
           position: Alignment.topCenter,
           animation: AnimationType.fromTop,
-          description: Text('An error occured. Please try again.'));
+          description: const Text('An error occured. Please try again.'));
     }
   }
 
@@ -242,76 +216,41 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
   }
 
   Future<void> checkoutPatient(String patientId, String authToken) async {
-    final checkUrl = Uri.parse(
-        '${Env.prefix}/api/patAssRooms/$patientId'); // API endpoint to check if patient exists in patAssRooms
+    final checkoutUrl = Uri.parse(
+        '${Env.prefix}/api/patAssRooms/checkout/$patientId');
 
     try {
-      final checkResponse = await http.get(
-        checkUrl,
+      final response = await http.get(
+        checkoutUrl,
         headers: {'Authorization': 'Bearer $authToken'},
       );
 
-      if (checkResponse.statusCode == 200) {
-        // Patient exists in patAssRooms, proceed with checkout
-        final checkoutUrl =
-            Uri.parse('${Env.prefix}/api/patAssRooms/checkout/$patientId');
-
-        try {
-          final response = await http.get(
-            checkoutUrl,
-            headers: {'Authorization': 'Bearer $authToken'},
-          );
-
-          if (response.statusCode == 200) {
-            // Handle successful transfer
-            ElegantNotification.success(
-                    position: Alignment.topCenter,
-                    animation: AnimationType.fromTop,
-                    description: Text('Patient checkout is successful', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),))
-                .show(context);
-          } else {
-            // Handle unsuccessful transfer
-            ElegantNotification.error(
-                    position: Alignment.topCenter,
-                    animation: AnimationType.fromTop,
-                    description: Text('Failed to checkout patient',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
-                .show(context);
-          }
-        } catch (e) {
-          // Handle exceptions during transfer
-          ElegantNotification.error(
-                  position: Alignment.topCenter,
-                  animation: AnimationType.fromTop,
-                  description: Text('An error occurred during checkout',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
-              .show(context);
-          print('Exception during transfer: $e');
-        }
-      } else if (checkResponse.statusCode == 404) {
-        // Patient not found in patAssRooms
-        ElegantNotification.error(
-          position: Alignment.topCenter,
-          animation: AnimationType.fromTop,
-          description: Text('Patient is not assigned to a room.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        ).show(context);
+      if (response.statusCode == 200) {
+        // Handle successful checkout
+        ElegantNotification.success(
+            position: Alignment.topCenter,
+            animation: AnimationType.fromTop,
+            description: const Text('Patient checkout is successful', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),))
+            .show(context);
       } else {
-        // Handle other cases if needed
+        // Handle unsuccessful checkout
         ElegantNotification.error(
-                position: Alignment.topCenter,
-                animation: AnimationType.fromTop,
-                description: Text('Failed to check patient assignment',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+            position: Alignment.topCenter,
+            animation: AnimationType.fromTop,
+            description: const Text('Failed to checkout patient',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
             .show(context);
       }
     } catch (e) {
-      // Handle exceptions during check
+      // Handle exceptions during checkout
       ElegantNotification.error(
-              position: Alignment.topCenter,
-              animation: AnimationType.fromTop,
-              description:
-                  Text('An error occurred while checking patient assignment',style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)))
+          position: Alignment.topCenter,
+          animation: AnimationType.fromTop,
+          description: const Text('An error occurred during checkout',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
           .show(context);
-      print('Exception during patient check: $e');
+      print('Exception during checkout: $e');
     }
   }
+
 
   void confirmCheckout(BuildContext context) {
     showDialog(

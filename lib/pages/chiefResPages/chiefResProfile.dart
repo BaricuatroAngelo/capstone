@@ -22,60 +22,48 @@ class ChiefProfilePage extends StatefulWidget {
 
 class ChiefProfilePageState extends State<ChiefProfilePage> {
   double _calculateContainerHeight(BuildContext context) {
-    // Get the screen height
     final screenHeight = MediaQuery.of(context).size.height;
-
-    // Define your desired height range based on the screen height
-    // You can adjust the values as per your preference
     if (screenHeight < 600) {
-      // Small phones
       return 150;
     } else if (screenHeight < 1000) {
-      // Medium-sized phones and small tablets
       return 200;
     } else {
-      // Larger tablets and devices
       return 300;
     }
   }
 
   double _calculateContainerWidth(BuildContext context) {
-    // Get the screen height
     final screenWidth = MediaQuery.of(context).size.height;
-
-    // Define your desired height range based on the screen height
-    // You can adjust the values as per your preference
     if (screenWidth < 600) {
-      // Small phones
       return 150;
     } else if (screenWidth < 1000) {
-      // Medium-sized phones and small tablets
       return 200;
     } else {
-      // Larger tablets and devices
       return 300;
     }
   }
 
   double _calculateFontSize(BuildContext context) {
-    // Get the screen height
     final screenHeight = MediaQuery.of(context).size.height;
-
-    // Define your desired font size range based on the screen height
-    // You can adjust the values as per your preference
     if (screenHeight < 600) {
-      // Small phones
       return 16;
     } else if (screenHeight < 1000) {
-      // Medium-sized phones and small tablets
       return 18;
     } else {
-      // Larger tablets and devices
-      return 28;
+      return 22;
     }
   }
 
-  Resident? _resident;
+  Resident _resident = Resident(
+    residentId: '',
+    residentUserName: '',
+    residentFName: '',
+    residentLName: '',
+    residentPassword: '',
+    role: '',
+    departmentId: '',
+    residentGender: '', isDeleted: 0, departmentName: '',
+  );
   bool _isLoading = true;
 
   @override
@@ -85,33 +73,38 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
   }
 
   Future<void> _fetchResidentData() async {
-    final url = Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
+    final url = Uri.parse('${Env.prefix}/api/residents');
 
     try {
-      final response = await http
-          .get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
-      final responseData = json.decode(response.body);
-
-      print(response.statusCode);
-      print(response.body);
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer ${widget.authToken}'},
+      );
 
       if (response.statusCode == 200) {
-        setState(() {
-          _resident = Resident.fromJson(responseData);
-          _isLoading = false;
-        });
+        final List<dynamic> residentsData = json.decode(response.body);
+
+        final List<dynamic> filteredResidents = residentsData
+            .where((resident) => resident['resident_id'] == widget.residentId)
+            .toList();
+
+        if (filteredResidents.isNotEmpty) {
+          final residentData = filteredResidents.first;
+          final resident = Resident.fromJson(residentData);
+          setState(() {
+            _isLoading = false;
+            _resident = resident;
+          });
+        } else {
+          print(response.body);
+          _showSnackBar('Resident not found');
+        }
       } else {
-        _showSnackBar('Failed to fetch resident data');
-        setState(() {
-          _isLoading = false;
-        });
+        _showSnackBar('Failed to fetch residents data');
       }
     } catch (e) {
-      _showSnackBar('An error occurred. Please try again later.');
       print(e);
-      setState(() {
-        _isLoading = false;
-      });
+      _showSnackBar('An error occurred. Please try again later.');
     }
   }
 
@@ -135,7 +128,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
           );
         },
       ),
-      (Route<dynamic> route) => false,
+          (Route<dynamic> route) => false,
     );
   }
 
@@ -180,54 +173,53 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
               ),
             ),
             Positioned(
-              top: centerPosition - 70,
+              top: centerPosition - 90,
               left: 30,
-              child: Text(
+              child: const Text(
                 'Resident Information',
-                style: GoogleFonts.roboto(
-                  textStyle: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: _calculateFontSize(context),
-                      color: const Color(0xff66d0ed)),
-                ),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 30,
+                    color: Color(0xff66d0ed)),
               ),
             ),
             if (!_isLoading) ...[
               Positioned(
                 left: 15,
                 right: 10,
-                top: centerPosition - 30,
+                top: centerPosition - 50,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildProfileInfoTile(
-                        'Resident ID', _resident?.residentId ?? ''),
-                    buildProfileInfoTile('Name',
-                        '${_resident?.residentFName ?? ''} ${_resident?.residentLName ?? ''}'),
+                        'Resident ID', _resident.residentId),
                     buildProfileInfoTile(
-                        'Username', _resident?.residentUserName ?? ''),
+                        'Resident Name', '${_resident.residentFName} ${_resident.residentLName}'),
                     buildProfileInfoTile(
-                        'Department ID', _resident?.departmentId ?? ''),
-                    buildProfileInfoTile('Role', _resident!.role),
+                        'Username', _resident.residentUserName),
+                    buildProfileInfoTile(
+                        'Dept Name', _resident.departmentName),
+                    buildProfileInfoTile('Role', _resident.role),
                   ],
                 ),
               ),
             ],
-            Padding(
-                padding: const EdgeInsets.only(
+            const Padding(
+                padding: EdgeInsets.only(
                   top: 60,
                 ),
                 child: Center(
                   child: Text(
                     'Profile Page',
                     style: TextStyle(
-                      fontSize: _calculateFontSize(context),
+                      fontSize: 32,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 )),
             Padding(
-              padding: const EdgeInsets.only(top: 830, left: 30, right: 20),
+              padding: const EdgeInsets.only(
+                  top: 835, bottom: 0, left: 30, right: 20),
               child: TextButton(
                   onPressed: _logout,
                   child: Center(

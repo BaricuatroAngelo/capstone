@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:capstone/pages/Models/messages.dart';
@@ -31,6 +32,7 @@ class _MessageResState extends State<MessageRes> {
   List<Resident> _residents =[];
   List<Resident> _filteredResidents = [];
   bool isLoading = true;
+  late Timer _timer; // Declare a Timer variable
 
   Future<void> _fetchResidents() async {
     final url = Uri.parse('${Env.prefix}/api/residents');
@@ -98,6 +100,7 @@ class _MessageResState extends State<MessageRes> {
       if (response.statusCode == 200) {
         print('Message sent successfully');
         await reloadPage(); // Reload messages after sending a new one
+        print(response.statusCode);
       } else {
         print('Failed to send message: ${response.statusCode}');
       }
@@ -157,6 +160,10 @@ class _MessageResState extends State<MessageRes> {
     super.initState();
     _fetchMessages();
     _fetchResidents();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // Reload messages every second
+      reloadPage();
+    });
   }
 
   @override
@@ -173,7 +180,7 @@ class _MessageResState extends State<MessageRes> {
           elevation: 2,
           toolbarHeight: 80,
           title: Padding(
-            padding: EdgeInsets.only(left: (screenWidth - 350) / 2),
+            padding: EdgeInsets.only(left: (screenWidth - 300) / 2),
             child: Text(
               '${widget.selectedResident.residentFName} ${widget.selectedResident.residentLName}',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),

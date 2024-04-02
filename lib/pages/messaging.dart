@@ -91,7 +91,7 @@ class _MessagePageState extends State<MessagePage> {
           });
         }
       } else {
-        _showSnackBar('Failed to fetch patients');
+        _showSnackBar('Failed to fetch residents');
         setState(() {
           isLoading = false;
         });
@@ -116,7 +116,6 @@ class _MessagePageState extends State<MessagePage> {
         },
         body: {
           'resident_id': selectedResident.residentId,
-          // Use the selected resident's ID
         },
       );
       if (response.statusCode == 200) {
@@ -208,6 +207,11 @@ class _MessagePageState extends State<MessagePage> {
     super.initState();
     fetchChatGroup();
     _fetchResidents();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override

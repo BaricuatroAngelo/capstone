@@ -7,7 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/gestures.dart';
 
 import '../design/containers/widgets/urlWidget.dart';
 
@@ -30,7 +29,7 @@ class FileUploadPage extends StatefulWidget {
 class _FileUploadPageState extends State<FileUploadPage> {
   File? _selectedFile;
   List<FileUpload> uploadedFiles = [];
-  final Set<String> selectedFiles = Set<String>();
+  final Set<String> selectedFiles = <String>{};
 
   void _showSnackBar(String message, String s) {
     ScaffoldMessenger.of(context as BuildContext).showSnackBar(
@@ -159,10 +158,6 @@ class _FileUploadPageState extends State<FileUploadPage> {
     fetchUploadedFiles();
   }
 
-
-
-
-
   // Inside the _downloadFile method
   void _downloadFile(BuildContext context, String fileId, String fileName, String fileExtension) async {
     try {
@@ -195,14 +190,14 @@ class _FileUploadPageState extends State<FileUploadPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Download Success'),
+              title: const Text('Download Success'),
               content: Text('File downloaded successfully: $filePath'),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
-                  child: Text('OK'),
+                  child: const Text('OK'),
                 ),
               ],
             );
@@ -278,8 +273,8 @@ class _FileUploadPageState extends State<FileUploadPage> {
                   onPressed: () {
                     _viewFile(file.fileId);
                   },
-                  icon: Icon(Icons.visibility),
-                  label: Text('View'),
+                  icon: const Icon(Icons.visibility),
+                  label: const Text('View'),
                 ),
               ],
             ),
@@ -317,36 +312,32 @@ class _FileUploadPageState extends State<FileUploadPage> {
 
       if (response.statusCode == 200) {
         final directory = await getTemporaryDirectory();
-        if (directory != null) {
-          final String contentType = response.headers['content-type'] ?? '';
-          String extension = '';
+        final String contentType = response.headers['content-type'] ?? '';
+        String extension = '';
 
-          // Determine file extension based on content type
-          if (contentType.contains('application/pdf')) {
-            extension = '.pdf';
-          } else if (contentType.contains('image/jpeg')) {
-            extension = '.jpeg';
-          } else if (contentType.contains('image/png')) {
-            extension = '.png';
-          } else {
-            throw 'Unsupported file type';
-          }
-
-          final filePath = '${directory.path}/$fileId$extension';
-
-          final file = File(filePath);
-          await file.writeAsBytes(response.bodyBytes);
-
-          // Check if the file exists and open it
-          if (await file.exists()) {
-            OpenFile.open(filePath);
-          } else {
-            throw 'Failed to write file: File does not exist';
-          }
+        // Determine file extension based on content type
+        if (contentType.contains('application/pdf')) {
+          extension = '.pdf';
+        } else if (contentType.contains('image/jpeg')) {
+          extension = '.jpeg';
+        } else if (contentType.contains('image/png')) {
+          extension = '.png';
         } else {
-          throw 'Failed to get temporary directory';
+          throw 'Unsupported file type';
         }
-      } else {
+
+        final filePath = '${directory.path}/$fileId$extension';
+
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        // Check if the file exists and open it
+        if (await file.exists()) {
+          OpenFile.open(filePath);
+        } else {
+          throw 'Failed to write file: File does not exist';
+        }
+            } else {
         throw 'Failed to download file: ${response.statusCode}';
       }
     } catch (e) {

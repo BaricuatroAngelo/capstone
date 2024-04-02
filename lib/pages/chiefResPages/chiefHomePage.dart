@@ -130,23 +130,34 @@ class ChiefHomePageState extends State<ChiefHomePage> {
   }
 
   Future<void> _fetchResidentData() async {
-    final url = Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
+    final url = Uri.parse('${Env.prefix}/api/residents');
+
     try {
       final response = await http.get(
         url,
         headers: {'Authorization': 'Bearer ${widget.authToken}'},
       );
-      final responseData = json.decode(response.body);
-
-      print(response.body);
 
       if (response.statusCode == 200) {
-        final resident = Resident.fromJson(responseData);
-        setState(() {
-          _resident = resident;
-        });
+        final List<dynamic> residentsData = json.decode(response.body);
+
+        // Filter residents based on residentId
+        final List<dynamic> filteredResidents = residentsData
+            .where((resident) => resident['resident_id'] == widget.residentId)
+            .toList();
+
+        if (filteredResidents.isNotEmpty) {
+          final residentData = filteredResidents.first;
+          final resident = Resident.fromJson(residentData);
+          setState(() {
+            _resident = resident;
+          });
+        } else {
+          print(response.body);
+          _showSnackBar('Resident not found');
+        }
       } else {
-        _showSnackBar('Failed to fetch resident data');
+        _showSnackBar('Failed to fetch residents data');
       }
     } catch (e) {
       print(e);

@@ -46,11 +46,10 @@ class ChiefResLoginState extends State<ChiefResLogin> {
 
       if (response.statusCode == 200) {
         final token = responseData['token'];
-        final role = responseData['resident']['role'];
+        final role = responseData['role'];
 
         if (token.isNotEmpty && (role == 'chiefResident')) {
-          final residentJson = responseData['resident'];
-          final resident = Resident.fromJson(residentJson);
+          final resident = Resident.fromJson(responseData);
 
           _token = token;
 

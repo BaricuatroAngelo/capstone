@@ -39,16 +39,15 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
 
   Future<void> storeSelectedMedicine() async {
     if (_selectedMedicine != null && _selectedFrequency != null) {
-      final url = Uri.parse(
-          '${Env.prefix}/api/patientMedicines'); // Replace with your API URL.
+      final url = Uri.parse('${Env.prefix}/api/patientMedicines');
       final response = await http.post(
         url,
         headers: {'Authorization': 'Bearer ${widget.authToken}'},
         body: {
           'patient_id': widget.patientId,
           'medicine_id': _selectedMedicine!.medicineId,
-          'patientMedicineDate': DateTime.now().toString(),
           'medicine_frequency': _selectedFrequency!,
+          'patientMedicineDate': DateTime.now().toString(),
         },
       );
 
@@ -72,15 +71,16 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
         ElegantNotification.error(
           position: Alignment.topCenter,
           animation: AnimationType.fromTop,
-          description: Text('Failed to add medicine'),
+          description: const Text('Failed to add medicine'),
         ).show(context);
       }
     }
   }
 
+
   Future<void> fetchPatientMedicines() async {
     final url = Uri.parse(
-        '${Env.prefix}/api/patientMedicines'); // Replace with your API URL.
+        '${Env.prefix}/api/patientMedicines/patient/${widget.patientId}'); // Replace with your API URL.
     final response = await http.get(
       url,
       headers: {'Authorization': 'Bearer ${widget.authToken}'},
@@ -88,18 +88,18 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
 
     if (response.statusCode == 200) {
       final List<dynamic> responseData = jsonDecode(response.body);
-      final List<PatientMedicine> patientMedicines=
-          responseData.map((data) => PatientMedicine.fromJson(data)).toList();
-      final List<PatientMedicine> filteredMedicines =
-      patientMedicines.where((medicine) => medicine.patientId == widget.patientId).toList();
+      final List<PatientMedicine> patientMedicines = responseData
+          .map((data) => PatientMedicine.fromJson(data))
+          .toList();
       setState(() {
-        _patientMedicines = filteredMedicines;
+        _patientMedicines = patientMedicines;
       });
     } else {
       // Handle API error
       print('Failed to fetch patient medicines');
     }
   }
+
 
   void viewPatientMedicine() {
     Navigator.push(

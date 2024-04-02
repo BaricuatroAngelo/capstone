@@ -35,21 +35,16 @@ class Resident {
 
   factory Resident.fromJson(Map<String, dynamic>? json) {
     return Resident(
-      residentId: json['resident_id'] as String? ?? '',
-      residentUserName: json['resident_userName'] as String? ?? '',
-      residentFName: json['resident_fName'] as String? ?? '',
-      residentLName: json['resident_lName'] as String? ?? '',
-      // residentMName: json['resident_mName'] as String? ?? '',
-      residentPassword: json['resident_password'] as String? ?? '',
-      role: json['role'] as String? ?? '',
-      departmentId: json['department_id'] as String? ?? '',
-      residentGender: json['resident_gender'] as String? ?? 'Unknown',
-      isDeleted: json['isDeleted'] as int? ?? 0,
-      departmentName: json['department_name'] as String? ?? '',
-      // createdAt: json['created_at'],
-      // updatedAt: json['updated_at'],
-      // rememberToken: json['remember_token'] ?? '',
+      residentId: json?["resident_id"] as String? ?? '',
+      residentUserName: json?['resident_userName'] as String? ?? '',
+      residentFName: json?['resident_fName'] as String? ?? '',
+      residentLName: json?['resident_lName'] as String? ?? '',
+      residentPassword: json?['resident_password'] as String? ?? '',
+      role: json?['role'] as String? ?? '',
+      departmentId: json?['department_id'] as String? ?? '',
+      residentGender: json?['resident_gender'] as String? ?? '',
+      isDeleted: json?['isDeleted'] as int? ?? 0,
+      departmentName: json?['department_name'] as String? ?? '',
     );
   }
-
 }

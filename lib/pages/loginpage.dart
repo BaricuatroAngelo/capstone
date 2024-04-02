@@ -49,15 +49,15 @@ class LoginPageState extends State<LoginPage> {
         print(response.body);
 
         if (token.isNotEmpty) {
-          final residentJson = responseData['resident'];
-          final resident = Resident.fromJson(residentJson);
+          final resident = Resident.fromJson(responseData);
 
-          // Store the token in the _token variable
           _token = token;
-          print(resident);
+          print(resident.residentId);
+          print(token);
 
           await Future.delayed(const Duration(seconds: 3));
 
+          // Check if resident is found
           Navigator.of(context).push(
             PageRouteBuilder(
               transitionDuration: const Duration(milliseconds: 800),
@@ -72,7 +72,7 @@ class LoginPageState extends State<LoginPage> {
               },
             ),
           );
-        } else {
+                } else {
           setState(() {
             _errorMessage = 'Invalid token format';
           });
@@ -95,6 +95,7 @@ class LoginPageState extends State<LoginPage> {
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

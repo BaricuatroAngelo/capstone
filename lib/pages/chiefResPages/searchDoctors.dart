@@ -164,33 +164,35 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
   }
 
   void _onResidentSelected(Resident resident) {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      // Find assigned room for the selected resident
-      AssignedRoom? room = _allAssignedRooms.firstWhere((room) => room.residentId == resident.residentId);
+    AssignedRoom? room = _allAssignedRooms.firstWhere(
+          (room) => room.residentId == resident.residentId,
+      orElse: () => AssignedRoom(assignedRoomId: '', roomId: '', residentId: ''),
+    );
 
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 300),
-          // Set the duration of the transition
-          pageBuilder: (context, animation, secondaryAnimation) {
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1.0, 0.0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: ResidentInfoPage(
-                residentId: resident.residentId,
-                authToken: widget.authToken,
-                resident: resident,
-                assignedRoom: room, // Pass assigned room or default value
-              ),
-            );
-          },
-        ),
-      );
-    });
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 300),
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: ResidentInfoPage(
+              residentId: resident.residentId,
+              authToken: widget.authToken,
+              resident: resident,
+              assignedRoom: room, // Pass assigned room or default value
+            ),
+          );
+        },
+      ),
+    );
   }
+
+
+
 
 
   @override

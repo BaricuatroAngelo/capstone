@@ -12,8 +12,6 @@ import 'Models/Patient/EHR.dart';
 import 'Models/resident.dart';
 import 'Models/Floor/Room/AssignedRoom.dart';
 import 'PatientInfoPage.dart';
-import 'package:elegant_notification/elegant_notification.dart';
-import 'package:elegant_notification/resources/arrays.dart';
 
 class HomePage extends StatefulWidget {
   final String residentId;
@@ -127,31 +125,42 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchResidentData() async {
-    final url = Uri.parse('${Env.prefix}/api/residents/${widget.residentId}');
-
+    final url = Uri.parse('${Env.prefix}/api/residents');
 
     try {
       final response = await http.get(
         url,
         headers: {'Authorization': 'Bearer ${widget.authToken}'},
       );
-      final responseData = json.decode(response.body);
-
-      print(response.body);
 
       if (response.statusCode == 200) {
-        final resident = Resident.fromJson(responseData);
-        setState(() {
-          _resident = resident;
-        });
+        final List<dynamic> residentsData = json.decode(response.body);
+
+        // Filter residents based on residentId
+        final List<dynamic> filteredResidents = residentsData
+            .where((resident) => resident['resident_id'] == widget.residentId)
+            .toList();
+
+        if (filteredResidents.isNotEmpty) {
+          final residentData = filteredResidents.first;
+          final resident = Resident.fromJson(residentData);
+          setState(() {
+            _resident = resident;
+          });
+        } else {
+          print(response.body);
+          _showSnackBar('Resident not found');
+        }
       } else {
-        _showSnackBar('Failed to fetch resident data');
+        _showSnackBar('Failed to fetch residents data');
       }
     } catch (e) {
       print(e);
       _showSnackBar('An error occurred. Please try again later.');
     }
   }
+
+
 
   Set<String> _assignedRoomIds = {};
 
@@ -184,6 +193,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void _navigateToPatientDetailPage(String roomId) async {
+    print(roomId);
     try {
       final patientHealthRecordResponse = await http.get(
         Uri.parse('${Env.prefix}/api/patAssRooms/getPatientbyRoom/$roomId'),
@@ -191,18 +201,19 @@ class HomePageState extends State<HomePage> {
       );
 
       if (patientHealthRecordResponse.statusCode == 200) {
-        final List<dynamic> patientDataList =
-        jsonDecode(patientHealthRecordResponse.body);
+        final dynamic responseData = jsonDecode(patientHealthRecordResponse.body);
+        print(responseData);
 
-        if (patientDataList.isNotEmpty) {
-          dynamic patientData = patientDataList.firstWhere(
-                (data) => data['room_id'] == roomId,
-            orElse: () => null,
-          );
-
-          if (patientData != null) {
-            String patientId = patientData['patient_id'];
-            Patient patientHealthRecord = Patient.fromJson(patientData);
+        if (responseData is Map && responseData.containsKey('message')) {
+          // Handle the case where the backend returns a message instead of patient data
+          _showNoPatientDialog(context, roomId);
+        } else {
+          // Assuming the backend returns patient data in the form of a JSON object
+          final List<dynamic> patientList = responseData;
+          if (patientList.isNotEmpty) {
+            final dynamic patientData = patientList[0]; // Assuming there's only one patient per room
+            final Patient patientHealthRecord = Patient.fromJson(patientData);
+            final String patientId = patientHealthRecord.patientId;
 
             Navigator.push(
               context,
@@ -218,8 +229,6 @@ class HomePageState extends State<HomePage> {
           } else {
             _showNoPatientDialog(context, roomId);
           }
-        } else {
-          _showNoPatientDialog(context, roomId);
         }
       } else {
         _showNoPatientDialog(context, roomId);
@@ -229,6 +238,8 @@ class HomePageState extends State<HomePage> {
       _showNoPatientDialog(context, roomId);
     }
   }
+
+
 
 
 
@@ -253,8 +264,6 @@ class HomePageState extends State<HomePage> {
           if (patientData != null) {
             PatientHealthRecord patientHealthRecord =
                 PatientHealthRecord.fromJson(patientData);
-
-
             Navigator.push(
               context,
               MaterialPageRoute(
