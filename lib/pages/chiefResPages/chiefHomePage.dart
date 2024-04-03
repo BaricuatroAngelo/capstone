@@ -443,8 +443,8 @@ class ChiefHomePageState extends State<ChiefHomePage> {
                       child: Row(
                         children: _assignedRooms.map((assignedRoom) {
                           return Container(
-                            width: 200,
-                            height: 130,
+                            width: 150,
+                            height: 120,
                             margin: const EdgeInsets.symmetric(horizontal: 8),
                             child: GestureDetector(
                               onTap: () {

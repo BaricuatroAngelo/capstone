@@ -121,10 +121,13 @@ class PhysExamState extends State<PhysExam> {
       return const Center(child: Text('No data available'));
     } else {
       return ListView.builder(
-        itemCount: _physExamAtt.where((att) => att.physExamId == categoryId).length,
+        itemCount: _physExamAtt.where((att) => att.physExamId == categoryId && !att.peaName.contains('specify')).length,
         itemBuilder: (context, index) {
-          final filteredAttributes = _physExamAtt.where((att) => att.physExamId == categoryId).toList();
-          final String attNames = filteredAttributes[index].peaName;
+          final filteredAttributes = _physExamAtt.where((att) => att.physExamId == categoryId && !att.peaName.contains('Specify')).toList();
+          final String attNamesWithSpace = filteredAttributes[index].peaName.replaceAllMapped(
+            RegExp(r'(?<=[a-z])(?=[A-Z])'),
+                (match) => ' ',
+          );
           final List<String> relevantValues = _physExamVal
               .where((value) => value.peaId == filteredAttributes[index].peaId)
               .map((value) {
@@ -134,14 +137,14 @@ class PhysExamState extends State<PhysExam> {
               .toList();
           return GestureDetector(
             onTap: () {
-              _showDetailsDialog(attNames, relevantValues);
+              _showDetailsDialog(attNamesWithSpace, relevantValues);
             },
             child: Card(
               elevation: 2,
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: ListTile(
                 title: Text(
-                  attNames,
+                  attNamesWithSpace,
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                 ),
                 // Display relevant values here based on your requirement
@@ -152,23 +155,26 @@ class PhysExamState extends State<PhysExam> {
       );
     }
   }
+
+
   void _showDetailsDialog(String attributeName, List<String> attributeValues) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(attributeName),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: attributeValues
-                .map(
-                  (value) => Text(
-                'Attribute Value: $value',
-                style: const TextStyle(color: Colors.grey, fontSize: 18),
-              ),
-            )
-                .toList(),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8, // Adjust the width as needed
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: attributeValues.map(
+                    (value) => Text(
+                  'Attribute Value: $value',
+                  style: const TextStyle(color: Colors.grey, fontSize: 24),
+                ),
+              ).toList(),
+            ),
           ),
           actions: [
             TextButton(
@@ -181,6 +187,12 @@ class PhysExamState extends State<PhysExam> {
         );
       },
     );
+  }
+
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override

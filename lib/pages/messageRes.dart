@@ -167,6 +167,12 @@ class _MessageResState extends State<MessageRes> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(

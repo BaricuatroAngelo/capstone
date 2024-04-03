@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:capstone/pages/searchChatGroups.dart';
@@ -28,9 +29,10 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
   List<Resident> _residents = [];
   List<Resident> _filteredResidents = [];
   bool isLoading = true;
+  late Timer _timer;
 
   Future<void> fetchChatGroup() async {
-    final createChatGroupUrl = Uri.parse('${Env.prefix}/api/chatGroupUsers');
+    final createChatGroupUrl = Uri.parse('${Env.prefix}/api/chatGroupUsers/get/allGroups');
     try {
       final response = await http.get(
         createChatGroupUrl,
@@ -45,7 +47,6 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
         final List<dynamic> responseData = jsonDecode(response.body);
         final List<chatGroupUsers> chats =
         responseData.map((data) => chatGroupUsers.fromJson(data)).toList();
-
         // Filtering out chats where residentId matches the current user's residentId
         final filteredChats = chats
             .where((chat) => chat.residentId != widget.residentId)
@@ -60,7 +61,7 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
       }
     } catch (e) {
       // Handle exceptions
-      print('Exception while creating chat group: $e');
+      print('Exception while fetching chat group: $e');
       // Optionally, show a message or perform error handling
     }
   }
@@ -79,11 +80,17 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
 
         if (responseData is List) {
           setState(() {
-            _residents =
-                responseData.map((data) => Resident.fromJson(data)).toList();
-            _residents.removeWhere(
-                    (resident) => resident.residentId == widget.residentId);
-            _filteredResidents = List.from(_residents);
+            _residents = responseData
+                .map((data) => Resident.fromJson(data))
+                .toList();
+
+            // Filter out residents who are already in a chat group
+            _filteredResidents = _residents
+                .where((resident) =>
+            !_chatGroups.any((chatGroup) =>
+            chatGroup.residentId == resident.residentId) &&
+                resident.residentId != widget.residentId) // Exclude current resident
+                .toList();
           });
         } else {
           _showSnackBar('Invalid response data format');
@@ -92,7 +99,7 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
           });
         }
       } else {
-        _showSnackBar('Failed to fetch patients');
+        _showSnackBar('Failed to fetch residents');
         setState(() {
           isLoading = false;
         });
@@ -106,6 +113,8 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
     }
   }
 
+
+
   Future<void> _createChatGroup(Resident selectedResident) async {
     final createChatGroupUrl = Uri.parse('${Env.prefix}/api/chatGroupUsers');
 
@@ -117,7 +126,6 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
         },
         body: {
           'resident_id': selectedResident.residentId,
-          // Use the selected resident's ID
         },
       );
       if (response.statusCode == 200) {
@@ -149,23 +157,39 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Select Resident'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: _filteredResidents.map((Resident resident) {
-                return ListTile(
-                  title: Text(resident.residentUserName),
-                  // Replace with the resident property you want to display
-                  onTap: () {
-                    Navigator.pop(
-                        context, resident); // Return the selected resident
-                  },
-                );
-              }).toList(),
+        if (_filteredResidents.isEmpty) {
+          return AlertDialog(
+            title: const Text('No Residents Found'),
+            content: const Text('There are no available residents to select.', style: TextStyle(fontSize: 20),),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        } else {
+          return AlertDialog(
+            title: const Text('Select Resident'),
+            content: SingleChildScrollView(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8, // Set width to 80% of the screen width
+                child: ListBody(
+                  children: _filteredResidents.map((Resident resident) {
+                    return ListTile(
+                      title: Text(resident.residentUserName),
+                      onTap: () {
+                        Navigator.pop(context, resident); // Return the selected resident
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
-          ),
-        );
+          );
+        }
       },
     ).then((selectedResident) {
       if (selectedResident != null) {
@@ -173,6 +197,8 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
       }
     });
   }
+
+
 
   void navigateToMessageResident(String chatId) {
     chatGroupUsers? selectedChatGroup =
@@ -199,6 +225,13 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
             residentId: widget.residentId, authToken: widget.authToken)));
   }
 
+  Resident? findResidentById(String residentId) {
+    return _residents.firstWhere(
+          (resident) => resident.residentId == residentId,
+      orElse: () => Resident(residentId: '', residentUserName: '', residentFName: '', residentLName: '', residentPassword: '', role: '', departmentId: '', residentGender: '', isDeleted: 0, departmentName: ''),
+    );
+  }
+
   Future<void> reloadPage() async {
     await fetchChatGroup();
     setState(() {}); // Trigger a rebuild of the UI
@@ -209,6 +242,19 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
     super.initState();
     fetchChatGroup();
     _fetchResidents();
+
+    // Start the timer to fetch data every 3 seconds
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      fetchChatGroup();
+      _fetchResidents();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // Cancel the timer when the widget is disposed
+    _timer.cancel();
   }
 
   @override
@@ -265,45 +311,31 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
               child: ListView.builder(
                 itemCount: _chatGroups.length,
                 itemBuilder: (context, index) {
+                  final chatGroup = _chatGroups[index];
+                  final resident = findResidentById(chatGroup.residentId);
                   return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 4, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                     child: Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
+                        borderRadius: BorderRadius.circular(20.0),
                       ),
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        tileColor: Colors.white,
                         leading: const CircleAvatar(
                           backgroundColor: Colors.blue,
-                          child: Text(
-                            'CG',
-                            style: TextStyle(color: Colors.white),
+                          child: Icon(
+                            Icons.person, // Replace 'CG' with person icon
+                            color: Colors.white,
                           ),
                         ),
                         title: Text(
-                          'Chat Group ${_chatGroups[index].chatGroupId}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
-                        subtitle: const Text(
-                          'This is a sample message text.',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                        trailing: const Text(
-                          '12:30 PM', // Replace with the actual timestamp
-                          style:
-                          TextStyle(color: Colors.grey, fontSize: 20),
+                          resident != null ? '${resident.residentFName} ${resident.residentLName}' : 'Unknown Resident',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                         ),
                         onTap: () {
-                          navigateToMessageResident(
-                              _chatGroups[index].chatGroupId);
+                          navigateToMessageResident(chatGroup.chatGroupId);
                         },
                       ),
                     ),

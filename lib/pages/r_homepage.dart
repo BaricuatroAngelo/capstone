@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:accordion/accordion.dart';
 import 'package:accordion/controllers.dart';
 import 'package:capstone/design/containers/containers.dart';
@@ -28,6 +30,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   Resident? _resident;
   List<AssignedRoom> _assignedRooms = [];
+  late Timer _timer;
 
   double _calculateContainerHeight(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -72,6 +75,20 @@ class HomePageState extends State<HomePage> {
     _fetchResidentData();
     _fetchAssignedRooms();
     _fetchRooms();
+
+    // Start the timer to fetch data every 3 seconds
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      _fetchResidentData();
+      _fetchAssignedRooms();
+      _fetchRooms();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // Cancel the timer when the widget is disposed
+    _timer.cancel();
   }
 
   Map<String, List<Room>> _roomsByFloor = {};
@@ -316,11 +333,6 @@ class HomePageState extends State<HomePage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     // final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
@@ -399,8 +411,8 @@ class HomePageState extends State<HomePage> {
                       child: Row(
                         children: _assignedRooms.map((assignedRoom) {
                           return Container(
-                            width: 200,
-                            height: 130,
+                            width: 150,
+                            height: 120,
                             margin: const EdgeInsets.symmetric(horizontal: 8),
                             child: GestureDetector(
                               onTap: () {
