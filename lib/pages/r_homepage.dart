@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:accordion/accordion.dart';
 import 'package:accordion/controllers.dart';
 import 'package:capstone/design/containers/containers.dart';
@@ -28,6 +30,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   Resident? _resident;
   List<AssignedRoom> _assignedRooms = [];
+  late Timer _assignedRoomsRefreshTimer;
 
   double _calculateContainerHeight(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -70,9 +73,26 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _fetchResidentData();
-    _fetchAssignedRooms();
     _fetchRooms();
+    _startAssignedRoomsRefreshTimer();
   }
+
+  void _startAssignedRoomsRefreshTimer() {
+    Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+       _fetchAssignedRooms();
+    });
+  }
+
+  @override
+  void dispose() {
+    _stopAssignedRoomsRefreshTimer();
+    super.dispose();
+  }
+
+  void _stopAssignedRoomsRefreshTimer() {
+    _assignedRoomsRefreshTimer.cancel();
+  }
+
 
   Map<String, List<Room>> _roomsByFloor = {};
 
@@ -313,11 +333,6 @@ class HomePageState extends State<HomePage> {
         duration: const Duration(seconds: 3),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
