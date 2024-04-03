@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:capstone/pages/Models/fileUpload.dart';
@@ -30,6 +31,7 @@ class _FileUploadPageState extends State<FileUploadPage> {
   File? _selectedFile;
   List<FileUpload> uploadedFiles = [];
   final Set<String> selectedFiles = <String>{};
+  late Timer _timer;
 
   void _showSnackBar(String message, String s) {
     ScaffoldMessenger.of(context as BuildContext).showSnackBar(
@@ -121,41 +123,21 @@ class _FileUploadPageState extends State<FileUploadPage> {
     }
   }
 
-
-  // Future<void> fetchUploadedFiles() async {
-  //   try {
-  //     final url = Uri.parse('${Env.prefix}/api/fileUpload');
-  //     final response = await http.get(
-  //       url.replace(queryParameters: {
-  //         'residentId': widget.residentId,
-  //         'patientId': widget.patientId,
-  //       }),
-  //       headers: {
-  //         'Authorization': 'Bearer ${widget.authToken}',
-  //       },
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       final List<dynamic> responseData = json.decode(response.body);
-  //       final List<FileUpload> filesUpload = responseData
-  //           .map((data) => FileUpload.fromJson(data))
-  //           .toList();
-  //       setState(() {
-  //         uploadedFiles = filesUpload;
-  //       });
-  //     } else {
-  //       print('Failed to fetch files: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Error fetching files: $e');
-  //   }
-  // }
-
   @override
   void initState() {
     super.initState();
     // Fetch uploaded files on page load
     fetchUploadedFiles();
+
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      fetchUploadedFiles();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
   }
 
   // Inside the _downloadFile method
