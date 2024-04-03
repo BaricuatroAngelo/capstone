@@ -74,10 +74,9 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   void initState() {
     super.initState();
     _fetchPatients();
-    _scrollController.addListener(_scrollListener);
 
     // Start the timer to fetch data every 3 seconds
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       _fetchPatients();
     });
   }
@@ -91,11 +90,11 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   }
 
 
-  void _scrollListener() {
-    if (_scrollController.position.pixels == 0) {
-      _fetchPatients();
-    }
-  }
+  // void _scrollListener() {
+  //   if (_scrollController.position.pixels == 0) {
+  //     _fetchPatients();
+  //   }
+  // }
 
   Future<void> _fetchPatients() async {
     final url = Uri.parse('${Env.prefix}/api/patients');
@@ -105,12 +104,6 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
         url,
         headers: {'Authorization': 'Bearer ${widget.authToken}'},
       );
-
-      print('Request URL: ${url.toString()}');
-      print('Request Headers: ${response.request?.headers}');
-
-      print(response.body);
-      print(response.statusCode);
 
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);

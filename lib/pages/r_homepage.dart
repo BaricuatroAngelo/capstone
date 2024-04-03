@@ -69,28 +69,6 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchResidentData();
-    _fetchAssignedRooms();
-    _fetchRooms();
-
-    // Start the timer to fetch data every 3 seconds
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      _fetchResidentData();
-      _fetchAssignedRooms();
-      _fetchRooms();
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    // Cancel the timer when the widget is disposed
-    _timer.cancel();
-  }
-
   Map<String, List<Room>> _roomsByFloor = {};
 
   Future<void> _fetchRooms() async {
@@ -100,8 +78,6 @@ class HomePageState extends State<HomePage> {
         url,
         headers: {'Authorization': 'Bearer ${widget.authToken}'},
       );
-      print(response.statusCode);
-      print(response.body);
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
         final List<Room> rooms =
@@ -256,7 +232,25 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchResidentData();
+    _fetchAssignedRooms();
+    _fetchRooms();
 
+    // Start the timer to fetch data every 3 seconds
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _fetchAssignedRooms();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // Cancel the timer when the widget is disposed
+    _timer.cancel();
+  }
 
 
 

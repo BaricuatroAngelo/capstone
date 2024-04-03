@@ -243,7 +243,7 @@ class _MessagePageState extends State<MessagePage> {
     _fetchResidents();
 
     // Start the timer to fetch data every 3 seconds
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       fetchChatGroup();
       _fetchResidents();
     });

@@ -16,6 +16,7 @@ class PatientMedicineListPage extends StatelessWidget {
     required this.medicinesList,
   });
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +93,7 @@ class PatientMedicineListPage extends StatelessWidget {
                 ],
               ),
               trailing: IconButton(
-                icon: const Icon(Icons.info_outline),
+                icon: const Icon(Icons.edit),
                 onPressed: () {
                   // Add functionality to show more medicine details
                 },

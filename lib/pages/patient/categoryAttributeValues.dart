@@ -13,11 +13,12 @@ class catAttValues extends StatefulWidget {
   final Patient patient;
   final String formCatId;
 
-  const catAttValues(
-      {super.key,
-      required this.authToken,
-      required this.patient,
-      required this.formCatId});
+  const catAttValues({
+    super.key,
+    required this.authToken,
+    required this.patient,
+    required this.formCatId,
+  });
 
   @override
   State<catAttValues> createState() => catAttValuesState();
@@ -31,44 +32,55 @@ class catAttValuesState extends State<catAttValues> {
   late Timer _timer;
 
   Future<void> fetchAttValues() async {
-    final url = Uri.parse('${Env.prefix}/api/attributeValues/getPHRM/${widget.patient.patientId}');
+    final url = Uri.parse(
+        '${Env.prefix}/api/attributeValues/getPHRM/${widget.patient.patientId}');
     try {
-      final response = await http.get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
-      if (mounted && response.statusCode == 200) {
+      final response = await http.get(url,
+          headers: {'Authorization': 'Bearer ${widget.authToken}'});
+      if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
-        final List<AttributeValues> attVals = responseData.map((data) => AttributeValues.fromJson(data)).toList();
-        if (mounted) {
-          setState(() {
-            _attributeValues = attVals;
-            _dataFetched = true;
-          });
-        }
+        final List<AttributeValues> attVals =
+        responseData.map((data) => AttributeValues.fromJson(data)).toList();
+
+        setState(() {
+          _attributeValues = attVals;
+          _dataFetched = true;
+        });
+        printAttributeValues();
       }
     } catch (e) {
       print(e);
     }
   }
 
+  void printAttributeValues() {
+    print('Attribute Values:');
+    _attributeValues.forEach((attributeValue) {
+      print(attributeValue.attributeVal_values); // Assuming 'value' is the property you want to print
+    });
+  }
+
   Future<void> fetchCatAtt() async {
     final url = Uri.parse('${Env.prefix}/api/categoryAttributes');
     try {
-      final response = await http.get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
-      print(response.statusCode);
-      if (mounted && response.statusCode == 200) {
+      final response = await http.get(url,
+          headers: {'Authorization': 'Bearer ${widget.authToken}'});
+      if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
-        final List<CategoryAttribute> catAtt = responseData.map((data) => CategoryAttribute.fromJson(data)).toList();
-        final List<CategoryAttribute> filteredCatAtt = catAtt.where((value) => value.formCat_id == widget.formCatId).toList();
-        if (mounted) {
-          setState(() {
-            _attributes = filteredCatAtt;
-            _dataFetched = true;
-          });
-        }
+        final List<CategoryAttribute> catAtt =
+        responseData.map((data) => CategoryAttribute.fromJson(data)).toList();
+        final List<CategoryAttribute> filteredCatAtt =
+        catAtt.where((value) => value.formCat_id == widget.formCatId).toList();
+        setState(() {
+          _attributes = filteredCatAtt;
+          _dataFetched = true;
+        });
       }
     } catch (e) {
       print(e);
     }
   }
+
 
   @override
   void initState() {
@@ -114,11 +126,11 @@ class catAttValuesState extends State<catAttValues> {
           String attributeName = _attributes[index].categoryAtt_name;
           attributeName = modifyAttributeName(attributeName);
 
-          final List<String> relevantValues = _attributeValues
-              .where((value) =>
-          value.categoryAtt_id == _attributes[index].formCat_id)
-              .map((value) => value.attributeVal_values)
-              .toList();
+          // Find the corresponding attribute value for the current category attribute
+          final attributeValue = _attributeValues.firstWhere(
+                (value) => value.categoryAtt_id == _attributes[index].categoryAtt_id,
+            orElse: () => AttributeValues(attributeVal_values: 'N/A', attributeVal_id: '', patientId: '', categoryAtt_id: ''), // Set default value if attribute value not found
+          );
 
           return Card(
             elevation: 2,
@@ -131,25 +143,9 @@ class catAttValuesState extends State<catAttValues> {
                   fontSize: 24,
                 ),
               ),
-              trailing: relevantValues.isNotEmpty
-                  ? Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: relevantValues
-                    .map(
-                      (value) => Text(
-                    'Attribute Value: $value',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 24,
-                    ),
-                  ),
-                )
-                    .toList(),
-              )
-                  : const Text(
-                'None',
-                style: TextStyle(
+              trailing: Text(
+                attributeValue.attributeVal_values,
+                style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 24,
                 ),
@@ -160,6 +156,10 @@ class catAttValuesState extends State<catAttValues> {
       );
     }
   }
+
+
+
+
 
 
   @override
@@ -181,8 +181,7 @@ class catAttValuesState extends State<catAttValues> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-            },
+            onPressed: () {},
           ),
         ],
       ),

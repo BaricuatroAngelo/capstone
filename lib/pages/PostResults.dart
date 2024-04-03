@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:capstone/pages/Models/Patient/patient.dart';
@@ -29,6 +30,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
   TextEditingController resultsController = TextEditingController();
   String displayedResults = '';
   List<Results> _results = [];
+  late Timer _timer;
 
   @override
   void initState() {
@@ -37,7 +39,17 @@ class _LabResultsPageState extends State<LabResultsPage> {
     final formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
     labResultDateController.text = formattedDate;
 
-    fetchData();
+    // Start fetching data every 5 seconds
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      fetchData();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _timer.cancel();
   }
 
   Future<void> fetchData() async {
@@ -58,6 +70,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
 
       setState(() {
         _results = results;
+        reloadPage();
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -69,8 +82,10 @@ class _LabResultsPageState extends State<LabResultsPage> {
   }
 
   Future<void> _submitResults() async {
-    final url =
-        Uri.parse('${Env.prefix}/api/results'); // Replace with your API URL
+    final url = Uri.parse('${Env.prefix}/api/results'); // Replace with your API URL
+
+    final currentDate = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDate); // Format the date as needed by your API
 
     final response = await http.post(
       url,
@@ -78,14 +93,12 @@ class _LabResultsPageState extends State<LabResultsPage> {
         'Authorization': 'Bearer ${widget.authToken}',
       },
       body: {
-        'labResultDate': labResultDateController.text,
+        'labResultDate': formattedDate,
         'results': resultsController.text,
         'patient_id': widget.patientId,
       },
     );
 
-    print(response.body);
-    print(response.statusCode);
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -105,6 +118,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
     }
   }
 
+
   Future<void> reloadPage() async {
     await fetchData();
     setState(() {}); // Trigger a rebuild of the UI
@@ -113,6 +127,10 @@ class _LabResultsPageState extends State<LabResultsPage> {
   void _hideKeyboard() {
     FocusScope.of(context).unfocus();
   }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {

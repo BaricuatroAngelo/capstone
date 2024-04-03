@@ -47,12 +47,13 @@ class _PHRScreenState extends State<PHRScreen> {
   List<PHRData> _phrData = [];
 
   Future<void> fetchPHRData() async {
-    final url = Uri.parse('${Env.prefix}/attributeValues/getPHR/${widget.patientId}');
+    final url = Uri.parse('${Env.prefix}/attributeValues/getPHRM/${widget.patientId}');
     try {
       final response = await http.get(url, headers: {
         'Authorization': 'Bearer ${widget.authToken}'
       });
       print(response.statusCode);
+      print(response.body);
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
         setState(() {

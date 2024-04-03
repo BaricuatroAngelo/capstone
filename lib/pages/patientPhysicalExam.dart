@@ -169,8 +169,6 @@ class PhysExamState extends State<PhysExam> {
     }
   }
 
-
-
   void _showDetailsDialog(String attributeName, List<String> attributeValues) {
     showDialog(
       context: context,
@@ -184,7 +182,7 @@ class PhysExamState extends State<PhysExam> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: attributeValues.map(
                     (value) => Text(
-                  'Attribute Value: $value',
+                  value,
                   style: const TextStyle(color: Colors.grey, fontSize: 24),
                 ),
               ).toList(),
