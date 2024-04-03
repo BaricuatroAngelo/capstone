@@ -160,9 +160,9 @@ class _MessageResState extends State<MessageRes> {
     super.initState();
     _fetchMessages();
     _fetchResidents();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       // Reload messages every second
-      reloadPage();
+      _fetchMessages();
     });
   }
 
@@ -241,6 +241,9 @@ class _MessageResState extends State<MessageRes> {
                             const SizedBox(width: 8),
                             // Display the chat box
                             Container(
+                              constraints: BoxConstraints(
+                                maxWidth: MediaQuery.of(context).size.width * 0.8, // Set maximum width
+                              ),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: isSentByResident ? Colors.blue : Colors.grey,
@@ -249,8 +252,10 @@ class _MessageResState extends State<MessageRes> {
                               child: Text(
                                 message.messages,
                                 style: const TextStyle(color: Colors.white, fontSize: 24),
+                                overflow: TextOverflow.visible,
                               ),
                             ),
+
                           ],
                         ),
                       ],
