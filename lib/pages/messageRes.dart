@@ -81,8 +81,6 @@ class _MessageResState extends State<MessageRes> {
     }
   }
 
-
-
   Future<void> _sendMessage(String message) async {
     try {
       final response = await http.post(
