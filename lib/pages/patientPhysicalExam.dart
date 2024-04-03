@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:capstone/pages/Models/Patient/patientPhysExamAttributes.dart';
@@ -31,6 +32,7 @@ class PhysExamState extends State<PhysExam> {
   List<physExamAtt> _physExamAtt = [];
   List<physExamVal> _physExamVal = [];
   bool _dataFetched = false;
+  late Timer _timer;
 
   Future<void> _fetchPhysExamCat() async {
     final url = Uri.parse('${Env.prefix}/api/physicalExam/categories');
@@ -112,6 +114,10 @@ class PhysExamState extends State<PhysExam> {
     _fetchPhysExamCat();
     _fetchPhysExamAtt();
     _fetchPhysExamVal();
+
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      _fetchPhysExamVal();
+    });
   }
 
   Widget buildListView(String categoryId) {
@@ -124,10 +130,17 @@ class PhysExamState extends State<PhysExam> {
         itemCount: _physExamAtt.where((att) => att.physExamId == categoryId && !att.peaName.contains('specify')).length,
         itemBuilder: (context, index) {
           final filteredAttributes = _physExamAtt.where((att) => att.physExamId == categoryId && !att.peaName.contains('Specify')).toList();
-          final String attNamesWithSpace = filteredAttributes[index].peaName.replaceAllMapped(
+          String attNamesWithSpace = filteredAttributes[index].peaName.replaceAllMapped(
             RegExp(r'(?<=[a-z])(?=[A-Z])'),
                 (match) => ' ',
           );
+
+          // Remove the prefix "patient_" and capitalize the character after that
+          if (attNamesWithSpace.startsWith('patient_')) {
+            attNamesWithSpace = attNamesWithSpace.replaceFirst('patient_', '');
+            attNamesWithSpace = attNamesWithSpace.replaceRange(0, 1, attNamesWithSpace.substring(0, 1).toUpperCase());
+          }
+
           final List<String> relevantValues = _physExamVal
               .where((value) => value.peaId == filteredAttributes[index].peaId)
               .map((value) {
@@ -155,6 +168,7 @@ class PhysExamState extends State<PhysExam> {
       );
     }
   }
+
 
 
   void _showDetailsDialog(String attributeName, List<String> attributeValues) {
@@ -193,6 +207,8 @@ class PhysExamState extends State<PhysExam> {
   @override
   void dispose() {
     super.dispose();
+
+    _timer.cancel();
   }
 
   @override
