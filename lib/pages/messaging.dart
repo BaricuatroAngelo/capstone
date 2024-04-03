@@ -1,9 +1,6 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:capstone/pages/searchChatGroups.dart';
-import 'package:elegant_notification/elegant_notification.dart';
-import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../design/containers/widgets/urlWidget.dart';
@@ -30,7 +27,6 @@ class _MessagePageState extends State<MessagePage> {
   List<Resident> _residents = [];
   List<Resident> _filteredResidents = [];
   bool isLoading = true;
-  late Timer _chatGroupRefreshTimer;
 
   Future<void> fetchChatGroup() async {
     final createChatGroupUrl = Uri.parse('${Env.prefix}/api/chatGroupUsers');
@@ -42,8 +38,8 @@ class _MessagePageState extends State<MessagePage> {
           // Adjust content type if needed
         },
       );
-      // print(response.statusCode);
-      // print(response.body);
+      print(response.statusCode);
+      print(response.body);
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
         final List<chatGroupUsers> chats =
@@ -58,19 +54,12 @@ class _MessagePageState extends State<MessagePage> {
         });
       } else {
         // Handle unsuccessful creation
-        ElegantNotification.error(
-          position: Alignment.topCenter,
-          animation: AnimationType.fromTop,
-          description: Text('Failed to create chat group.'),
-        ).show(context);
+        print('Failed to get chat group: ${response.statusCode}');
+        // Optionally, show a message or perform error handling
       }
     } catch (e) {
       // Handle exceptions
-      ElegantNotification.error(
-        position: Alignment.topCenter,
-        animation: AnimationType.fromTop,
-        description: Text('An error occurred while fetching chat group. Please try again.'),
-      ).show(context);
+      print('Exception while creating chat group: $e');
       // Optionally, show a message or perform error handling
     }
   }
@@ -85,7 +74,7 @@ class _MessagePageState extends State<MessagePage> {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        // print(response.body);
+        print(response.body);
 
         if (responseData is List) {
           setState(() {
@@ -96,31 +85,19 @@ class _MessagePageState extends State<MessagePage> {
             _filteredResidents = List.from(_residents);
           });
         } else {
-          ElegantNotification.error(
-            position: Alignment.topCenter,
-            animation: AnimationType.fromTop,
-            description: Text('Invalid Response Data Format'),
-          ).show(context);
+          _showSnackBar('Invalid response data format');
           setState(() {
             isLoading = false;
           });
         }
       } else {
-        ElegantNotification.error(
-          position: Alignment.topCenter,
-          animation: AnimationType.fromTop,
-          description: Text('Failed to fetch Residents'),
-        ).show(context);
+        _showSnackBar('Failed to fetch residents');
         setState(() {
           isLoading = false;
         });
       }
     } catch (e) {
-      ElegantNotification.error(
-        position: Alignment.topCenter,
-        animation: AnimationType.fromTop,
-        description: Text('An error occured. Please try again.'),
-      ).show(context);
+      _showSnackBar('An error occurred. Please try again later.');
       setState(() {
         isLoading = false;
       });
@@ -142,29 +119,28 @@ class _MessagePageState extends State<MessagePage> {
         },
       );
       if (response.statusCode == 200) {
-        ElegantNotification.success(
-          position: Alignment.topCenter,
-          animation: AnimationType.fromTop,
-          description: Text('Chat group created!'),
-        ).show(context);
+        print('Chat group created!');
+        // Optionally, you can update the UI or perform other actions upon successful creation
         reloadPage(); // Reload the chat groups after creating a new one
       } else {
         // Handle unsuccessful creation
-        ElegantNotification.error(
-          position: Alignment.topCenter,
-          animation: AnimationType.fromTop,
-          description: Text('Failed to create chat group.'),
-        ).show(context);
+        print('Failed to create chat group: ${response.statusCode}');
         // Optionally, show a message or perform error handling
       }
     } catch (e) {
       // Handle exceptions
-      ElegantNotification.error(
-        position: Alignment.topCenter,
-        animation: AnimationType.fromTop,
-        description: Text('Error occured while creating chat group. Please try again'),
-      ).show(context);
+      print('Exception while creating chat group: $e');
+      // Optionally, show a message or perform error handling
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   void _selectResident() {
@@ -226,25 +202,16 @@ class _MessagePageState extends State<MessagePage> {
     setState(() {}); // Trigger a rebuild of the UI
   }
 
-  void _startChatGroupRefreshTimer() {
-    // Start a periodic timer that calls fetchChatGroup every 2 seconds
-    _chatGroupRefreshTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
-      fetchChatGroup();
-    });
-  }
-
   @override
   void initState() {
     super.initState();
     fetchChatGroup();
     _fetchResidents();
-    _startChatGroupRefreshTimer();
   }
 
   @override
   void dispose() {
     super.dispose();
-    _chatGroupRefreshTimer.cancel();
   }
 
   @override
@@ -323,6 +290,19 @@ class _MessagePageState extends State<MessagePage> {
                           'Chat Group ${_chatGroups[index].chatGroupId}',
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20),
+                        ),
+                        subtitle: const Text(
+                          'This is a sample message text.',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        trailing: const Text(
+                          '12:30 PM', // Replace with the actual timestamp
+                          style:
+                          TextStyle(color: Colors.grey, fontSize: 20),
                         ),
                         onTap: () {
                           navigateToMessageResident(
