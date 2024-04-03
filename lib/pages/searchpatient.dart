@@ -1,4 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
+import 'dart:async';
+
 import 'package:capstone/design/containers/containers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -30,6 +32,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   bool _isSearching = false;
   bool _isLoading = true;
   final ScrollController _scrollController = ScrollController();
+  late Timer _timer;
 
   double _calculateContainerWidth(BuildContext context) {
     // Get the screen height
@@ -72,11 +75,18 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
     super.initState();
     _fetchPatients();
     _scrollController.addListener(_scrollListener);
+
+    // Start the timer to fetch data every 3 seconds
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      _fetchPatients();
+    });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    // Cancel the timer when the widget is disposed
+    _timer.cancel();
     super.dispose();
   }
 

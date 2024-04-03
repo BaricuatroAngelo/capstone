@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:capstone/pages/Models/Patient/attributeValues.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -26,6 +28,7 @@ class catAttValuesState extends State<catAttValues> {
   List<AttributeValues> _attributeValues = [];
   final bool _isLoading = false;
   bool _dataFetched = false;
+  late Timer _timer;
 
   Future<void> fetchAttValues() async {
     final url = Uri.parse('${Env.prefix}/api/attributeValues/getPHRM/${widget.patient.patientId}');
@@ -71,7 +74,31 @@ class catAttValuesState extends State<catAttValues> {
   void initState() {
     super.initState();
     fetchCatAtt();
-    fetchAttValues();
+    // Start fetching attribute values every 3 seconds
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      fetchAttValues();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  String modifyAttributeName(String attributeName) {
+    if (attributeName.startsWith('phr_')) {
+      // Remove the prefix "phr_" and capitalize the character after that
+      attributeName = attributeName.replaceFirst('phr_', '');
+      attributeName = attributeName.replaceRange(
+          0, 1, attributeName.substring(0, 1).toUpperCase());
+    }
+
+    // Add white spaces before capitalized letters
+    attributeName = attributeName.replaceAllMapped(
+        RegExp(r'([A-Z])'), (match) => ' ${match.group(0)}');
+
+    return attributeName;
   }
 
   Widget buildListView() {
@@ -83,8 +110,10 @@ class catAttValuesState extends State<catAttValues> {
       return ListView.builder(
         itemCount: _attributes.length,
         itemBuilder: (context, index) {
-          final String attributeName =
-              _attributes[index].categoryAtt_name;
+          // Modify the attribute name
+          String attributeName = _attributes[index].categoryAtt_name;
+          attributeName = modifyAttributeName(attributeName);
+
           final List<String> relevantValues = _attributeValues
               .where((value) =>
           value.categoryAtt_id == _attributes[index].formCat_id)
@@ -93,13 +122,14 @@ class catAttValuesState extends State<catAttValues> {
 
           return Card(
             elevation: 2,
-            margin:
-            const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: ListTile(
               title: Text(
                 attributeName,
                 style: const TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 24),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
               ),
               trailing: relevantValues.isNotEmpty
                   ? Column(
@@ -107,19 +137,22 @@ class catAttValuesState extends State<catAttValues> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: relevantValues
                     .map(
-                      (value) =>
-                      Text(
-                        'Attribute Value: $value',
-                        style: const TextStyle(
-                            color: Colors.grey, fontSize: 24),
-                      ),
+                      (value) => Text(
+                    'Attribute Value: $value',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 24,
+                    ),
+                  ),
                 )
                     .toList(),
               )
                   : const Text(
                 'None',
                 style: TextStyle(
-                    color: Colors.grey, fontSize: 24),
+                  color: Colors.grey,
+                  fontSize: 24,
+                ),
               ),
             ),
           );
@@ -127,6 +160,7 @@ class catAttValuesState extends State<catAttValues> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

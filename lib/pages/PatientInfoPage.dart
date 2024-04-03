@@ -6,7 +6,7 @@ import 'package:capstone/pages/uploadPage.dart';
 import 'package:capstone/pages/medicine_page.dart';
 import 'package:capstone/pages/patient/patientHealthRecord.dart';
 import 'package:capstone/pages/patientPhysicalExam.dart';
-import 'package:capstone/pages/testPHR.dart';
+import 'package:capstone/pages/phr.dart';
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
