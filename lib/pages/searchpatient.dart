@@ -31,7 +31,6 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   bool _isLoading = true;
-  final ScrollController _scrollController = ScrollController();
   late Timer _timer;
 
   double _calculateContainerWidth(BuildContext context) {
@@ -83,7 +82,6 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     // Cancel the timer when the widget is disposed
     _timer.cancel();
     super.dispose();
@@ -224,7 +222,6 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
             ),
                 if (_isSearching) ...[
                   ListView(
-                    controller: _scrollController,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: _filteredPatients.map((patient) {

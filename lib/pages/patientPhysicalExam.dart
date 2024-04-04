@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:capstone/pages/Models/Patient/patientPhysExamAttributes.dart';
-import 'package:capstone/pages/Models/Patient/patientPhysExamCategories.dart';
 import 'package:flutter/material.dart';
 import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import '../design/containers/widgets/urlWidget.dart';
@@ -28,35 +27,10 @@ class PhysExam extends StatefulWidget {
 }
 
 class PhysExamState extends State<PhysExam> {
-  List<physExamCat> _physExamCat = [];
   List<physExamAtt> _physExamAtt = [];
   List<physExamVal> _physExamVal = [];
   bool _dataFetched = false;
   late Timer _timer;
-
-  Future<void> _fetchPhysExamCat() async {
-    final url = Uri.parse('${Env.prefix}/api/physicalExam/categories');
-
-    try {
-      final response = await http
-          .get(url, headers: {'Authorization': 'Bearer ${widget.authToken}'});
-      print(response.statusCode);
-      if (response.statusCode == 200) {
-        final List<dynamic> responseData = jsonDecode(response.body);
-        final List<physExamCat> examCatVal =
-            responseData.map((data) => physExamCat.fromJson(data)).toList();
-
-        setState(() {
-          _physExamCat = examCatVal;
-          _dataFetched = true;
-        });
-      } else {
-        print('Failed to load data!');
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
 
   Future<void> _fetchPhysExamAtt() async {
     final url = Uri.parse('${Env.prefix}/api/physicalExam/attributes');
@@ -111,11 +85,10 @@ class PhysExamState extends State<PhysExam> {
   @override
   void initState() {
     super.initState();
-    _fetchPhysExamCat();
     _fetchPhysExamAtt();
     _fetchPhysExamVal();
 
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       _fetchPhysExamVal();
     });
   }
@@ -127,37 +100,31 @@ class PhysExamState extends State<PhysExam> {
       return const Center(child: Text('No data available'));
     } else {
       return ListView.builder(
-        itemCount: _physExamAtt.where((att) => att.physExamId == categoryId && !att.peaName.contains('specify')).length,
+        itemCount: _physExamAtt.where((att) => att.physExamId == categoryId && att.peaName.toLowerCase().contains('specify')).length,
         itemBuilder: (context, index) {
-          final filteredAttributes = _physExamAtt.where((att) => att.physExamId == categoryId && !att.peaName.contains('Specify')).toList();
-          String attNamesWithSpace = filteredAttributes[index].peaName.replaceAllMapped(
-            RegExp(r'(?<=[a-z])(?=[A-Z])'),
-                (match) => ' ',
-          );
+          final filteredAttributes = _physExamAtt.where((att) => att.physExamId == categoryId && att.peaName.toLowerCase().contains('specify')).toList();
+          final attribute = filteredAttributes[index];
 
-          // Remove the prefix "patient_" and capitalize the character after that
-          if (attNamesWithSpace.startsWith('patient_')) {
-            attNamesWithSpace = attNamesWithSpace.replaceFirst('patient_', '');
-            attNamesWithSpace = attNamesWithSpace.replaceRange(0, 1, attNamesWithSpace.substring(0, 1).toUpperCase());
-          }
+          // Get the attribute name
+          final attributeName = attribute.returnName;
 
           final List<String> relevantValues = _physExamVal
-              .where((value) => value.peaId == filteredAttributes[index].peaId)
+              .where((value) => value.peaId == attribute.peaId)
               .map((value) {
             final pavValue = value.pavValue;
-            return pavValue.length > 5 ? '${pavValue.substring(0, 5)}...' : pavValue;
+            return pavValue;
           })
               .toList();
           return GestureDetector(
             onTap: () {
-              _showDetailsDialog(attNamesWithSpace, relevantValues);
+              _showDetailsDialog(attributeName, relevantValues);
             },
             child: Card(
               elevation: 2,
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: ListTile(
                 title: Text(
-                  attNamesWithSpace,
+                  attributeName,
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                 ),
                 // Display relevant values here based on your requirement
@@ -169,6 +136,7 @@ class PhysExamState extends State<PhysExam> {
     }
   }
 
+
   void _showDetailsDialog(String attributeName, List<String> attributeValues) {
     showDialog(
       context: context,
@@ -176,16 +144,18 @@ class PhysExamState extends State<PhysExam> {
         return AlertDialog(
           title: Text(attributeName),
           content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8, // Adjust the width as needed
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: attributeValues.map(
-                    (value) => Text(
-                  value,
-                  style: const TextStyle(color: Colors.grey, fontSize: 24),
-                ),
-              ).toList(),
+            width: MediaQuery.of(context).size.width * 0.8, // Limiting the width
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: attributeValues.map(
+                      (value) => Text(
+                    value,
+                    style: const TextStyle(color: Colors.black54, fontSize: 24),
+                  ),
+                ).toList(),
+              ),
             ),
           ),
           actions: [
@@ -200,6 +170,7 @@ class PhysExamState extends State<PhysExam> {
       },
     );
   }
+
 
 
   @override

@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'Models/Patient/patient.dart';
 import 'Models/Patient/patientMedicine.dart';
 import 'Models/medicine.dart';
 
-class PatientMedicineListPage extends StatelessWidget {
+class PatientMedicineListPage extends StatefulWidget {
   final List<PatientMedicine> patientMedicines;
   final List<Medicine> medicinesList;
   final String patientId;
   final Patient patient;
 
-  const PatientMedicineListPage({super.key, 
+  const PatientMedicineListPage({
+    Key? key,
     required this.patientMedicines,
     required this.patientId,
     required this.patient,
     required this.medicinesList,
-  });
+  }) : super(key: key);
 
+  @override
+  _PatientMedicineListPageState createState() => _PatientMedicineListPageState();
+}
+
+class _PatientMedicineListPageState extends State<PatientMedicineListPage> {
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,25 +38,26 @@ class PatientMedicineListPage extends StatelessWidget {
         toolbarHeight: 80,
         title: Center(
           child: Text(
-            '$patientId Selected Medicine',
+            '${widget.patientId} Selected Medicine',
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
         ),
       ),
-      body: patientMedicines.isEmpty ?
-          const Center(
-            child: Text(
-              'Patient has yet to take medications',
-              style: TextStyle(
-                fontSize: 30,
-                color: Colors.grey,
-              ),
-            ),
-          ) : ListView.builder(
-        itemCount: patientMedicines.length,
+      body: widget.patientMedicines.isEmpty
+          ? const Center(
+        child: Text(
+          'Patient has yet to take medications',
+          style: TextStyle(
+            fontSize: 30,
+            color: Colors.grey,
+          ),
+        ),
+      )
+          : ListView.builder(
+        itemCount: widget.patientMedicines.length,
         itemBuilder: (context, index) {
-          final patientMedicine = patientMedicines[index];
-          Medicine? medicine = medicinesList.firstWhere(
+          final patientMedicine = widget.patientMedicines[index];
+          Medicine? medicine = widget.medicinesList.firstWhere(
                 (medicine) => medicine.medicineId == patientMedicine.medicineId,
             orElse: () => Medicine(
               medicineId: '',
@@ -61,6 +73,7 @@ class PatientMedicineListPage extends StatelessWidget {
             elevation: 2,
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
+              tileColor: Colors.white,
               leading: const Icon(
                 Icons.medical_services,
                 size: 40,
@@ -85,6 +98,19 @@ class PatientMedicineListPage extends StatelessWidget {
                   ),
                   Text(
                     'Type: ${medicine.medicineType ?? 'Unknown Type'}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    'End Date: ${
+                        patientMedicine.patientMedicineDate != null
+                            ? DateTime.now().isAfter(DateTime.parse(patientMedicine.patientMedicineDate!))
+                            ? 'MEDICATION ENDED'
+                            : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.parse(patientMedicine.patientMedicineDate!))
+                            : 'Unknown Type'
+                    }',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w400,

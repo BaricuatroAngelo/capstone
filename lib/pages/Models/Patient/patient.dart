@@ -5,6 +5,7 @@ class Patient {
   final String patient_lName;
   final int patient_age;
   final String patient_sex;
+  // final String dischargeDate;
 
   Patient({
     required this.patientId,
@@ -13,6 +14,7 @@ class Patient {
     required this.patient_lName,
     required this.patient_age,
     required this.patient_sex,
+    // required this.dischargeDate,
 });
 
   factory Patient.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Patient {
       patient_lName: json['patient_lName'],
       patient_age: json['patient_age'],
       patient_sex: json['patient_sex'],
+      // dischargeDate: json['dischargeDate']
     );
   }
 }

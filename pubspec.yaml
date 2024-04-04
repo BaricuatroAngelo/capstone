@@ -54,9 +54,11 @@ dependencies:
   url_launcher: ^6.2.2
   connectivity_plus: ^3.0.6
   elegant_notification: ^1.13.1
-  dio: ^5.4.1
+  dio: ^5.4.0
   permission_handler: ^11.3.0
   location: ^5.0.3
+  dropdown_search: ^5.0.6
+  dropdown_button2: ^2.3.9
 #  fluttertoast: ^8.2.4
 #  file_saver: ^0.2.12
 

@@ -122,15 +122,23 @@ class catAttValuesState extends State<catAttValues> {
       return ListView.builder(
         itemCount: _attributes.length,
         itemBuilder: (context, index) {
-          // Modify the attribute name
-          String attributeName = _attributes[index].categoryAtt_name;
-          attributeName = modifyAttributeName(attributeName);
+          String attributeName = _attributes[index].categoryAtt_returnName;
 
           // Find the corresponding attribute value for the current category attribute
           final attributeValue = _attributeValues.firstWhere(
                 (value) => value.categoryAtt_id == _attributes[index].categoryAtt_id,
-            orElse: () => AttributeValues(attributeVal_values: 'N/A', attributeVal_id: '', patientId: '', categoryAtt_id: ''), // Set default value if attribute value not found
+            orElse: () => AttributeValues(
+              attributeVal_values: 'N/A',
+              attributeVal_id: '',
+              patientId: '',
+              categoryAtt_id: '',
+            ), // Set default value if attribute value not found
           );
+
+          // var displayValue = attributeValue.attributeVal_values;
+          // if (_attributes[index].categoryAtt_dataType == 'boolean') {
+          //   displayValue = displayValue == '1' ? 'Yes' : 'No';
+          // }
 
           return Card(
             elevation: 2,
@@ -144,7 +152,7 @@ class catAttValuesState extends State<catAttValues> {
                 ),
               ),
               trailing: Text(
-                attributeValue.attributeVal_values,
+                attributeValue as String,
                 style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 24,
@@ -156,11 +164,6 @@ class catAttValuesState extends State<catAttValues> {
       );
     }
   }
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {

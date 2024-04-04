@@ -29,6 +29,7 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
   List<PatientMedicine> _patientMedicines = [];
   Medicine? _selectedMedicine;
   String? _selectedFrequency;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -47,7 +48,7 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
           'patient_id': widget.patientId,
           'medicine_id': _selectedMedicine!.medicineId,
           'medicine_frequency': _selectedFrequency!,
-          'patientMedicineDate': DateTime.now().toString(),
+          'patientMedicineDate': _selectedDate?.toIso8601String(),
         },
       );
 
@@ -62,6 +63,7 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
         setState(() {
           _selectedMedicine = null;
           _selectedFrequency = null;
+          _selectedDate = null;
           reloadPage();
         });
       } else {
@@ -132,8 +134,7 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
   }
 
   Future<void> fetchMedicineOptions() async {
-    final url =
-        Uri.parse('${Env.prefix}/api/medicines'); // Replace with your API URL.
+    final url = Uri.parse('${Env.prefix}/api/medicines');
     final response = await http.get(
       url,
       headers: {'Authorization': 'Bearer ${widget.authToken}'},
@@ -143,16 +144,42 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
       final data = jsonDecode(response.body) as List<dynamic>;
       final medicines = data.map((json) => Medicine.fromJson(json)).toList();
 
-      medicines.sort((a, b) => a.medicineType.compareTo(b.medicineType));
+      // Filter out medicines based on prescription date
+      final currentDate = DateTime.now();
+      final List<Medicine> filteredMedicines = [];
+
+      for (final medicine in medicines) {
+        final isMedicineAvailable = !_patientMedicines.any((patientMedicine) =>
+        patientMedicine.medicineId == medicine.medicineId &&
+            DateTime.parse(patientMedicine.patientMedicineDate).isAfter(currentDate));
+
+        // Check if medicine is available or its prescription date has passed
+        if (isMedicineAvailable) {
+          filteredMedicines.add(medicine);
+        } else {
+          // Check if the medicine was previously selected and its date has passed
+          final isSubmittedMedicine = _patientMedicines.any((patientMedicine) =>
+          patientMedicine.medicineId == medicine.medicineId &&
+              DateTime.parse(patientMedicine.patientMedicineDate).isBefore(currentDate));
+
+          // If medicine was submitted and its date has passed, add it back to the list
+          if (isSubmittedMedicine) {
+            filteredMedicines.add(medicine);
+          }
+        }
+      }
+
+      filteredMedicines.sort((a, b) => a.medicineType.compareTo(b.medicineType));
 
       setState(() {
-        _medicineOptions = medicines;
+        _medicineOptions = filteredMedicines;
       });
     } else {
       // Handle API error
       print('Failed to fetch medicine options');
     }
   }
+
 
   Future<void> reloadPage() async {
     await fetchPatientMedicines();
@@ -203,19 +230,24 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                 ],
                 color: Colors.white,
               ),
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(15),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Center(
-                    child: Image(
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 30), // Add padding to move the image above
+                    child: Center(
+                      child: Image(
                         image: AssetImage('asset/ipimslogo.png'),
-                      height: 250,
-                      width: 250,
+                        height: 250,
+                        width: 250,
                       ),
                     ),
-                  const SizedBox(height: 10,),
+                  ),
+
+                  const SizedBox(height: 10),
                   DropdownButton<Medicine>(
+                    // Dropdown button for selecting medicine
                     hint: const Text(
                       'Select a medicine',
                       style: TextStyle(fontSize: 24),
@@ -225,9 +257,9 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                       final isSelected = medicine == _selectedMedicine;
                       final itemStyle = isSelected
                           ? const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            )
+                        color: Colors.grey,
+                        fontSize: 14,
+                      )
                           : null;
 
                       return DropdownMenuItem<Medicine>(
@@ -252,11 +284,13 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                               '${medicine.medicineBrand} ${medicine.medicineDosage}',
                               style: isSelected
                                   ? const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey,
-                                    )
+                                fontSize: 16,
+                                color: Colors.grey,
+                              )
                                   : const TextStyle(
-                                      fontSize: 16, color: Colors.grey),
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         ),
@@ -269,54 +303,91 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                     },
                   ),
                   const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      _selectedMedicine != null
-                          ? '${_selectedMedicine!.medicineName} (${_selectedMedicine!.medicineDosage}, ${_selectedMedicine!.medicineType})'
-                          : 'Selected Medicine: ',
-                      style: const TextStyle(fontSize: 20),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Dropdown button for selecting frequency
+                      Container(
+                        width: 250,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.grey.withOpacity(0.5)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0), // Add padding here
+                          child: DropdownButton<String>(
+                            underline: Container(),
+                            isExpanded: true,
+                            hint: const Text(
+                              'Select frequency',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            value: _selectedFrequency,
+                            items: <String>[
+                              'daily',
+                              'every other day',
+                              'BID/b.i.d. (twice a day)',
+                              'TID/t.id. (three times a day)',
+                              'QID/q.i.d. (four times a day)',
+                              'QHS (every bedtime)',
+                              'Q4h (every 4 hours)',
+                              'Q4-6h (every 4 to 6 hours)',
+                              'QWK (every week)',
+                            ].map((frequency) {
+                              return DropdownMenuItem<String>(
+                                value: frequency,
+                                child: Text(frequency),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedFrequency = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      // Text field for selecting a date
+                      Container(
+                        width: 250,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.grey.withOpacity(0.5)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0), // Add padding here
+                          child: TextField(
+                            readOnly: true,
+                            controller: TextEditingController(
+                              text: _selectedDate == null
+                                  ? 'Tap to select date'
+                                  : _selectedDate!.toString().split(' ')[0],
+                            ),
+                            onTap: () {
+                              showDatePicker(
+                                context: context,
+                                initialDate: _selectedDate ?? DateTime.now(),
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime(2100),
+                              ).then((value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _selectedDate = value;
+                                  });
+                                }
+                              });
+                            },
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.only(left: 12.0, top: 12.0, bottom: 12.0), // Adjust vertical padding here
+                              suffixIcon: Icon(Icons.calendar_today),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  DropdownButton<String>(
-                    hint: const Text(
-                      'Select frequency',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    value: _selectedFrequency,
-                    items: <String>[
-                      'daily',
-                      'every other day',
-                      'BID/b.i.d. (twice a day)',
-                      'TID/t.id. (three times a day)',
-                      'QID/q.i.d. (four times a day)',
-                      'QHS (every bedtime)',
-                      'Q4h (every 4 hours)',
-                      'Q4-6h (every 4 to 6 hours)',
-                      'QWK (every week)',
-                    ].map((frequency) {
-                      return DropdownMenuItem<String>(
-                        value: frequency,
-                        child: Text(frequency),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedFrequency = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    _selectedFrequency != null
-                        ? '$_selectedFrequency'
-                        : 'Selected Frequency:',
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 50),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -327,15 +398,16 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
-                          ), backgroundColor: const Color(0xff66d0ed),
+                          ),
+                          backgroundColor: const Color(0xff66d0ed),
                           padding: const EdgeInsets.symmetric(
-                              vertical: 16, horizontal: 24),
+                            vertical: 16,
+                            horizontal: 24,
+                          ),
                         ),
                         child: const Text('Add Selected Medicine'),
                       ),
-                      const SizedBox(
-                        width: 30,
-                      ),
+                      const SizedBox(width: 30),
                       ElevatedButton(
                         onPressed: () {
                           viewPatientMedicine();
@@ -343,18 +415,20 @@ class _MedicineSelectionPageState extends State<MedicineSelectionPage> {
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
-                          ), backgroundColor: const Color(0xff66d0ed),
+                          ),
+                          backgroundColor: const Color(0xff66d0ed),
                           padding: const EdgeInsets.symmetric(
-                              vertical: 16, horizontal: 24),
+                            vertical: 16,
+                            horizontal: 24,
+                          ),
                         ),
                         child: const Text('View Patient Medicine'),
                       )
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
-          ),
-        ));
+        )));
   }
 }
