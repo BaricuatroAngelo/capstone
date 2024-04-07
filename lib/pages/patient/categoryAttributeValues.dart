@@ -119,6 +119,8 @@ class catAttValuesState extends State<catAttValues> {
     } else if (_attributes.isEmpty) {
       return const Center(child: Text('No data available'));
     } else {
+      _attributes.sort((a, b) => a.categoryAtt_returnName.compareTo(b.categoryAtt_returnName));
+
       return ListView.builder(
         itemCount: _attributes.length,
         itemBuilder: (context, index) {
@@ -135,28 +137,54 @@ class catAttValuesState extends State<catAttValues> {
             ), // Set default value if attribute value not found
           );
 
-          // var displayValue = attributeValue.attributeVal_values;
-          // if (_attributes[index].categoryAtt_dataType == 'boolean') {
-          //   displayValue = displayValue == '1' ? 'Yes' : 'No';
-          // }
+          var displayValue = attributeValue.attributeVal_values;
+          if (_attributes[index].categoryAtt_dataType == 'boolean') {
+            displayValue = displayValue == '1' ? 'Present' : 'Absent';
+          }
+
+          // Check if attribute name contains 'specify'
+          final bool isSpecify = attributeName.toLowerCase().contains('specify');
 
           return Card(
             elevation: 2,
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
             child: ListTile(
-              title: Text(
-                attributeName,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
+              title: GestureDetector(
+                onTap: () {
+                  if (isSpecify) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text(attributeName),
+                          content: Text(attributeValue.attributeVal_values),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('Close'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+                child: Text(
+                  attributeName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                  overflow: TextOverflow.visible,
                 ),
               ),
               trailing: Text(
-                attributeValue as String,
+                displayValue,
                 style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 24,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           );
@@ -164,6 +192,7 @@ class catAttValuesState extends State<catAttValues> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
