@@ -9,6 +9,7 @@ import 'dart:convert';
 import '../design/containers/widgets/urlWidget.dart';
 import '../providers/constants.dart';
 import 'Models/Patient/patient.dart';
+import 'Models/Patient/residentAssignedPatient.dart';
 import 'PatientInfoPage.dart';
 
 class SearchPatientPage extends StatefulWidget {
@@ -26,6 +27,7 @@ class SearchPatientPage extends StatefulWidget {
 class _SearchPatientPageState extends State<SearchPatientPage> {
   List<Patient> _patients = [];
   List<Patient> _filteredPatients = [];
+  List<ResAssPat> _resAssPat = [];
   final SortType _sortType = SortType.Name;
   final bool _isNameAscending = true;
   final TextEditingController _searchController = TextEditingController();
@@ -73,26 +75,45 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
   void initState() {
     super.initState();
     _fetchPatients();
-
+    _fetchResidentAssignedPatients();
     // Start the timer to fetch data every 3 seconds
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       _fetchPatients();
     });
   }
 
-  @override
-  void dispose() {
-    // Cancel the timer when the widget is disposed
-    _timer.cancel();
-    super.dispose();
+
+// Function to fetch Resident Assigned Patients
+  Future<void> _fetchResidentAssignedPatients() async {
+    final url = Uri.parse('${Env.prefix}/api/residentAssignedPatients/get/PatientsAssignedToResident');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer ${widget.authToken}'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body);
+
+        setState(() {
+          _resAssPat = responseData.map((data) => ResAssPat.fromJson(data)).toList();
+          _isLoading = false;
+          print(responseData);
+        });
+      } else {
+        setState(() {
+          _showSnackBar ('Failed to fetch Resident Assigned Patients.');
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _showSnackBar('An error occurred while fetching Resident Assigned Patients.');
+        _isLoading = false;
+      });
+    }
   }
-
-
-  // void _scrollListener() {
-  //   if (_scrollController.position.pixels == 0) {
-  //     _fetchPatients();
-  //   }
-  // }
 
   Future<void> _fetchPatients() async {
     final url = Uri.parse('${Env.prefix}/api/patients');
@@ -105,9 +126,18 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
+
+        // Get all patient IDs assigned to the resident
+        final assignedPatientIds = _resAssPat.map((resAssPat) => resAssPat.patientId).toList();
+
+        // Filter the list of all patients to retain only those with matching patient IDs
+        final filteredPatients = responseData
+            .map((data) => Patient.fromJson(data))
+            .where((patient) => assignedPatientIds.contains(patient.patientId))
+            .toList();
+
         setState(() {
-          _patients =
-              responseData.map((data) => Patient.fromJson(data)).toList();
+          _patients = filteredPatients;
           _filteredPatients = List.from(_patients);
           _isLoading = false;
         });
@@ -125,6 +155,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
       print(e);
     }
   }
+
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -170,6 +201,13 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
         ),
       );
     });
+  }
+
+  @override
+  void dispose() {
+    // Cancel the timer when the widget is disposed
+    _timer.cancel();
+    super.dispose();
   }
 
   @override

@@ -400,176 +400,78 @@ class HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: _assignedRooms.map((assignedRoom) {
-                          return Container(
-                            width: 150,
-                            height: 120,
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            child: GestureDetector(
-                              onTap: () {
-                                if (assignedRoom.roomId.startsWith('RAE')) {
-                                  _navigateToWardPatientPage(
-                                      assignedRoom.roomId);
-                                } else {
-                                  _navigateToPatientDetailPage(
-                                      assignedRoom.roomId);
-                                }
-                              },
-                              child: Card(
-                                elevation: 7,
-                                shadowColor: const Color(0xff82eefd),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          'Room ${assignedRoom.roomId}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize:
-                                                _calculateFontSize(context),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      const Center(
-                                        child: Icon(
-                                          Icons.hotel,
-                                          size: 60,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                    Accordion(
+                      scaleWhenAnimating: true,
+                      openAndCloseAnimation: true,
+                      headerPadding: const EdgeInsets.symmetric(
+                          vertical: 7, horizontal: 15),
+                      sectionClosingHapticFeedback: SectionHapticFeedback.light,
+                      sectionOpeningHapticFeedback: SectionHapticFeedback.heavy,
+                      children: [
+                        AccordionSection(
+                          headerBackgroundColor: const Color(0xff82eefd),
+                          headerBackgroundColorOpened: const Color(0xff66d0ed),
+                          header: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 20, top: 10, bottom: 10),
+                            child: Text(
+                              'Assigned Rooms',
+                              style: TextStyle(
+                                fontSize: _calculateFontSize(context),
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(
-                          left: 20, right: 20, top: 30, bottom: 30),
-                      child: Divider(
-                        thickness: 2,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Text(
-                        'Floors:',
-                        style: TextStyle(
-                            fontSize: _calculateFontSize(context),
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    SingleChildScrollView(
-                      child: Accordion(
-                        scaleWhenAnimating: true,
-                        openAndCloseAnimation: true,
-                        headerPadding: const EdgeInsets.symmetric(
-                            vertical: 7, horizontal: 15),
-                        sectionClosingHapticFeedback: SectionHapticFeedback.light,
-                        sectionOpeningHapticFeedback: SectionHapticFeedback.heavy,
-                        children: [
-                          for (var floorEntry in _roomsByFloor.entries)
-                            AccordionSection(
-                              headerBackgroundColor: const Color(0xff82eefd),
-                              headerBackgroundColorOpened:
-                              const Color(0xff66d0ed),
-                              header: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 20, top: 10, bottom: 10),
-                                child: Text(
-                                  floorEntry.key,
-                                  style: TextStyle(
-                                    fontSize: _calculateFontSize(context),
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              content: SingleChildScrollView(
-                                child: SizedBox(
-                                  height: 200, // Set the height you desire
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.vertical,
-                                    itemCount: (floorEntry.value.length / 3).ceil(),
-                                    itemBuilder: (context, rowIndex) {
-                                      final startIdx = rowIndex * 3;
-                                      final endIdx = (rowIndex * 3 + 3)
-                                          .clamp(0, floorEntry.value.length);
-                                      final rowRooms = floorEntry.value
-                                          .sublist(startIdx, endIdx);
-
-                                      return Column(
+                          ),
+                          content: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: _assignedRooms.map((assignedRoom) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    if (assignedRoom.roomId.startsWith('RAE')) {
+                                      _navigateToWardPatientPage(assignedRoom.roomId);
+                                    } else {
+                                      _navigateToPatientDetailPage(assignedRoom.roomId);
+                                    }
+                                  },
+                                  child: Card(
+                                    elevation: 7,
+                                    shadowColor: const Color(0xff82eefd),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Row(
-                                            children: rowRooms.map((room) {
-                                              return Container(
-                                                width: 150,
-                                                height: 100,
-                                                margin: const EdgeInsets.only(left: 30),
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    if (room.roomId.startsWith('RAE')) {
-                                                      _navigateToWardPatientPage(
-                                                          room.roomId);
-                                                    } else {
-                                                      _navigateToPatientDetailPage(
-                                                          room.roomId);
-                                                    }
-                                                  },
-                                                  child: Card(
-                                                    elevation: 7,
-                                                    shadowColor:
-                                                    const Color(0xff82eefd),
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                      BorderRadius.circular(8),
-                                                    ),
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.all(8),
-                                                      child: Center(
-                                                        child: Text(
-                                                          'Room ${room.roomId}',
-                                                          style: TextStyle(
-                                                            fontWeight: FontWeight.w700,
-                                                            fontSize:
-                                                            _calculateFontSize(
-                                                                context),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            }).toList(),
+                                          Center(
+                                            child: Text(
+                                              'Room ${assignedRoom.roomId}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: _calculateFontSize(context),
+                                              ),
+                                            ),
                                           ),
-                                          const SizedBox(height: 10), // Add space between rows
+                                          const SizedBox(height: 8),
+                                          const Center(
+                                            child: Icon(
+                                              Icons.hotel,
+                                              size: 60,
+                                            ),
+                                          ),
                                         ],
-                                      );
-                                    },
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
+                                );
+                              }).toList(),
                             ),
-                        ],
-                      ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
