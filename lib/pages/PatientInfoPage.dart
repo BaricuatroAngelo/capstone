@@ -228,7 +228,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
         ElegantNotification.error(
             position: Alignment.topCenter,
             animation: AnimationType.fromTop,
-            description: const Text('Failed to checkout patient',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+            description: const Text('Failed to discharge patient',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
             .show(context);
       }
     } catch (e) {
@@ -236,7 +236,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
       ElegantNotification.error(
           position: Alignment.topCenter,
           animation: AnimationType.fromTop,
-          description: const Text('An error occurred during checkout',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
+          description: const Text('An error occurred. Please try again.',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))
           .show(context);
       print('Exception during checkout: $e');
     }
@@ -253,7 +253,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
             style: TextStyle(fontSize: 24),
           ),
           content: const Text(
-            'Are you sure you want to checkout this patient?',
+            'Are you sure you want to discharge this patient?',
             style: TextStyle(fontSize: 24),
           ),
           actions: <Widget>[
@@ -591,7 +591,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
         },
         tooltip: 'PhysExam',
         backgroundColor: const Color(0xff66d0ed),
-        child: const Icon(Icons.tab),
+        child: const Icon(Icons.accessibility),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
