@@ -201,6 +201,8 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
         patient: widget.patient,
         authToken: widget.authToken,
         patientId: widget.patientId,
+        // residentId: widget.residentId,
+        // residentId: widget.residentId,
       ),
     ));
   }
@@ -545,7 +547,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
                 EdgeInsets.only(top: centerPosition + 240, left: 100, right: 0),
             child: GestureDetector(
               onTap: () {
-                navigateToResultsPage();
+                navigateToPhysicalExamPage();
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -565,13 +567,13 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.analytics,
+                      Icons.accessibility_new,
                       color: Colors.white,
                       size: 40,
                     ),
                     SizedBox(width: 10),
                     Text(
-                      'Results',
+                      'Patient Physical Exam',
                       style: TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
@@ -587,11 +589,11 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          navigateToPhysicalExamPage();
+          navigateToResultsPage();
         },
         tooltip: 'PhysExam',
         backgroundColor: const Color(0xff66d0ed),
-        child: const Icon(Icons.accessibility),
+        child: const Icon(Icons.analytics, color: Colors.white,),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

@@ -61,7 +61,7 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
     residentPassword: '',
     role: '',
     departmentId: '',
-    residentGender: '', isDeleted: 0, departmentName: '',
+    residentGender: '', isDeleted: 0, departmentName: '', residentMName: '',
   );
   bool _isLoading = true;
 
@@ -72,40 +72,71 @@ class ChiefProfilePageState extends State<ChiefProfilePage> {
   }
 
   Future<void> _fetchResidentData() async {
-    final url = Uri.parse('${Env.prefix}/api/residents');
+    final residentUrl = Uri.parse('${Env.prefix}/api/residents');
+    final departmentUrl = Uri.parse('${Env.prefix}/api/departments');
 
     try {
-      final response = await http.get(
-        url,
+      final residentResponse = await http.get(
+        residentUrl,
         headers: {'Authorization': 'Bearer ${widget.authToken}'},
       );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> residentsData = json.decode(response.body);
+      final departmentResponse = await http.get(
+        departmentUrl,
+        headers: {'Authorization': 'Bearer ${widget.authToken}'},
+      );
 
-        final List<dynamic> filteredResidents = residentsData
+      if (residentResponse.statusCode == 200 && departmentResponse.statusCode == 200) {
+        final List<dynamic> residentsData = json.decode(residentResponse.body);
+        final List<dynamic> departmentsData = json.decode(departmentResponse.body);
+
+        final filteredResidents = residentsData
             .where((resident) => resident['resident_id'] == widget.residentId)
             .toList();
 
         if (filteredResidents.isNotEmpty) {
           final residentData = filteredResidents.first;
           final resident = Resident.fromJson(residentData);
+
+          // Find the matching department name
+          final department = departmentsData.firstWhere(
+                (dept) => dept['department_id'] == resident.departmentId,
+            orElse: () => null,
+          );
+
+          final departmentName = department?['department_name'] ?? '';
+
+          final updatedResident = Resident(
+            residentId: resident.residentId,
+            residentUserName: resident.residentUserName,
+            residentFName: resident.residentFName,
+            residentLName: resident.residentLName,
+            residentPassword: resident.residentPassword,
+            role: resident.role,
+            departmentId: resident.departmentId,
+            residentGender: resident.residentGender,
+            isDeleted: resident.isDeleted,
+            departmentName: departmentName, residentMName: resident.residentMName,
+          );
+
           setState(() {
             _isLoading = false;
-            _resident = resident;
+            _resident = updatedResident;
           });
         } else {
-          print(response.body);
           _showSnackBar('Resident not found');
         }
       } else {
-        _showSnackBar('Failed to fetch residents data');
+        _showSnackBar('Failed to fetch data');
       }
     } catch (e) {
       print(e);
       _showSnackBar('An error occurred. Please try again later.');
     }
   }
+
+
+
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(

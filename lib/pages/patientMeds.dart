@@ -28,20 +28,37 @@ class _PatientMedicineListPageState extends State<PatientMedicineListPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(medicine.medicineName ?? 'Unknown Medicine'),
+          title: Text(
+            medicine.medicineName ?? 'Unknown Medicine',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold), // Increased text size for title
+          ),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Brand: ${medicine.medicineBrand ?? "Unknown Brand"}'),
-              Text('Dosage: ${medicine.medicineDosage ?? "Unknown Dosage"}'),
-              Text('Price: ${medicine.medicinePrice ?? "Unknown Price"}'),
-              Text('Type: ${medicine.medicineType ?? "Unknown Type"}'),
+              Text(
+                'Brand: ${medicine.medicineBrand ?? "Unknown Brand"}',
+                style: TextStyle(fontSize: 18), // Increased text size
+              ),
+              Text(
+                'Dosage: ${medicine.medicineDosage ?? "Unknown Dosage"}',
+                style: TextStyle(fontSize: 18),
+              ),
+              Text(
+                'Price: ${medicine.medicinePrice ?? "Unknown Price"}',
+                style: TextStyle(fontSize: 18),
+              ),
+              Text(
+                'Type: ${medicine.medicineType ?? "Unknown Type"}',
+                style: TextStyle(fontSize: 18),
+              ),
               Text(
                 'Frequency: ${patientMedicine.medicineFrequency}',
+                style: TextStyle(fontSize: 18),
               ),
               Text(
                 'End Date: ${patientMedicine.patientMedicineDate != null ? DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.parse(patientMedicine.patientMedicineDate!)) : "Unknown"}',
+                style: TextStyle(fontSize: 18),
               ),
             ],
           ),
@@ -50,7 +67,10 @@ class _PatientMedicineListPageState extends State<PatientMedicineListPage> {
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text('Close'),
+              child: Text(
+                'Close',
+                style: TextStyle(fontSize: 18), // Increased text size for the button
+              ),
             ),
           ],
         );
@@ -143,7 +163,7 @@ class _PatientMedicineListPageState extends State<PatientMedicineListPage> {
                       ],
                     ),
                     trailing: IconButton(
-                      icon: const Icon(Icons.edit),
+                      icon: const Icon(Icons.info_outline),
                       onPressed: () {
                         _showMedicineDetails(medicine, patientMedicine);
                       },

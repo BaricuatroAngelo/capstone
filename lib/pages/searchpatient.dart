@@ -85,7 +85,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
 
 // Function to fetch Resident Assigned Patients
   Future<void> _fetchResidentAssignedPatients() async {
-    final url = Uri.parse('${Env.prefix}/api/residentAssignedPatients/get/PatientsAssignedToResident');
+    final url = Uri.parse('${Env.prefix}/api/residentAssignedPatients');
 
     try {
       final response = await http.get(
@@ -95,7 +95,7 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
-
+        print(response.body);
         setState(() {
           _resAssPat = responseData.map((data) => ResAssPat.fromJson(data)).toList();
           _isLoading = false;
@@ -142,10 +142,6 @@ class _SearchPatientPageState extends State<SearchPatientPage> {
           _isLoading = false;
         });
       } else {
-        _showSnackBar('Failed to fetch patients');
-        setState(() {
-          _isLoading = false;
-        });
       }
     } catch (e) {
       _showSnackBar('An error occurred. Please try again later.');

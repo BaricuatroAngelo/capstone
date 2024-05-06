@@ -62,7 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
     residentPassword: '',
     role: '',
     departmentId: '',
-    residentGender: '', isDeleted: 0, departmentName: '',
+    residentGender: '', isDeleted: 0, departmentName: '', residentMName: '',
   );
   bool _isLoading = true;
 
@@ -117,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
             departmentId: resident.departmentId,
             residentGender: resident.residentGender,
             isDeleted: resident.isDeleted,
-            departmentName: departmentName,
+            departmentName: departmentName, residentMName: resident.residentMName,
           );
 
           setState(() {
@@ -224,12 +224,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     buildProfileInfoTile(
                         'Resident ID', _resident.residentId),
+                    const SizedBox(height: 10,),
                     buildProfileInfoTile(
                         'Resident Name', '${_resident.residentFName} ${_resident.residentLName}'),
+                    const SizedBox(height: 10,),
                     buildProfileInfoTile(
                         'Username', _resident.residentUserName),
+                    const SizedBox(height: 10,),
                     buildProfileInfoTile(
                         'Dept Name', _resident.departmentName),
+                    const SizedBox(height: 10,),
                     buildProfileInfoTile('Role', _resident.role),
                   ],
                 ),

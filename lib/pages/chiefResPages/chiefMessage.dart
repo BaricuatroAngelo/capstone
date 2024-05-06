@@ -9,7 +9,6 @@ import '../Models/Patient/chatGroupUsers.dart';
 import '../Models/resident.dart';
 import 'chiefResMessageOther.dart';
 
-
 class ChiefMessagePage extends StatefulWidget {
   final String authToken;
   final String residentId;
@@ -32,7 +31,8 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
   late Timer _timer;
 
   Future<void> fetchChatGroup() async {
-    final createChatGroupUrl = Uri.parse('${Env.prefix}/api/chatGroupUsers/get/allGroups');
+    final createChatGroupUrl =
+        Uri.parse('${Env.prefix}/api/chatGroupUsers/get/allGroups');
     try {
       final response = await http.get(
         createChatGroupUrl,
@@ -46,7 +46,7 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
         final List<chatGroupUsers> chats =
-        responseData.map((data) => chatGroupUsers.fromJson(data)).toList();
+            responseData.map((data) => chatGroupUsers.fromJson(data)).toList();
         // Filtering out chats where residentId matches the current user's residentId
         final filteredChats = chats
             .where((chat) => chat.residentId != widget.residentId)
@@ -80,16 +80,16 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
 
         if (responseData is List) {
           setState(() {
-            _residents = responseData
-                .map((data) => Resident.fromJson(data))
-                .toList();
+            _residents =
+                responseData.map((data) => Resident.fromJson(data)).toList();
 
             // Filter out residents who are already in a chat group
             _filteredResidents = _residents
                 .where((resident) =>
-            !_chatGroups.any((chatGroup) =>
-            chatGroup.residentId == resident.residentId) &&
-                resident.residentId != widget.residentId) // Exclude current resident
+                    !_chatGroups.any((chatGroup) =>
+                        chatGroup.residentId == resident.residentId) &&
+                    resident.residentId !=
+                        widget.residentId) // Exclude current resident
                 .toList();
           });
         } else {
@@ -105,15 +105,12 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
         });
       }
     } catch (e) {
-      _showSnackBar('An error occurred. Please try again later.');
       setState(() {
         isLoading = false;
       });
       print(e);
     }
   }
-
-
 
   Future<void> _createChatGroup(Resident selectedResident) async {
     final createChatGroupUrl = Uri.parse('${Env.prefix}/api/chatGroupUsers');
@@ -160,7 +157,10 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
         if (_filteredResidents.isEmpty) {
           return AlertDialog(
             title: const Text('No Residents Found'),
-            content: const Text('There are no available residents to select.', style: TextStyle(fontSize: 20),),
+            content: const Text(
+              'There are no available residents to select.',
+              style: TextStyle(fontSize: 20),
+            ),
             actions: [
               TextButton(
                 onPressed: () {
@@ -175,13 +175,15 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
             title: const Text('Select Resident'),
             content: SingleChildScrollView(
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.8, // Set width to 80% of the screen width
+                width: MediaQuery.of(context).size.width *
+                    0.8, // Set width to 80% of the screen width
                 child: ListBody(
                   children: _filteredResidents.map((Resident resident) {
                     return ListTile(
                       title: Text(resident.residentUserName),
                       onTap: () {
-                        Navigator.pop(context, resident); // Return the selected resident
+                        Navigator.pop(
+                            context, resident); // Return the selected resident
                       },
                     );
                   }).toList(),
@@ -198,11 +200,9 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
     });
   }
 
-
-
   void navigateToMessageResident(String chatId) {
     chatGroupUsers? selectedChatGroup =
-    _chatGroups.firstWhere((group) => group.chatGroupId == chatId);
+        _chatGroups.firstWhere((group) => group.chatGroupId == chatId);
 
     String? associatedResidentId = selectedChatGroup.residentId;
 
@@ -227,8 +227,19 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
 
   Resident? findResidentById(String residentId) {
     return _residents.firstWhere(
-          (resident) => resident.residentId == residentId,
-      orElse: () => Resident(residentId: '', residentUserName: '', residentFName: '', residentLName: '', residentPassword: '', role: '', departmentId: '', residentGender: '', isDeleted: 0, departmentName: ''),
+      (resident) => resident.residentId == residentId,
+      orElse: () => Resident(
+          residentId: '',
+          residentUserName: '',
+          residentFName: '',
+          residentLName: '',
+          residentPassword: '',
+          role: '',
+          departmentId: '',
+          residentGender: '',
+          isDeleted: 0,
+          departmentName: '',
+          residentMName: ''),
     );
   }
 
@@ -307,45 +318,52 @@ class _ChiefMessagePageState extends State<ChiefMessagePage> {
             ),
             _chatGroups.isNotEmpty
                 ? Padding(
-              padding: const EdgeInsets.only(top: 20, left: 30, right: 30),
-              child: ListView.builder(
-                itemCount: _chatGroups.length,
-                itemBuilder: (context, index) {
-                  final chatGroup = _chatGroups[index];
-                  final resident = findResidentById(chatGroup.residentId);
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    child: Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        tileColor: Colors.white,
-                        leading: const CircleAvatar(
-                          backgroundColor: Colors.blue,
-                          child: Icon(
-                            Icons.person, // Replace 'CG' with person icon
-                            color: Colors.white,
+                    padding:
+                        const EdgeInsets.only(top: 20, left: 30, right: 30),
+                    child: ListView.builder(
+                      itemCount: _chatGroups.length,
+                      itemBuilder: (context, index) {
+                        final chatGroup = _chatGroups[index];
+                        final resident = findResidentById(chatGroup.residentId);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8),
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              tileColor: Colors.white,
+                              leading: const CircleAvatar(
+                                backgroundColor: Colors.blue,
+                                child: Icon(
+                                  Icons.person, // Replace 'CG' with person icon
+                                  color: Colors.white,
+                                ),
+                              ),
+                              title: Text(
+                                resident != null
+                                    ? '${resident.residentFName} ${resident.residentLName}'
+                                    : 'Unknown Resident',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 20),
+                              ),
+                              onTap: () {
+                                navigateToMessageResident(
+                                    chatGroup.chatGroupId);
+                              },
+                            ),
                           ),
-                        ),
-                        title: Text(
-                          resident != null ? '${resident.residentFName} ${resident.residentLName}' : 'Unknown Resident',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
-                        onTap: () {
-                          navigateToMessageResident(chatGroup.chatGroupId);
-                        },
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            )
+                  )
                 : const Center(
-              child: CircularProgressIndicator(),
-            ),
+                    child: CircularProgressIndicator(),
+                  ),
           ],
         ),
         floatingActionButton: FloatingActionButton.extended(

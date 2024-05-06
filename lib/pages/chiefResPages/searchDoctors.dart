@@ -165,7 +165,7 @@ class _SearchResidentPageState extends State<SearchResidentPage> {
   void _onResidentSelected(Resident resident) {
     AssignedRoom? room = _allAssignedRooms.firstWhere(
           (room) => room.residentId == resident.residentId,
-      orElse: () => AssignedRoom(assignedRoomId: '', roomId: '', residentId: ''),
+      orElse: () => AssignedRoom(assignedRoomId: '', roomId: '', residentId: '', isFinished: 0),
     );
 
     Navigator.push(

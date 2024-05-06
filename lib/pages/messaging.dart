@@ -227,7 +227,7 @@ class _MessagePageState extends State<MessagePage> {
   Resident? findResidentById(String residentId) {
     return _residents.firstWhere(
           (resident) => resident.residentId == residentId,
-      orElse: () => Resident(residentId: '', residentUserName: '', residentFName: '', residentLName: '', residentPassword: '', role: '', departmentId: '', residentGender: '', isDeleted: 0, departmentName: ''),
+      orElse: () => Resident(residentId: '', residentUserName: '', residentFName: '', residentLName: '', residentPassword: '', role: '', departmentId: '', residentGender: '', isDeleted: 0, departmentName: '', residentMName: ''),
     );
   }
 

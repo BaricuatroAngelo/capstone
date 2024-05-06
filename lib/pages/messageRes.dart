@@ -253,7 +253,6 @@ class _MessageResState extends State<MessageRes> {
                                 overflow: TextOverflow.visible,
                               ),
                             ),
-
                           ],
                         ),
                       ],

@@ -79,6 +79,8 @@ class ChiefHomePageState extends State<ChiefHomePage> {
     _fetchAllAssignedRooms();
   }
 
+
+
   Map<String, List<Room>> _roomsByFloor = {};
 
   Future<void> _fetchRooms() async {
@@ -160,8 +162,6 @@ class ChiefHomePageState extends State<ChiefHomePage> {
         _showSnackBar('Failed to fetch residents data');
       }
     } catch (e) {
-      print(e);
-      _showSnackBar('An error occurred. Please try again later.');
     }
   }
 
@@ -231,12 +231,11 @@ class ChiefHomePageState extends State<ChiefHomePage> {
         _showSnackBar('Failed to fetch assigned rooms');
       }
     } catch (e) {
-      print(e);
-      _showSnackBar('An error occurred. Please try again later.');
     }
   }
 
   void _navigateToPatientDetailPage(String roomId) async {
+    print(roomId);
     try {
       final patientHealthRecordResponse = await http.get(
         Uri.parse('${Env.prefix}/api/patAssRooms/getPatientbyRoom/$roomId'),
@@ -244,18 +243,19 @@ class ChiefHomePageState extends State<ChiefHomePage> {
       );
 
       if (patientHealthRecordResponse.statusCode == 200) {
-        final List<dynamic> patientDataList =
-        jsonDecode(patientHealthRecordResponse.body);
+        final dynamic responseData = jsonDecode(patientHealthRecordResponse.body);
+        print(responseData);
 
-        if (patientDataList.isNotEmpty) {
-          dynamic patientData = patientDataList.firstWhere(
-                (data) => data['room_id'] == roomId,
-            orElse: () => null,
-          );
+        if (responseData is Map && responseData.containsKey('message')) {
 
-          if (patientData != null) {
-            String patientId = patientData['patient_id'];
-            Patient patientHealthRecord = Patient.fromJson(patientData);
+          _showNoPatientDialog(context, roomId);
+        } else {
+
+          final List<dynamic> patientList = responseData;
+          if (patientList.isNotEmpty) {
+            final dynamic patientData = patientList[0];
+            final Patient patientHealthRecord = Patient.fromJson(patientData);
+            final String patientId = patientHealthRecord.patientId;
 
             Navigator.push(
               context,
@@ -271,8 +271,6 @@ class ChiefHomePageState extends State<ChiefHomePage> {
           } else {
             _showNoPatientDialog(context, roomId);
           }
-        } else {
-          _showNoPatientDialog(context, roomId);
         }
       } else {
         _showNoPatientDialog(context, roomId);
@@ -297,6 +295,8 @@ class ChiefHomePageState extends State<ChiefHomePage> {
       if (patientHealthRecordResponse.statusCode == 200) {
         final List<dynamic> patientDataList =
         jsonDecode(patientHealthRecordResponse.body);
+
+        print(patientDataList);
 
         if (patientDataList.isNotEmpty) {
           dynamic patientData = patientDataList.firstWhere(
@@ -449,7 +449,7 @@ class ChiefHomePageState extends State<ChiefHomePage> {
                             child: GestureDetector(
                               onTap: () {
                                 if (assignedRoom.roomId.startsWith('RAE')) {
-                                  _navigateToWardPatientPage(
+                                  _navigateToPatientDetailPage(
                                       assignedRoom.roomId);
                                 } else {
                                   _navigateToPatientDetailPage(
@@ -545,7 +545,7 @@ class ChiefHomePageState extends State<ChiefHomePage> {
                                   return GestureDetector(
                                     onTap: () {
                                       if (assignedRoom.roomId.startsWith('RAE')) {
-                                        _navigateToWardPatientPage(assignedRoom.roomId);
+                                        _navigateToPatientDetailPage(assignedRoom.roomId);
                                       } else {
                                         _navigateToPatientDetailPage(assignedRoom.roomId);
                                       }

@@ -30,7 +30,6 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   Resident? _resident;
   List<AssignedRoom> _assignedRooms = [];
-  late Timer _timer;
 
   double _calculateContainerHeight(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -90,8 +89,7 @@ class HomePageState extends State<HomePage> {
         _showSnackBar('Failed to fetch rooms');
       }
     } catch (e) {
-      _showSnackBar('An error occurred. Please try again later.');
-      print(e);
+
     }
   }
 
@@ -148,8 +146,7 @@ class HomePageState extends State<HomePage> {
         _showSnackBar('Failed to fetch residents data');
       }
     } catch (e) {
-      print(e);
-      _showSnackBar('An error occurred. Please try again later.');
+
     }
   }
 
@@ -180,8 +177,7 @@ class HomePageState extends State<HomePage> {
         _showSnackBar('Failed to fetch assigned rooms');
       }
     } catch (e) {
-      print(e);
-      _showSnackBar('An error occurred. Please try again later.');
+
     }
   }
 
@@ -239,17 +235,12 @@ class HomePageState extends State<HomePage> {
     _fetchAssignedRooms();
     _fetchRooms();
 
-    // Start the timer to fetch data every 3 seconds
-    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      _fetchAssignedRooms();
-    });
   }
 
   @override
   void dispose() {
     super.dispose();
-    // Cancel the timer when the widget is disposed
-    _timer.cancel();
+
   }
 
 
@@ -423,52 +414,55 @@ class HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
-                          content: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: _assignedRooms.map((assignedRoom) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    if (assignedRoom.roomId.startsWith('RAE')) {
-                                      _navigateToWardPatientPage(assignedRoom.roomId);
-                                    } else {
-                                      _navigateToPatientDetailPage(assignedRoom.roomId);
-                                    }
-                                  },
-                                  child: Card(
-                                    elevation: 7,
-                                    shadowColor: const Color(0xff82eefd),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Center(
-                                            child: Text(
-                                              'Room ${assignedRoom.roomId}',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: _calculateFontSize(context),
-                                              ),
-                                            ),
+                          content: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(), // Prevents nested scrolling
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3, // Three cards per row
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 1, // Ensures square cards
+                            ),
+                            itemCount: _assignedRooms.length,
+                            itemBuilder: (context, index) {
+                              final assignedRoom = _assignedRooms[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  if (assignedRoom.roomId.startsWith('RAE')) {
+                                    _navigateToWardPatientPage(assignedRoom.roomId);
+                                  } else {
+                                    _navigateToPatientDetailPage(assignedRoom.roomId);
+                                  }
+                                },
+                                child: Card(
+                                  elevation: 7,
+                                  shadowColor: const Color(0xff82eefd),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Room ${assignedRoom.roomId}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18,
                                           ),
-                                          const SizedBox(height: 8),
-                                          const Center(
-                                            child: Icon(
-                                              Icons.hotel,
-                                              size: 60,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        const Icon(
+                                          Icons.hotel,
+                                          size: 60,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                );
-                              }).toList(),
-                            ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],

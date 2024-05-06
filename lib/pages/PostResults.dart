@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:capstone/pages/Models/Patient/patient.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 import '../design/containers/widgets/urlWidget.dart';
+import 'Models/Patient/patient.dart';
 import 'Models/results.dart';
 
 class LabResultsPage extends StatefulWidget {
@@ -29,7 +29,7 @@ class _LabResultsPageState extends State<LabResultsPage> {
   TextEditingController labResultDateController = TextEditingController();
   TextEditingController resultsController = TextEditingController();
   String displayedResults = '';
-  List<Results> _results = [];
+  List<Results> _results = []; // List to store fetched results
   late Timer _timer;
 
   @override
@@ -39,53 +39,76 @@ class _LabResultsPageState extends State<LabResultsPage> {
     final formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
     labResultDateController.text = formattedDate;
 
-    // Start fetching data every 5 seconds
+    // Start fetching data every 10 seconds
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       fetchData();
     });
+
+    fetchData(); // Fetch initial data
   }
 
   @override
   void dispose() {
     super.dispose();
-
-    _timer.cancel();
+    _timer.cancel(); // Stop the timer when the widget is disposed
   }
 
   Future<void> fetchData() async {
-    final url =
-        Uri.parse('${Env.prefix}/api/results'); // Replace with your API URL
+    final url = Uri.parse('${Env.prefix}/api/results'); // Replace with your API URL
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer ${widget.authToken}',
-      },
-    );
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer ${widget.authToken}',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> resultsData = json.decode(response.body);
-      final List<Results> results =
-          resultsData.map((data) => Results.fromJson(data)).toList();
+      if (response.statusCode == 200) {
+        final List<dynamic> resultsData = json.decode(response.body);
+        final List<Results> allResults = resultsData.map((data) => Results.fromJson(data)).toList();
 
-      setState(() {
-        _results = results;
-        reloadPage();
-      });
-    } else {
+        // Filter results to only include those matching the specified patientId
+        final List<Results> filteredResults = allResults.where((result) {
+          return result.patientId == widget.patientId; // Match the patientId
+        }).toList();
+
+        setState(() {
+          _results = filteredResults; // Update _results with filtered results
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to fetch lab results.'),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Failed to fetch data. Please try again.'),
+          content: Text('An error occurred. Please try again later.'),
         ),
       );
     }
   }
 
   Future<void> _submitResults() async {
-    final url = Uri.parse('${Env.prefix}/api/results'); // Replace with your API URL
+    final url = Uri.parse('${Env.prefix}/api/results'); // Ensure the correct URL
 
     final currentDate = DateTime.now();
-    final formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDate); // Format the date as needed by your API
+    final formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDate);
+
+    final labResultText = resultsController.text.trim(); // Trim whitespace
+
+    if (labResultText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter lab results before submitting.'),
+          backgroundColor: Colors.red, // Optional: Change color for error messages
+        ),
+      );
+      return; // Early return to avoid sending empty data
+    }
 
     final response = await http.post(
       url,
@@ -94,8 +117,8 @@ class _LabResultsPageState extends State<LabResultsPage> {
       },
       body: {
         'labResultDate': formattedDate,
-        'results': resultsController.text,
-        'patient_id': widget.patientId,
+        'results': labResultText, // Use trimmed text
+        'patient_id': widget.patientId, // Ensure correct patient ID is submitted
       },
     );
 
@@ -106,73 +129,57 @@ class _LabResultsPageState extends State<LabResultsPage> {
         ),
       );
       setState(() {
-        displayedResults = resultsController.text;
-        resultsController.clear();
+        resultsController.clear(); // Clear the text field after submission
+        fetchData(); // Reload lab results after submission
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Failed to submit lab results. Please try again.'),
+          content: Text('Failed to submit lab results. Please try again later.'),
         ),
       );
     }
   }
 
-
-  Future<void> reloadPage() async {
-    await fetchData();
-    setState(() {}); // Trigger a rebuild of the UI
-  }
-
-  void _hideKeyboard() {
-    FocusScope.of(context).unfocus();
-  }
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+
     return GestureDetector(
-      onTap: _hideKeyboard,
+      onTap: () {
+        FocusScope.of(context).unfocus(); // Hide keyboard on tap
+      },
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xff66d0ed),
           elevation: 2,
           toolbarHeight: 80,
           title: const Center(
-            child: Padding(
-              padding: EdgeInsets.only(right: 30),
-              child: Text(
-                'Lab Results',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
+            child: Text(
+              'Lab Results',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
           ),
           actions: [
             IconButton(
-              onPressed: () {
-                reloadPage();
-              },
+              onPressed: fetchData, // Fetch data when refresh is clicked
               icon: const Icon(
                 Icons.refresh,
                 size: 30,
               ),
-            )
+            ),
           ],
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Lab Result Date:',
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -180,25 +187,21 @@ class _LabResultsPageState extends State<LabResultsPage> {
                   labResultDateController.text,
                   style: const TextStyle(
                     fontSize: 22,
-                    color: Colors.blue,
                     fontStyle: FontStyle.italic,
+                    color: Colors.blue,
                   ),
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Results:',
+                  'Lab Results:',
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
                 Container(
-                  padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.grey.withOpacity(0.6)),
                     boxShadow: [
                       BoxShadow(
@@ -207,29 +210,25 @@ class _LabResultsPageState extends State<LabResultsPage> {
                         offset: const Offset(10, 20),
                       ),
                     ],
-                    borderRadius: BorderRadius.circular(20),
-                    // Remove border
                   ),
                   child: TextFormField(
                     controller: resultsController,
-                    maxLines: 8,
-                    style: const TextStyle(fontSize: 18),
+                    maxLines: 6,
                     decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.all(16),
+                      hintText: 'Enter lab results',
                       border: InputBorder.none,
                     ),
                   ),
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {
-                    _hideKeyboard();
-                    _submitResults();
-                  },
+                  onPressed: _submitResults,
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
-                    ), backgroundColor: const Color(0xff66d0ed),
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                    ),
+                    backgroundColor: const Color(0xff66d0ed),
                   ),
                   child: const Text(
                     'Submit Results',
@@ -237,39 +236,39 @@ class _LabResultsPageState extends State<LabResultsPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  'Patient ${widget.patient.patientId} Results:',
-                  style: const TextStyle(
-                    fontSize: 30,
+                const Text(
+                  'Patient Lab Results:',
+                  style: TextStyle(
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 10),
                 Container(
-                  height: 500,
-                  width: screenWidth,
-                  padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey.withOpacity(0.6)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.09),
-                        blurRadius: 10,
-                        offset: const Offset(10, 20),
-                      ),
-                    ],
                     borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.withOpacity(0.6)),
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.black.withOpacity(0.09),
+                    //     blurRadius: 10,
+                    //     offset: const Offset(10, 20),
+                    //   ),
+                    // ],
                   ),
                   child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: _results.length,
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(), // Smooth scrolling
+                    itemCount: _results.length, // Display filtered results
                     itemBuilder: (context, index) {
-                      final results = _results[index];
+                      final result = _results[index];
                       return ListTile(
-                        title: Text(results.results, style: const TextStyle(fontSize: 24),),
-                        subtitle: Text(results.labResultDate, style: const TextStyle(fontSize: 24),),
-                        trailing: Text(results.patientId, style: const TextStyle(fontSize: 24),),
+                        title: Text(result.results),
+                        subtitle: Text(
+                          DateFormat.yMMMEd().format(
+                            DateTime.parse(result.labResultDate),
+                          ),
+                        ),
+                        trailing: Text('Patient ID: ${result.patientId}'),
                       );
                     },
                   ),
